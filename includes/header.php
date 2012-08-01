@@ -1,5 +1,5 @@
 <?php
-if(! include('config/config.php')){ die('No config file could be loaded.'); }
+if(! include('config/config.php')){ die('No config file could not be loaded.'); }
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -9,7 +9,11 @@ if(! include('config/config.php')){ die('No config file could be loaded.'); }
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title></title>
+    <title><?php
+     if(isset($config['site_name']) && $config['site_name'] !== '') {
+        echo $config['site_name'];
+    }
+    ?></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
