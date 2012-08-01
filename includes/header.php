@@ -45,6 +45,20 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
 <?php
 if(! isset($_SESSION['userID'])){
     include_once('includes/signIn.php');
+}else{
+?>
+            <div class="btn-group pull-right">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="icon-user"></i> <?php echo $_SESSION['username'] ?>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Profile</a></li>
+                    <li class="divider"></li>
+                    <li><a href="<?php echo $_SESSION['base_url'] ?>login/logout.php">Sign Out</a></li>
+                </ul>
+            </div>
+<?php
 }
 ?>
           <a class="brand" href="#"><?php
