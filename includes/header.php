@@ -30,10 +30,13 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
-    <link rel="stylesheet" href="css/main.css">
-    <script src="js/vendor/modernizr-2.6.1.min.js"></script>
+    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/main.css">
+    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/bootstrap.css">
+    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/bootstrap-responsive.css">
+    <script src="<?php echo $_SESSION['base_url']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
 </head>
 <body>
     <!--[if lt IE 7]>
         <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
+
