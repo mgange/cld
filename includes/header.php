@@ -1,5 +1,16 @@
 <?php
-if(! include('config/config.php')){ die('No config file could not be loaded.'); }
+session_start();
+if(!isset($_SESSION['base_path'])) {
+    if(include_once('config/config.php')){
+        $_SESSION['base_path'] = $config['base_path'];
+    }else{
+        die('No config file available.');
+    }
+}
+
+if(! include_once($_SESSION['base_path'] . 'config/config.php')){ die('No config file could not be loaded.'); }
+if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files could not be loaded.'); }
+
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
