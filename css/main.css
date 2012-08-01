@@ -437,12 +437,20 @@ td {
    Primary styles.
    Author:
    ========================================================================== */
-/* Stupid bootstrap fix */
+
+/* Stupid bootstrap fixes */
 body {
     padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
 }
 
-
+.sign-in-form {
+    float: right;
+    margin: 0;
+    padding: 5px 0 0 0;
+}
+.navbar .sign-in-form .submit {
+    margin-top: 0;
+}
 
 
 

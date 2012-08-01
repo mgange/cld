@@ -42,6 +42,11 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
+<?php
+if(! isset($_SESSION['userID'])){
+    include_once('includes/signIn.php');
+}
+?>
           <a class="brand" href="#"><?php
 if(isset($config['site_name']) && $config['site_name'] !== '') {
     echo $config['site_name'];
