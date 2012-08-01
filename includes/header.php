@@ -32,7 +32,6 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
 
     <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/main.css">
     <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/bootstrap.css">
-    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/bootstrap-responsive.css">
     <script src="<?php echo $_SESSION['base_url']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
 </head>
 <body>
@@ -40,3 +39,14 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
         <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
 
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#"><?php
+if(isset($config['site_name']) && $config['site_name'] !== '') {
+    echo $config['site_name'];
+}
+    ?></a>
+        </div>
+      </div>
+    </div>
