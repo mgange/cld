@@ -9,7 +9,7 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#">Profile</a></li>
+                    <li><a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>profile">Profile</a></li>
 <?php if(isset($_SESSION['authLevel']) && $_SESSION['authLevel'] === 3){ ?>
                     <li><a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>admin">Admin</a></li>
 <?php } ?>
