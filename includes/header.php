@@ -1,15 +1,12 @@
 <?php
 session_start();
-if(!isset($_SESSION['base_path'])) {
-    if(include_once('config/config.php')){
-        $_SESSION['base_path'] = $config['base_path'];
-    }else{
-        die('No config file available.');
-    }
+
+if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
+    die( 'need the path' );
 }
 
-if(! include_once($_SESSION['base_path'] . 'config/config.php')){ die('No config file could not be loaded.'); }
-if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files could not be loaded.'); }
+if(! include_once(__DIR__ . '/../config/config.php')){ die('Config file could not be loaded.'); }
+if(! require_once(__DIR__ . '/../general/util.php')){ die('Core files could not be loaded.'); }
 
 ?>
 <!DOCTYPE html>
@@ -30,9 +27,9 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
-    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/main.css">
-    <link rel="stylesheet" href="<?php echo $_SESSION['base_url']; ?>css/bootstrap.css">
-    <script src="<?php echo $_SESSION['base_url']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
+    <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/main.css">
+    <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/bootstrap.css">
+    <script src="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
 </head>
 <body>
     <!--[if lt IE 7]>
@@ -44,24 +41,12 @@ if(! include_once($_SESSION['base_path'] . 'general/util.php')){ die('Core files
         <div class="container">
 <?php
 if(! isset($_SESSION['userID'])){
-    include_once('includes/signIn.php');
+    include_once(__DIR__ . '/../includes/signIn.php');
 }else{
-?>
-            <div class="btn-group pull-right">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="icon-user"></i> <?php echo $_SESSION['username'] ?>
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Profile</a></li>
-                    <li class="divider"></li>
-                    <li><a href="<?php echo $_SESSION['base_url'] ?>login/logout.php">Sign Out</a></li>
-                </ul>
-            </div>
-<?php
+    include_once(__DIR__ . '/../includes/nav.php');
 }
 ?>
-          <a class="brand" href="#"><?php
+          <a class="brand" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>"><?php
 if(isset($config['site_name']) && $config['site_name'] !== '') {
     echo $config['site_name'];
 }
@@ -69,3 +54,5 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
         </div>
       </div>
     </div>
+
+    <div class="container">
