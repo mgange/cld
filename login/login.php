@@ -17,15 +17,16 @@ if(isset($_POST['submit'])){
             ":password" => hashPassword($_POST['password'])
         );
         /* Execute the query and see if any results come back. */
-        $query = "SELECT * FROM users WHERE username = 'gyoung' AND password = '1c4cbf2654ee9d41cbbc4b3aa99ef0203137dd93'";
+        $query = "SELECT * FROM users WHERE username = :username AND password = :password";
         $STH = $DBH->prepare($query);
-        $STH->execute();
+        $STH->execute($bind);
         $results = $STH->fetch(PDO::FETCH_ASSOC);
 
         if(count($results) > 0) {
             $_SESSION['userID']     = $results['userID'];
             $_SESSION['customerID'] = $results['customerID'];
             $_SESSION['username']   = $results['username'];
+            $_SESSION['authLevel']  = 3;//$results['authLevel'];
             $_SESSION['email']      = $results['email'];
             $_SESSION['last_activity'] = time();
         }
@@ -34,7 +35,7 @@ if(isset($_POST['submit'])){
         echo $e->getMessage();
     }
 
-    header('Location: ' . $config['base_url']);
+    header('Location: ../');
 }
 
 ?>
