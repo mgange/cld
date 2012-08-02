@@ -12,10 +12,15 @@
  * URL to this site. Typically this will be your base URL,
  * WITH a trailing slash:
  *
- * http://example.com/
+ * 'base_domain' This is the fully qualified domain name where the site is 
+ *     hosted. Everything from the http to the .com  e.g. http://example.com/
+ *
+ * 'base_dir' If the site is in a subdirectory specify it here.  e.g. 'app/'
+ *     This would also include a trailing slash unless it's empty.
  *
  */
-$config['base_url'] = '';
+$config['base_domain'] = '';
+$config['base_dir']    = '';
 
 /*
  *------------------------------------------------------------------------------
