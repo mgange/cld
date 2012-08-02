@@ -1,10 +1,12 @@
 <?php
-require_once('../config/config.php');
-
 session_start();
-$_SESSION = array();
+
+$home = $_SESSION['base_dir'];
+
+$_SESSION = null;
+
 session_destroy();
 
-header('Location: ' . $config['base_url']);
+header('Location: /' . $home);
 
 ?>
