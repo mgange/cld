@@ -8,6 +8,10 @@ if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
 if(! include_once(__DIR__ . '/../config/config.php')){ die('Config file could not be loaded.'); }
 if(! require_once(__DIR__ . '/../general/util.php')){ die('Core files could not be loaded.'); }
 
+if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['base_dir'] . 'index.php'){
+    header('Location: ' . $config['base_domain'] . $config['base_dir']);
+}
+
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
