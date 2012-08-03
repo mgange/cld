@@ -12,7 +12,8 @@ if(isset($_POST['submit'])){
         );
         /* Execute the query and see if any results come back. */
         $query = "SELECT * FROM users WHERE username = :username AND password = :password";
-        $results = dbQuery($config, $query, $bind);
+        $db = new db($config);
+        $results = $db -> fetchRow($query, $bind);
 
         if(count($results) > 0) {
             $_SESSION['userID']     = $results['userID'];
