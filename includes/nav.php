@@ -10,7 +10,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>profile">Profile</a></li>
-<?php if(isset($_SESSION['authLevel']) && $_SESSION['authLevel'] == 3){ ?>
+<?php if(isset($_SESSION['authLevel']) && $_SESSION['authLevel'] >= 2){ ?>
                     <li><a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>admin">Admin</a></li>
 <?php } ?>
                     <li class="divider"></li>
