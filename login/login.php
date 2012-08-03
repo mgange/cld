@@ -19,7 +19,7 @@ if(isset($_POST['submit'])){
             $_SESSION['userID']     = $results['userID'];
             $_SESSION['customerID'] = $results['customerID'];
             $_SESSION['username']   = $results['username'];
-            $_SESSION['authLevel']  = 3;//$results['authLevel'];
+            $_SESSION['authLevel']  = $results['authLevel'];
             $_SESSION['email']      = $results['email'];
             $_SESSION['last_activity'] = time();
         }
