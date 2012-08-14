@@ -30,6 +30,20 @@ class db extends PDO
         }
     }
 
+    public function update($query, $bind = array())
+    {
+        $sth = parent::prepare($query);
+
+        if($sth)
+        {
+            if($sth -> execute($bind)) {
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+
     public function fetchRow($query, $bind = array())
     {
         # create a prepared statement
