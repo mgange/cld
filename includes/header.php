@@ -12,6 +12,14 @@ if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['bas
     header('Location: ' . $config['base_domain'] . $config['base_dir']);
 }
 
+if(isset($_SESSION['last_activity'])) {
+    if(time() - $_SESSION['last_activity'] > $config['sess_expiration']) {
+        header('Location: ' . $config['base_domain'] . $config['base_dir'] . 'login/logout.php');
+    }
+    if(time()-$_SESSION['last_activity'] > $config['sess_time_to_update']) {
+        $_SESSION['last_activity'] = time();
+    }
+}
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
