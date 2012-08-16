@@ -1,4 +1,15 @@
 <?php
+/**
+ *------------------------------------------------------------------------------
+ * Profile Section Index Page
+ *------------------------------------------------------------------------------
+ *
+ * Any user can access this section to manage their own profile information. 
+ * Users can edit their details or reset their password. Forms in this section
+ * submit to this page where data validation and database interactions are 
+ * handled.
+ *
+ */
 require_once('../includes/header.php');
 
 
@@ -8,9 +19,7 @@ if(count($_POST) > 0) {
     print_r($_POST);
     echo 'POST count: ' . count($_POST);
     echo '</pre>';
-    /**
-     * handle password resets
-     */
+    // handle password resets
     if(isset($_POST['pass'])){
         if($_POST['pass'] !== $_POST['repass']) {
             header('Location: ./?action=password&a=pm'); // a = Alert  pm = Password Match
@@ -38,9 +47,7 @@ if(count($_POST) > 0) {
         }
     }
 
-    /**
-     * handle profile info changes
-     */
+    // handle profile info changes
     if(isset($_POST['firstName']) || isset($_POST['lastName']) || isset($_POST['email'])) {
         $query = 'UPDATE users
                   SET firstName = :firstName,

@@ -1,4 +1,15 @@
-<pre><?php
+<?php
+/**
+ *------------------------------------------------------------------------------
+ * Login File
+ *------------------------------------------------------------------------------
+ *
+ * The login file should receive a username and password POSTed from a signin 
+ * form. The password will be hashed and the POST values checked against the 
+ * database in order to get the users information and set in in the $_SESSION 
+ * array. Successful login will return the user to tthe sites homepage.
+ *
+ */
 session_start();
 require_once('../config/config.php');
 require_once('../general/util.php');

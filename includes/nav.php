@@ -1,6 +1,15 @@
 <?php
 /**
- * 
+ *------------------------------------------------------------------------------
+ * Global Navigation File
+ *------------------------------------------------------------------------------
+ *
+ * This page is imported into the navbar when a user is logged in. It should 
+ * include site specific links and can build them out based on the users 
+ * information in the $_SESSION array or site data in the global $config array.
+ * The markup is indented enough to align it with the navbar markup when a page
+ * is generated( if that matters to you).
+ *
  */
 ?>
             <div class="btn-group pull-right">

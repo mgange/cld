@@ -1,3 +1,20 @@
+<?php
+/**
+ *------------------------------------------------------------------------------
+ * Global Footer File
+ *------------------------------------------------------------------------------
+ *
+ * This file should be included at the beginning of every page that is displayed
+ * to the user. This will close the .container div opened in includes/header.php
+ * so the opening and closing tags in the files that include header.php and 
+ * footer.php should be self contained.
+ *
+ * This page sets up links to javascript files, conditional Google Ananlytics 
+ * script (based on the global config file), and closes the <body> tag.
+ *
+ * PHP 5.3.0
+ */
+?>
     </div><!-- End of .container -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.7.2.min.js"><\/script>')</script>

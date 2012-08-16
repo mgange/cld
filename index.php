@@ -1,4 +1,11 @@
 <?php
+/**
+ *------------------------------------------------------------------------------
+ * Global Header File
+ *------------------------------------------------------------------------------
+ *
+ *
+ */
 session_start();
 if(! require_once('config/config.php')) {
     die('Config file could not be loaded by index.');
