@@ -30,7 +30,7 @@ class db extends PDO
         }
     }
 
-    public function update($query, $bind = array())
+    public function execute($query, $bind = array())
     {
         $sth = parent::prepare($query);
 
