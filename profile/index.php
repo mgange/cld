@@ -56,7 +56,9 @@ if(count($_POST) > 0) {
         $resp = $db -> execute($query, $bind);
         unset($bind);
         if($resp == true) {
-            header('Location: ./?a=s');
+            header('Location: ./?a=s'); // a = Alert  s = Success
+        }else{
+            header('Location: ./?a=pe'); // a = Alert  pe = Profile Error
         }
     }
 }
@@ -172,6 +174,16 @@ if(isset($_GET['a'])){
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                     <strong>Uh oh!</strong> Something went wrong while resetting your password.
                     You'd better try that again.
+                </div>
+<?php
+            break;
+
+        case 'pe': // pf = Profile Error
+?>
+                <div class="alert alert-error span8 offset2">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Uh oh!</strong> Something went wrong while updating your profile information.
+                    You should probably try that again.
                 </div>
 <?php
             break;
