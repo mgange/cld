@@ -1,4 +1,22 @@
 <?php
+/**
+ *------------------------------------------------------------------------------
+ * Global Header File
+ *------------------------------------------------------------------------------
+ *
+ * This file should be included at the beginning of every page that is displayed
+ * to the user. It will include the site-wide configuration and the utilities
+ * file form the 'general' directory. Because the path to the included assets is
+ * built from variables in the SESSION array visitors must arrive at the sites
+ * homepage or they will get a 'need the path' error.
+ *
+ * This file also sets the <head> markup, the global navbar (although a signin 
+ * form of nav links are imported from includes/signIn.php or includes/nav.php),
+ * and alerts based on the $_GET['a'] array value.
+ *
+ * PHP version 5.3.0
+ *
+ */
 session_start();
 
 if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
@@ -70,9 +88,14 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
     <div class="container">
         <div class="row alerts">
 <?php
+/**
+ * This switch statement will display alerts immediately below the navbar based
+ * on the value of variable 'a' passed in the URL. By default no message is 
+ * displayed just as if the variable didn't exist.
+ */
 if(isset($_GET['a'])) {
     switch($_GET['a']) {
-        case 's':
+        case 's': // s = Success
 ?>          <div class="alert alert-success span8 offset2">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 <strong>Well done!</strong> You successfully updated your profile information.
@@ -114,15 +137,22 @@ if(isset($_GET['a'])) {
             break;
     }
 }
+/**
+ * This switch statement will display alerts immediately below the navbar based
+ * on the value of variable 'action' variable passed in the URL. By default no 
+ * message is displayed just as if the variable didn't exist.
+ */
 if(isset($_GET['action'])) {
     switch($_GET['action']) {
-        case 'password':
+        case 'password': // Always show this alert on password reset pages
 ?>          <div class="alert span8 offset2">
                 <button class="close" data-dismiss="alert">&times;</button>
                 <strong>Warning!</strong> If this works I'm gonna log you out.
                 You better be ready for it!
             </div>
 <?php       break;
+        default:
+            break;
     }
 }
 ?>
