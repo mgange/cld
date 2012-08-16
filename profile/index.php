@@ -1,14 +1,16 @@
 <?php
 require_once('../includes/header.php');
-?>
-<?php
+
+
 
 if(count($_POST) > 0) {
     echo '<pre>';
     print_r($_POST);
     echo 'POST count: ' . count($_POST);
     echo '</pre>';
-    // TODO(Geoff Young): test this stuff
+    /**
+     * handle password resets
+     */
     if(isset($_POST['pass'])){
         if($_POST['pass'] !== $_POST['repass']) {
             header('Location: ./?action=password&a=pm'); // a = Alert  pm = Password Match
@@ -17,10 +19,11 @@ if(count($_POST) > 0) {
         }else{echo "UPDATE PASSWORD";
            $db = new db($config);
            try {
-               $q = 'UPDATE users SET password = :password where userID = :userID';
-               $b[':password'] = hashPassword($_POST['pass']);
-               $b[':userID'] = $_SESSION['userID'];
-                $resp = $db -> update($q, $b);
+               $query = 'UPDATE users SET password = :password where userID = :userID';
+                $bind[':password'] = hashPassword($_POST['pass']);
+                $bind[':userID'] = $_SESSION['userID'];
+                $resp = $db -> execute($query, $bind);
+                unset($bind);
                 if($resp == 1){
                     header('Location: ../login/logout.php');
                 }else{
@@ -32,6 +35,28 @@ if(count($_POST) > 0) {
                echo $e;
                echo '</pre>';
            }
+        }
+    }
+
+    /**
+     * handle profile info changes
+     */
+    if(isset($_POST['firstName']) || isset($_POST['lastName']) || isset($_POST['email'])) {
+        $query = 'UPDATE users
+                  SET firstName = :firstName,
+                      lastName = :lastName,
+                      email = :email
+                  WHERE userID = :userID';
+        $bind[':firstName'] = $_POST['firstName'];
+        $bind[':lastName']  = $_POST['lastName'];
+        $bind[':email']     = $_POST['email'];
+        $bind['userID']     = $_SESSION['userID'];
+        echo '<pre>';print_r($bind);echo '</pre>';
+        $db = new db($config);
+        $resp = $db -> execute($query, $bind);
+        unset($bind);
+        if($resp == true) {
+            header('Location: ./?a=s');
         }
     }
 }
