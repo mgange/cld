@@ -50,7 +50,7 @@ if(count($_POST) > 0) {
         $bind[':firstName'] = $_POST['firstName'];
         $bind[':lastName']  = $_POST['lastName'];
         $bind[':email']     = $_POST['email'];
-        $bind['userID']     = $_SESSION['userID'];
+        $bind[':userID']     = $_SESSION['userID'];
         echo '<pre>';print_r($bind);echo '</pre>';
         $db = new db($config);
         $resp = $db -> execute($query, $bind);
