@@ -68,3 +68,62 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
     </div>
 
     <div class="container">
+        <div class="row alerts">
+<?php
+if(isset($_GET['a'])) {
+    switch($_GET['a']) {
+        case 's':
+?>          <div class="alert alert-success span8 offset2">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Well done!</strong> You successfully updated your profile information.
+            </div>
+<?php        break;
+
+        case 'pf': // pf = Password Failure
+?>          <div class="alert alert-error span8 offset2">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Uh oh!</strong> Something went wrong while resetting your password.
+                You'd better try that again.
+            </div>
+<?php        break;
+
+        case 'pe': // pf = Profile Error
+?>          <div class="alert alert-error span8 offset2">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Uh oh!</strong> Something went wrong while updating your profile information.
+                You should probably try that again.
+            </div>
+<?php        break;
+
+        case 'pm': // pm = Password Match
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> Both passwords have to match.
+                Otherwise who knows what might happen!!
+            </div>
+<?php        break;
+
+        case 'ef': // ef = Empty Fields
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> You have to put something in there!
+            </div>
+<?php        break;
+
+        default:
+            break;
+    }
+}
+if(isset($_GET['action'])) {
+    switch($_GET['action']) {
+        case 'password':
+?>          <div class="alert span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Warning!</strong> If this works I'm gonna log you out.
+                You better be ready for it!
+            </div>
+<?php       break;
+    }
+}
+?>
+        </div>

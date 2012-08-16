@@ -72,38 +72,6 @@ if(isset($_GET['action'])) {
                 <h1>Reset Password</h1>
             </div>
         </div>
-        <div class='row alert-container'>
-            <div class="alert span8 offset2">
-                <button class="close" data-dismiss="alert">&times;</button>
-                <strong>Warning!</strong> If this works I'm gonna log you out.
-                You better be ready for it!
-            </div>
-<?php
-if(isset($_GET['a'])){
-    switch($_GET['a']) {
-        case 'pm': // pm = Password Match
-?>
-            <div class="alert alert-error span8 offset2">
-                <button class="close" data-dismiss="alert">&times;</button>
-                <strong>Whoa!</strong> Both passwords have to match.
-                Otherwise who knows what might happen!!
-            </div>
-<?php
-            break;
-        case 'ef': // ef = Empty Fields
-?>
-            <div class="alert alert-error span8 offset2">
-                <button class="close" data-dismiss="alert">&times;</button>
-                <strong>Whoa!</strong> You have to put something in there!
-            </div>
-<?php
-            break;
-        default:
-            break;
-    }
-}
-?>
-        </div>
         <form action='./' method='POST'>
         <div class="row">
             <div class='span3 offset3'>
@@ -156,44 +124,6 @@ $results = $db -> fetchRow($query, $bind);
             <h1 class='span8 offset2'>User Profile</h1>
         </div>
         <form action='./' method='POST' accept-charset='utf-8'>
-            <div class="row">
-<?php
-if(isset($_GET['a'])){
-    switch($_GET['a']) {
-        case 's': // s = Success
-?>
-                <div class="alert alert-success span8 offset2">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <strong>Well done!</strong> You successfully updated your profile information.
-                </div>
-<?php
-            break;
-        case 'pf': // pf = Password Failure
-?>
-                <div class="alert alert-error span8 offset2">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <strong>Uh oh!</strong> Something went wrong while resetting your password.
-                    You'd better try that again.
-                </div>
-<?php
-            break;
-
-        case 'pe': // pf = Profile Error
-?>
-                <div class="alert alert-error span8 offset2">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <strong>Uh oh!</strong> Something went wrong while updating your profile information.
-                    You should probably try that again.
-                </div>
-<?php
-            break;
-        default:
-            break;
-    }
-}
-?>
-
-            </div>
             <div class="row">
                 <label class='span3 offset3'>First Name <br>
                     <input 
