@@ -95,19 +95,19 @@ if(isset($_GET['action'])) {
         <div class='row'>
             <div class='span6 offset3'>
                 <a 
-                    class='btn pull-left' 
+                    class='btn pull-right' 
                     href="./"
                 >
                     <i class="icon-remove"></i>
                     Cancel
                 </a>
                 <button 
-                    class='btn pull-right' 
+                    class='btn btn-success pull-left' 
                     type='submit' 
                     name='submit' 
                     value='submit'
                 >
-                    <i class="icon-ok"></i>
+                    <i class="icon-ok icon-white"></i>
                     Save
                 </button>
             </div>
@@ -165,8 +165,8 @@ $results = $db -> fetchRow($query, $bind);
             </div>
             <div class='row'>
                 <div class='span8 offset2'>
-                    <button class='btn pull-left' type='submit'>
-                        <i class="icon-ok"></i>
+                    <button class='btn btn-success pull-left' type='submit'>
+                        <i class="icon-ok icon-white"></i>
                         Save
                     </button>
                     <a href="./?action=password" class="btn btn-warning pull-right">
