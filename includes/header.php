@@ -133,6 +133,14 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'ua': // ua = Unauthorized Access
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> You tried to access a restricted area.
+                You don't belong in there!
+            </div>
+<?php        break;
+
         default:
             break;
     }
