@@ -76,7 +76,8 @@ if(! isset($_SESSION['userID'])){
     include_once(__DIR__ . '/../includes/nav.php');
 }
 ?>
-          <a class="brand" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>"><?php
+
+            <a class="brand" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>"><?php
 if(isset($config['site_name']) && $config['site_name'] !== '') {
     echo $config['site_name'];
 }
