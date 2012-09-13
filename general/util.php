@@ -8,8 +8,12 @@ function hashPassword($pass)
     return sha1($pass);
 }
 
-function pprint($arr) {
+function pprint($arr, $label = '')
+{
     echo '<pre>';
+    if($label != '') {
+        echo ucfirst($label) . ': ';
+    }
     print_r($arr);
     echo '</pre>';
 }
