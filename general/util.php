@@ -8,6 +8,11 @@ function hashPassword($pass)
     return sha1($pass);
 }
 
+function pprint($arr) {
+    echo '<pre>';
+    print_r($arr);
+    echo '<pre>';
+}
 
 class db extends PDO
 {
