@@ -11,7 +11,7 @@ function hashPassword($pass)
 function pprint($arr) {
     echo '<pre>';
     print_r($arr);
-    echo '<pre>';
+    echo '</pre>';
 }
 
 class db extends PDO
