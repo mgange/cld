@@ -12,7 +12,31 @@ body {
     margin-top: 0;
 }
 
-footer {
+/* Stretch the page, forcing the footer to the bottom */
+html,
+body,
+.page-content {
+    height: 100%;
+}
+body > .page-content {
+    height: auto;
+    min-height: 100%;
+}
+.page-content {
+    padding-bottom: 2em;
+}
+
+.footer {
     background: @grayLighter;
     border-top: 1px solid @grayLight;
+    clear: both;
+    padding: .3em 0;
+    position: relative;
+    text-shadow: 1px 1px 0 @white;
+    z-index: 10;
+}
+.footer-fixed-bottom {
+    bottom: 0;
+    position: fixed;
+    width: 100%;
 }

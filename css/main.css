@@ -4732,6 +4732,47 @@ a.badge:hover {
   line-height: 30px;
   color: inherit;
 }
+/* Stupid bootstrap fixes */
+body {
+  padding-top: 60px;
+  /* 60px to make the container go all the way to the bottom of the topbar */
+
+}
+.sign-in-form {
+  float: right;
+  margin: 0;
+  padding: 5px 0 0 0;
+}
+.navbar .sign-in-form .submit {
+  margin-top: 0;
+}
+/* Stretch the page, forcing the footer to the bottom */
+html,
+body,
+.page-content {
+  height: 100%;
+}
+body > .page-content {
+  height: auto;
+  min-height: 100%;
+}
+.page-content {
+  padding-bottom: 2em;
+}
+.footer {
+  background: #eeeeee;
+  border-top: 1px solid #999999;
+  clear: both;
+  padding: .3em 0;
+  position: relative;
+  text-shadow: 1px 1px 0 #ffffff;
+  z-index: 10;
+}
+.footer-fixed-bottom {
+  bottom: 0;
+  position: fixed;
+  width: 100%;
+}
 .pull-right {
   float: right;
 }
@@ -4749,22 +4790,4 @@ a.badge:hover {
 }
 .affix {
   position: fixed;
-}
-/* Stupid bootstrap fixes */
-body {
-  padding-top: 60px;
-  /* 60px to make the container go all the way to the bottom of the topbar */
-
-}
-.sign-in-form {
-  float: right;
-  margin: 0;
-  padding: 5px 0 0 0;
-}
-.navbar .sign-in-form .submit {
-  margin-top: 0;
-}
-footer {
-  background: #eeeeee;
-  border-top: 1px solid #999999;
 }
