@@ -15,6 +15,7 @@
  * PHP 5.3.0
  */
 ?>
+
     </div><!-- End of .container -->
     <footer class="footer footer-fixed-bottom">
         <div class="container">
