@@ -16,15 +16,13 @@
  */
 ?>
     </div><!-- End of .container -->
-    <footer>
-        <br>
+    <footer class="footer footer-fixed-bottom">
         <div class="container">
             <small>
                 Lovingly handcrafted at
                 <a href="http://hvtdc.org" title="HVTDC">HVTDC</a>
             </small>
         </div>
-        <br>
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.7.2.min.js"><\/script>')</script>
@@ -35,7 +33,6 @@
 <?php
 if(isset($config['GAcode']) && $config['GAcode'] !== '') {
 ?>
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>
         var _gaq=[['_setAccount','<?php echo $config['GAcode']; ?>'],['_trackPageview']];
         (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
