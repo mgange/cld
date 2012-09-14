@@ -10,7 +10,7 @@
  * built from variables in the SESSION array visitors must arrive at the sites
  * homepage or they will get a 'need the path' error.
  *
- * This file also sets the <head> markup, the global navbar (although a signin 
+ * This file also sets the <head> markup, the global navbar (although a signin
  * form of nav links are imported from includes/signIn.php or includes/nav.php),
  * and alerts based on the $_GET['a'] array value.
  *
@@ -19,8 +19,15 @@
  */
 session_start();
 
+/**
+ * The base domain and directory are needed to build links to resources like
+ * javascript and stylesheets. If they're not set then the user hasn't been to
+ * the homepage(and therefore hasn't been to a login page). Since you can't
+ * reliably know the homepage without these values we'll just dump them  back to
+ * the domain root.
+ */
 if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
-    die( 'need the path' );
+    header("Location: /");
 }
 
 if(! include_once(__DIR__ . '/../config/config.php')){ die('Config file could not be loaded.'); }
@@ -32,10 +39,15 @@ if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['bas
 
 if(isset($_SESSION['last_activity'])) {
     if(time() - $_SESSION['last_activity'] > $config['sess_expiration']) {
-        header('Location: ' . $config['base_domain'] . $config['base_dir'] . 'login/logout.php');
+        header('Location: '
+            . $config['base_domain']
+            . $config['base_dir']
+            . 'login/logout.php');
     }
-    if(time()-$_SESSION['last_activity'] > $config['sess_time_to_update']) {
-        $_SESSION['last_activity'] = time();
+}
+if(isset($_SESSION['last_update'])) {
+    if(time()-$_SESSION['last_update'] > $config['sess_time_to_update']) {
+        require_once(__DIR__ . '/../includes/sessionUpdate.php');
     }
 }
 ?>
@@ -58,7 +70,6 @@ if(isset($_SESSION['last_activity'])) {
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
     <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/main.css">
-    <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/bootstrap.css">
     <script src="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
 </head>
 <body>
@@ -86,12 +97,12 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
       </div>
     </div>
 
-    <div class="container">
+    <div class="container page-content">
         <div class="row alerts">
 <?php
 /**
  * This switch statement will display alerts immediately below the navbar based
- * on the value of variable 'a' passed in the URL. By default no message is 
+ * on the value of variable 'a' passed in the URL. By default no message is
  * displayed just as if the variable didn't exist.
  */
 if(isset($_GET['a'])) {
@@ -148,7 +159,7 @@ if(isset($_GET['a'])) {
 }
 /**
  * This switch statement will display alerts immediately below the navbar based
- * on the value of variable 'action' variable passed in the URL. By default no 
+ * on the value of variable 'action' variable passed in the URL. By default no
  * message is displayed just as if the variable didn't exist.
  */
 if(isset($_GET['action'])) {
