@@ -4,9 +4,9 @@
  * Profile Section Index Page
  *------------------------------------------------------------------------------
  *
- * Any user can access this section to manage their own profile information. 
+ * Any user can access this section to manage their own profile information.
  * Users can edit their details or reset their password. Forms in this section
- * submit to this page where data validation and database interactions are 
+ * submit to this page where data validation and database interactions are
  * handled.
  *
  */
@@ -94,17 +94,17 @@ if(isset($_GET['action'])) {
         </div>
         <div class='row'>
             <div class='span6 offset3'>
-                <a 
-                    class='btn pull-right' 
+                <a
+                    class='btn pull-right'
                     href="./"
                 >
                     <i class="icon-remove"></i>
                     Cancel
                 </a>
-                <button 
-                    class='btn btn-success pull-left' 
-                    type='submit' 
-                    name='submit' 
+                <button
+                    class='btn btn-success pull-left'
+                    type='submit'
+                    name='submit'
                     value='submit'
                 >
                     <i class="icon-ok icon-white"></i>
@@ -119,7 +119,7 @@ if(isset($_GET['action'])) {
             header('Location: ./');
             break;
     }
-}else{      
+}else{
 $query = 'SELECT * FROM users WHERE userID = :userID LIMIT 0,1';
 $bind[':userID'] = $_SESSION['userID'];
 $db = new db($config);
@@ -133,29 +133,29 @@ $results = $db -> fetchRow($query, $bind);
         <form action='./' method='POST' accept-charset='utf-8'>
             <div class="row">
                 <label class='span3 offset3'>First Name <br>
-                    <input 
-                        type='text' 
-                        name='firstName' 
-                        value='<?php echo $results['firstName'] ?>' 
+                    <input
+                        type='text'
+                        name='firstName'
+                        value='<?php echo $results['firstName'] ?>'
                         placeholder='First Name'
                     >
                 </label>
                 <label class='span3'>Last Name <br>
-                    <input 
-                        type='text' 
-                        name='lastName' 
-                        value='<?php echo $results['lastName'] ?>' 
+                    <input
+                        type='text'
+                        name='lastName'
+                        value='<?php echo $results['lastName'] ?>'
                         placeholder='First Name'
                     >
                 </label>
             </div>
             <div class="row">
                 <label class='span6 offset3'>Email <br>
-                    <input 
-                        class='span6' 
-                        type='text' 
-                        name='email' 
-                        value='<?php echo $results['email'] ?>' 
+                    <input
+                        class='span6'
+                        type='text'
+                        name='email'
+                        value='<?php echo $results['email'] ?>'
                         placeholder='First Name'
                     >
                 </label>
