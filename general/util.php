@@ -8,14 +8,25 @@ function hashPassword($pass)
     return sha1($pass);
 }
 
+/**
+ * Pretty Print
+ * For development it's convenient to print and array. This will output and array
+ * wrapped in <pre> tags to maintain formatting. This is not intended for
+ * production use.
+ */
 function pprint($arr, $label = '')
 {
+    echo "<div class='well'>";
     echo '<pre>';
     if($label != '') {
         echo ucfirst($label) . ': ';
     }
     print_r($arr);
     echo '</pre>';
+    echo "<small style='color:#f55;float:left;text-align:center;width:100%;'>";
+    echo "This function is for development use only.";
+    echo "</small>";
+    echo "</div>";
 }
 
 class db extends PDO
@@ -24,8 +35,8 @@ class db extends PDO
     public function __construct($config)
     {
         parent::__construct(
-            "mysql:host=".$config['dbHost'].";dbname=".$config['dbName'], 
-            $config['dbUser'], 
+            "mysql:host=".$config['dbHost'].";dbname=".$config['dbName'],
+            $config['dbUser'],
             $config['dbPass']
         );
 
@@ -58,13 +69,13 @@ class db extends PDO
         # create a prepared statement
         $sth = parent::prepare($query);
 
-        if($sth) 
+        if($sth)
         {
-            # execute query 
+            # execute query
             $sth->execute($bind);
 
             return $sth->fetch(PDO::FETCH_ASSOC);
-        } 
+        }
         else
         {
             return self::error_info();
@@ -80,7 +91,7 @@ class db extends PDO
             $sth->execute($bind);
 
             return $sth->fetchALL(PDO::FETCH_ASSOC);
-        } 
+        }
         else
         {
             return self::error_info();
@@ -92,18 +103,18 @@ class db extends PDO
         $sth = parent::prepare($query);
 
         if($sth) {
-            # execute query 
+            # execute query
             $sth->execute($bind);
 
             return $sth->rowCount();
-        } 
+        }
         else
         {
             return self::error_info();
         }
     }
 
-    public function errorInfo() 
+    public function errorInfo()
     {
         $this->connection->errorInfo();
     }
