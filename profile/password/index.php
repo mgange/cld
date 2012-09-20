@@ -14,7 +14,7 @@ if(count($_POST) > 0) {
         header('Location: ../?a=pm');
     }else{
         if($_POST['pass'] == '') {
-            header('Location: ../?a=ef');
+            die(header('Location: ../?a=ef'));
         }
         $query = 'UPDATE users SET password = :password WHERE userID = :userID';
         $bind[':password'] = hashPassword($_POST['pass']);
