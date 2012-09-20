@@ -89,6 +89,16 @@ if(isset($_SESSION['last_update'])) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
+            <a class="brand" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>"><?php
+if(isset($config['site_name']) && $config['site_name'] !== '') {
+    echo $config['site_name'];
+}
+    ?></a>
+            <button type="button" class="btn btn-navbar pull-right" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
 <?php
 if(! isset($_SESSION['userID'])){
     include_once(__DIR__ . '/../includes/signIn.php');
@@ -97,11 +107,6 @@ if(! isset($_SESSION['userID'])){
 }
 ?>
 
-            <a class="brand" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>"><?php
-if(isset($config['site_name']) && $config['site_name'] !== '') {
-    echo $config['site_name'];
-}
-    ?></a>
         </div>
       </div>
     </div>
