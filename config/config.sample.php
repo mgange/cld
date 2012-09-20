@@ -12,7 +12,7 @@
  * URL to this site. Typically this will be your base URL,
  * WITH a trailing slash:
  *
- * 'base_domain' This is the fully qualified domain name where the site is 
+ * 'base_domain' This is the fully qualified domain name where the site is
  *     hosted. Everything from the http to the .com  e.g. http://example.com/
  *
  * 'base_dir' If the site is in a subdirectory specify it here.  e.g. 'app/'
@@ -47,8 +47,11 @@ $config['dbPass'] = '';
  * General info about this site used for presentation purposes.
  *
  * 'site_name'     = Name to appear in title tags
+ * 'path_in_title' = Reversed breadcrumbs in the title of each page. Set value
+ * to '1' to activate, '0' to remove.
  */
 $config['site_name'] = '';
+$config['path_in_title'] = 0;
 
 /*
  *------------------------------------------------------------------------------
@@ -79,7 +82,7 @@ $config['time_zone'] = '';
  * Google Analytics
  *------------------------------------------------------------------------------
  *
- * Enter the tracking code for this site in your Google Analytics account. If 
+ * Enter the tracking code for this site in your Google Analytics account. If
  * left blank the analytics script will be left out.
  *
  * e.g. UA-XXXXX-X

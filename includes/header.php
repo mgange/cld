@@ -60,6 +60,14 @@ if(isset($_SESSION['last_update'])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title><?php
+    if($config['path_in_title']) {
+        $crumbs = explode("/",preg_replace('/\?.*$/', '', $_SERVER["REQUEST_URI"]));
+        foreach(array_reverse($crumbs) as $crumb){
+            if($crumb != '') {
+               echo ucfirst(str_replace(array(".php","_"),array(""," "),$crumb) . ' ') . ' | ';
+            }
+        }
+    }
      if(isset($config['site_name']) && $config['site_name'] !== '') {
         echo $config['site_name'];
     }
