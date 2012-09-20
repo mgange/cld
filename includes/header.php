@@ -140,6 +140,14 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'e': // e = Error
+?>          <div class="alert alert-error span8 offset2">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Stop Everything!</strong> Something has gone wrong. You
+                had better go check that out and maybe try it again.
+            </div>
+<?php        break;
+
         case 'pf': // pf = Password Failure
 ?>          <div class="alert alert-error span8 offset2">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
