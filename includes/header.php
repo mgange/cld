@@ -43,6 +43,8 @@ if(isset($_SESSION['last_activity'])) {
             . $config['base_domain']
             . $config['base_dir']
             . 'login/logout.php');
+    }else{
+        $_SESSION['last_activity'] = time();
     }
 }
 if(isset($_SESSION['last_update'])) {
@@ -60,6 +62,10 @@ if(isset($_SESSION['last_update'])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title><?php
+    /**
+     * This will display the reversed path to the current page based on the url.
+     * It is controlled in the config file at $config['path_in_title']
+     */
     if($config['path_in_title']) {
         $crumbs = explode("/",preg_replace('/\?.*$/', '', $_SERVER["REQUEST_URI"]));
         foreach(array_reverse($crumbs) as $crumb){
@@ -68,7 +74,7 @@ if(isset($_SESSION['last_update'])) {
             }
         }
     }
-     if(isset($config['site_name']) && $config['site_name'] !== '') {
+    if(isset($config['site_name']) && $config['site_name'] !== '') {
         echo $config['site_name'];
     }
     ?></title>
