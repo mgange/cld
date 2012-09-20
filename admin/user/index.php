@@ -70,7 +70,7 @@ if(count($_POST) > 0) {
     $bind[':lastName'] = $_POST['lastName'];
     $bind[':email'] = $_POST['email'];
     $bind['userID'] = $userID;
-    // die();
+
     if($db -> execute($query, $bind)) {
         header('Location: ../?a=s'); // a = Alert  s = Success
     }else{
@@ -81,51 +81,51 @@ if(count($_POST) > 0) {
 
 
 ?>
-<div class="row">
-    <h1 class="span8 offset2">User Profile</h1>
-</div>
+        <div class="row">
+            <h1 class="span8 offset2">User Profile</h1>
+        </div>
 
-<div class="row">
-    <div class="span6 offset3">
-        <a href="password?id=<?php echo intval($_GET['id']); ?>" class="btn btn-warning pull-right">
-                <i class="icon-refresh icon-white"></i>
-                Reset Password
-            </a>
-    </div>
-</div>
+        <div class="row">
+            <div class="span6 offset3">
+                <a href="password?id=<?php echo intval($_GET['id']); ?>" class="btn btn-warning pull-right">
+                        <i class="icon-refresh icon-white"></i>
+                        Reset Password
+                    </a>
+            </div>
+        </div>
 
-<form action="./" method="POST">
-    <div class="row">
-        <div class="span3 offset3">
-            <label for="name">First Name
-                 <input class="span3" type="text" name="firstName" value="<?php echo $user['firstName']; ?>">
-            </label>
-        </div>
-        <div class="span3">
-            <label for="name">Last Name
-                 <input class="span3" type="text" name="lastName" value="<?php echo $user['lastName']; ?>">
-            </label>
-        </div>
-        <div class="span6 offset3">
-            <label for="email">Email
-                <input class="span6" type="text" name="email" value="<?php echo $user['email']; ?>">
-            </label>
-        </div>
-    </div>
-    <div class='row'>
-        <div class='span6 offset3'>
-            <button class='btn btn-success pull-left' type='submit'>
-                <i class="icon-ok icon-white"></i>
-                Save
-            </button>
-            <a href="../" class="btn pull-right">
-                <i class="icon-remove"></i>
-                Cancel
-            </a>
-        </div>
-    </div>
-    <input type="hidden" name="userID" value="<?php echo $user['userID']; ?>">
-</form>
+        <form action="./" method="POST">
+            <div class="row">
+                <div class="span3 offset3">
+                    <label for="name">First Name
+                         <input class="span3" type="text" name="firstName" value="<?php echo $user['firstName']; ?>">
+                    </label>
+                </div>
+                <div class="span3">
+                    <label for="name">Last Name
+                         <input class="span3" type="text" name="lastName" value="<?php echo $user['lastName']; ?>">
+                    </label>
+                </div>
+                <div class="span6 offset3">
+                    <label for="email">Email
+                        <input class="span6" type="text" name="email" value="<?php echo $user['email']; ?>">
+                    </label>
+                </div>
+            </div>
+            <div class='row'>
+                <div class='span6 offset3'>
+                    <button class='btn btn-success pull-left' type='submit'>
+                        <i class="icon-ok icon-white"></i>
+                        Save
+                    </button>
+                    <a href="../" class="btn pull-right">
+                        <i class="icon-remove"></i>
+                        Cancel
+                    </a>
+                </div>
+            </div>
+            <input type="hidden" name="userID" value="<?php echo $user['userID']; ?>">
+        </form>
 <?php
 require_once('../../includes/footer.php');
 ?>

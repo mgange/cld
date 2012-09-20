@@ -1,5 +1,8 @@
 <?php
 /**
+ *------------------------------------------------------------------------------
+ * Password Reset - Profile Section
+ *------------------------------------------------------------------------------
  *
  */
 require_once('../../includes/header.php');
@@ -23,46 +26,42 @@ if(count($_POST) > 0) {
             header('Location: ../?a=pe');
         }
     }
-pprint($_POST);
-    //handle redirect
-die();
 }
 
 ?>
-<div class="row">
-    <div class="span8 offset2">
-        <h1>Reset Password</h1>
-    </div>
-</div>
-
-
-<form action="./" method="POST">
         <div class="row">
-            <div class="span3 offset3">
-                <label>New Password <br>
-                    <input class="span3" type="password" name="pass">
-                </label>
-            </div>
-            <div class="span3">
-                <label>Retype New Password <br>
-                    <input class="span3" type="password" name="repass">
-                </label>
+            <div class="span8 offset2">
+                <h1>Reset Password</h1>
             </div>
         </div>
-        <div class="row">
-            <div class="span6 offset3">
-                <a class="btn pull-right" href="./">
-                    <i class="icon-remove"></i>
-                    Cancel
-                </a>
-                <button class="btn btn-success pull-left" type="submit" value="submit">
-                    <i class="icon-ok icon-white"></i>
-                    Save
-                </button>
+
+
+        <form action="./" method="POST">
+            <div class="row">
+                <div class="span3 offset3">
+                    <label>New Password <br>
+                        <input class="span3" type="password" name="pass">
+                    </label>
+                </div>
+                <div class="span3">
+                    <label>Retype New Password <br>
+                        <input class="span3" type="password" name="repass">
+                    </label>
+                </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="span6 offset3">
+                    <a class="btn pull-right" href="./">
+                        <i class="icon-remove"></i>
+                        Cancel
+                    </a>
+                    <button class="btn btn-success pull-left" type="submit" value="submit">
+                        <i class="icon-ok icon-white"></i>
+                        Save
+                    </button>
+                </div>
+            </div>
         </form>
-
 <?php
 
 require_once('../../includes/footer.php');
