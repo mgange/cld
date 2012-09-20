@@ -24,7 +24,7 @@ function pprint($arr, $label = '')
     print_r($arr);
     echo '</pre>';
     echo "<small style='color:#f55;float:left;text-align:center;width:100%;'>";
-    echo "This function is for development use only.";
+    echo "pprint() is for development use only.";
     echo "</small>";
     echo "</div>";
 }
