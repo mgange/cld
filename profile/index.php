@@ -134,6 +134,7 @@ $results = $db -> fetchRow($query, $bind);
             <div class="row">
                 <label class='span3 offset3'>First Name <br>
                     <input
+                        class="span3"
                         type='text'
                         name='firstName'
                         value='<?php echo $results['firstName'] ?>'
@@ -142,6 +143,7 @@ $results = $db -> fetchRow($query, $bind);
                 </label>
                 <label class='span3'>Last Name <br>
                     <input
+                        class="span3"
                         type='text'
                         name='lastName'
                         value='<?php echo $results['lastName'] ?>'
@@ -159,9 +161,6 @@ $results = $db -> fetchRow($query, $bind);
                         placeholder='First Name'
                     >
                 </label>
-            </div>
-            <div class="row">
-                &nbsp;
             </div>
             <div class='row'>
                 <div class='span8 offset2'>
