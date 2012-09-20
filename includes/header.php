@@ -66,11 +66,17 @@ if(isset($_SESSION['last_update'])) {
      * This will display the reversed path to the current page based on the url.
      * It is controlled in the config file at $config['path_in_title']
      */
-    if($config['path_in_title']) {
+    if($config['path_in_title'] > 0) {
         $crumbs = explode("/",preg_replace('/\?.*$/', '', $_SERVER["REQUEST_URI"]));
-        foreach(array_reverse($crumbs) as $crumb){
-            if($crumb != '') {
-               echo ucfirst(str_replace(array(".php","_"),array(""," "),$crumb) . ' ') . ' | ';
+        array_shift($crumbs);
+        array_pop($crumbs);
+        if($config['path_in_title'] == 1) {
+            echo ucfirst(end($crumbs)) . ' | ';
+        }else{
+            foreach(array_reverse($crumbs) as $crumb){
+                if($crumb != '') {
+                   echo ucfirst(str_replace(array(".php","_"),array(""," "),$crumb) . ' ') . ' | ';
+                }
             }
         }
     }

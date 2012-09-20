@@ -48,10 +48,11 @@ $config['dbPass'] = '';
  *
  * 'site_name'     = Name to appear in title tags
  * 'path_in_title' = Reversed breadcrumbs in the title of each page. Set value
- * to '1' to activate, '0' to remove.
+ * to '2' to use the full path, '1' to display only the last directory name, or
+ * '0' to remove.
  */
-$config['site_name'] = '';
-$config['path_in_title'] = 0;
+$config['site_name'] = 'CLD Monitoring';
+$config['path_in_title'] = 1;
 
 /*
  *------------------------------------------------------------------------------
