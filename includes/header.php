@@ -164,6 +164,14 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'pww': // pww = Password Warning
+?>          <div class="alert span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Warning!</strong> If this works I'm gonna log you out.
+                You better be ready for it!
+            </div>
+<?php        break;
+
         case 'ef': // ef = Empty Fields
 ?>          <div class="alert alert-error span8 offset2">
                 <button class="close" data-dismiss="alert">&times;</button>
@@ -190,13 +198,6 @@ if(isset($_GET['a'])) {
  */
 if(isset($_GET['action'])) {
     switch($_GET['action']) {
-        case 'password': // Always show this alert on password reset pages
-?>          <div class="alert span8 offset2">
-                <button class="close" data-dismiss="alert">&times;</button>
-                <strong>Warning!</strong> If this works I'm gonna log you out.
-                You better be ready for it!
-            </div>
-<?php       break;
         default:
             break;
     }
