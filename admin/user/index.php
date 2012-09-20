@@ -85,6 +85,15 @@ if(count($_POST) > 0) {
     <h1 class="span8 offset2">User Profile</h1>
 </div>
 
+<div class="row">
+    <div class="span6 offset3">
+        <a href="password?id=<?php echo intval($_GET['id']); ?>" class="btn btn-warning pull-right">
+                <i class="icon-refresh icon-white"></i>
+                Reset Password
+            </a>
+    </div>
+</div>
+
 <form action="./" method="POST">
     <div class="row">
         <div class="span3 offset3">
@@ -104,14 +113,14 @@ if(count($_POST) > 0) {
         </div>
     </div>
     <div class='row'>
-        <div class='span8 offset2'>
+        <div class='span6 offset3'>
             <button class='btn btn-success pull-left' type='submit'>
                 <i class="icon-ok icon-white"></i>
                 Save
             </button>
-            <a href="password?id=<?php echo intval($_GET['id']); ?>" class="btn btn-warning pull-right">
-                <i class="icon-refresh icon-white"></i>
-                Reset Password
+            <a href="../" class="btn pull-right">
+                <i class="icon-remove"></i>
+                Cancel
             </a>
         </div>
     </div>
