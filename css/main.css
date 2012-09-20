@@ -4757,7 +4757,7 @@ body > .page-content {
   min-height: 100%;
 }
 .page-content {
-  padding-bottom: 2em;
+  padding-bottom: 3em;
 }
 .footer {
   background: #eeeeee;
@@ -4770,6 +4770,7 @@ body > .page-content {
 }
 .footer-fixed-bottom {
   bottom: 0;
+  left: 0;
   position: fixed;
   width: 100%;
 }
