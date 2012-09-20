@@ -8,6 +8,10 @@ function hashPassword($pass)
     return sha1($pass);
 }
 
+function gtfo($config){
+    header('Location: ' . $config['base_domain'] . $config['base_dir'] . '?a=ua');
+}
+
 /**
  * Pretty Print
  * For development it's convenient to print and array. This will output and array
