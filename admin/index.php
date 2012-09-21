@@ -76,7 +76,7 @@ foreach($customers as $cust) {
 <?php
 if($_SESSION['authLevel'] == 3) {
 ?>
-<a href="new/user" class="btn btn-small btn-success offset1">
+<a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success offset1">
     <i class="icon-plus icon-white"></i>
     Add User
 </a>
