@@ -126,6 +126,17 @@ if(count($_POST) > 0) {
             </div>
             <input type="hidden" name="userID" value="<?php echo $user['userID']; ?>">
         </form>
+
+        <br><br><br><br>
+
+        <div class="row">
+            <div class="span6 offset3">
+                <a href="remove?id=<?php echo intval($_GET['id']); ?>" class="btn btn-danger pull-right">
+                    <i class="icon-trash icon-white"></i>
+                    Remove User
+                </a>
+            </div>
+        </div>
 <?php
 require_once('../../includes/footer.php');
 ?>
