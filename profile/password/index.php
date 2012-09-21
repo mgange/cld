@@ -10,12 +10,9 @@ require_once('../../includes/header.php');
 $db = new db($config);
 
 if(count($_POST) > 0) {
-    if($_POST['pass'] != $_POST['repass']) {
-        header('Location: ../?a=pm');
+    if($comparePassword($_POST['pass'], $_POST['repass'])) {
+        header('Location: ../?a=pe'); //a = Alert  pe = Password Error
     }else{
-        if($_POST['pass'] == '') {
-            die(header('Location: ../?a=ef'));
-        }
         $query = 'UPDATE users SET password = :password WHERE userID = :userID';
         $bind[':password'] = hashPassword($_POST['pass']);
         $bind[':userID'] = intval($_SESSION['userID']);
@@ -23,7 +20,7 @@ if(count($_POST) > 0) {
         if($db -> execute($query, $bind)) {
             header('Location: ../../login/logout.php');
         }else{
-            header('Location: ../?a=pe');
+            header('Location: ../?a=e'); // a = Alert  e = Error(generiv)
         }
     }
 }

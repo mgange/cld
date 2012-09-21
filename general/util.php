@@ -8,6 +8,15 @@ function hashPassword($pass)
     return sha1($pass);
 }
 
+function comparePasswords($pass, $repass)
+{
+    if($pass != $repass || $pass == '') {
+        return false;
+    }else{
+        return true;
+    }
+}
+
 function gtfo($config){
     header('Location: ' . $config['base_domain'] . $config['base_dir'] . '?a=ua');
 }
