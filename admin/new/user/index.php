@@ -17,7 +17,11 @@ if($_SESSION['authLevel'] != 3) {
 }
 
 if(count($_POST) > 0) {
-    if(! comparePasswords($_POST['pass'], $_POST['repass'])) {
+    $query = 'SELECT username FROM users WHERE username = :username';
+    $UNBind[':username'] = $username;
+    if($db -> numRows($query, $UNBind) > 0) {
+        header('Location: ./?a=une'); //a = Alert  une = Username Error
+    }elseif(! comparePasswords($_POST['pass'], $_POST['repass'])) {
         header('Location: ./?a=pe'); //a = Alert  pe = Password Error
     }else{
         $query = 'INSERT INTO users (customerID, username, password, email, firstName, lastName, authLevel)
