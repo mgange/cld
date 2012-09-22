@@ -164,6 +164,14 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'une': // une = Username Error
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> That username is already taken! You'll
+                have to pick another one
+            </div>
+<?php        break;
+
         case 'pm': // pm = Password Match
 ?>          <div class="alert alert-error span8 offset2">
                 <button class="close" data-dismiss="alert">&times;</button>
