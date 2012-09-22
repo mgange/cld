@@ -36,7 +36,7 @@ switch($_SESSION['authLevel']) {
 $query = 'SELECT * FROM customers ' . $where;
 $customers = $db -> fetchAll($query);
 
-$query = 'SELECT * FROM users ' . $where;
+$query = 'SELECT * FROM users ' . $where . ' AND active = 1';
 $users = $db -> fetchAll($query);
 
 
