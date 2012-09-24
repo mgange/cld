@@ -29,10 +29,10 @@ $config['base_dir']    = '';
  *
  * These values are needed for any data access.
  *
- * 'dbHost'     = Hostname where we'll look for the database server
- * 'dbName'     = Name of the database being used
- * 'dbUser'  = Database username
- * 'dbPass'   = Database pasword
+ * 'dbHost' = Hostname where we'll look for the database server
+ * 'dbName' = Name of the database being used
+ * 'dbUser' = Database username
+ * 'dbPass' = Database pasword
  * 'salt' = A salt string to base the password hashing on
  */
 $config['dbHost'] = '';
@@ -49,7 +49,7 @@ $config['salt']   = '';
  *
  * General info about this site used for presentation purposes.
  *
- * 'site_name'     = Name to appear in title tags
+ * 'site_name' = Name to appear in title tags
  * 'path_in_title' = Reversed breadcrumbs in the title of each page. Set value
  * to '2' to use the full path, '1' to display only the last directory name, or
  * '0' to remove.
@@ -64,8 +64,8 @@ $config['path_in_title'] = 1;
  *
  * These values are needed for any data access.
  *
- * 'admin_name'     = website administrator's name
- * 'admin_email'     = website administrator's email address
+ * 'admin_name' = website administrator's name
+ * 'admin_email' = website administrator's email address
  */
 $config['admin_name'] = '';
 $config['admin_email'] = '';
@@ -143,7 +143,7 @@ $config['log_date_format'] = 'Y-m-d H:i:s';
  *------------------------------------------------------------------------------
  *
  * 'sess_expiration'     = the number of SECONDS you want the session to last.
- *   by default sessions last 7200 seconds (two hours).  Set to zero for no expiration.
+ * by default sessions last 7200 seconds (two hours).  Set to zero for no expiration.
  * 'sess_time_to_update'   = how many seconds between refreshing Session Information
  *
  */

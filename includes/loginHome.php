@@ -4,8 +4,8 @@
  * Homepage File for Logged In Users
  *------------------------------------------------------------------------------
  *
- * This page is displayed at the root of the sites structure and only to logged 
- * in users. It is a placeholder that will be replaced by site specific 
+ * This page is displayed at the root of the sites structure and only to logged
+ * in users. It is a placeholder that will be replaced by site specific
  * information such as news, a blog, or a dashboard for the logged in user.
  *
  */
