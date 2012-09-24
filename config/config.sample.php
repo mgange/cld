@@ -53,9 +53,14 @@ $config['salt']   = '';
  * 'path_in_title' = Reversed breadcrumbs in the title of each page. Set value
  * to '2' to use the full path, '1' to display only the last directory name, or
  * '0' to remove.
+ * 'breadcrumbs' = Breadcrumb link displayed below the header based on the path
+ * in the url. The site's 'base_dir' value will be left out
+ * WARNING - clicking breadcrumb links may not always work for pages where
+ * values must be passed in the url.
  */
-$config['site_name'] = 'CLD Monitoring';
+$config['site_name'] = 'SITE NAME';
 $config['path_in_title'] = 1;
+$config['breadcrumbs'] = 0;
 
 /*
  *------------------------------------------------------------------------------
