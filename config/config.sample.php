@@ -33,11 +33,14 @@ $config['base_dir']    = '';
  * 'dbName'     = Name of the database being used
  * 'dbUser'  = Database username
  * 'dbPass'   = Database pasword
+ * 'salt' = A salt string to base the password hashing on
  */
 $config['dbHost'] = '';
 $config['dbName'] = '';
 $config['dbUser'] = '';
 $config['dbPass'] = '';
+
+$config['salt']   = '';
 
 /*
  *------------------------------------------------------------------------------
