@@ -42,6 +42,16 @@ function pprint($arr, $label = '')
     echo "</div>";
 }
 
+function arrayRemoveEmpty($array)
+{
+    foreach ($array as $key => $value) {
+        if ($array[$key] == '') {
+            unset($array[$key]);
+        }
+    }
+    return $array;
+}
+
 class db extends PDO
 {
 
