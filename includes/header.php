@@ -136,40 +136,48 @@ if(! isset($_SESSION['userID'])){
     </div>
 
 <?php
+/**
+ * This will display the path to the current page based on the url. The site's
+ * base_dir will be ignored and if  0 or 1 breadcrumb links are found nothing
+ * will be diplayed at all.
+ * It is controlled in the config file at $config['breadcrumbs']
+ */
 if($config['breadcrumbs']) {
-?>
-    <div class="container">
-        <ul class="breadcrumb">
-<?php
+
     $crumbs = arrayRemoveEmpty(
         explode('/',
             preg_replace('/\?.*/','',
                 preg_replace('/' . $config['base_dir'],'',$_SERVER['REQUEST_URI']))
             )
         );
-
-    $i = 1;
-    foreach($crumbs as $crumb) {
-        if($i != count($crumbs)) {
-            $path = $config['base_domain'] . $config['base_dir'];
-            foreach(array_slice($crumbs, 0, $i) as $peice) {
-                $path .= $peice . '/';
-            }
+    if(count($crumbs) > 1) {
+?>
+    <div class="container">
+        <ul class="breadcrumb">
+<?
+        $i = 1;
+        foreach($crumbs as $crumb) {
+            if($i != count($crumbs)) {
+                $path = $config['base_domain'] . $config['base_dir'];
+                foreach(array_slice($crumbs, 0, $i) as $peice) {
+                    $path .= $peice . '/';
+                }
 
 ?>
             <li><a href="<?php echo $path; ?>"><?php echo ucfirst($crumb); ?></a> <span class="divider">/</span></li>
 <?php
-        }else{
+            }else{
 ?>
             <li class="active"><?php echo ucfirst($crumb); ?></li>
 <?php
+            }
+            $i++;
         }
-        $i++;
-    }
 ?>
         </ul>
     </div>
 <?php
+    }
 }
 ?>
 
