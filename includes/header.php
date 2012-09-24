@@ -195,6 +195,14 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'nl': // ef = No Login
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> You've entered the wrong username or
+                password.
+            </div>
+<?php        break;
+
         case 'ua': // ua = Unauthorized Access
 ?>          <div class="alert alert-error span8 offset2">
                 <button class="close" data-dismiss="alert">&times;</button>

@@ -25,7 +25,7 @@ if(isset($_POST['submit'])){
     $db = new db($config);
     $results = $db -> fetchRow($query, $bind);
 
-    if(count($results) > 0) {
+    if(count($results) > 1) {
         $_SESSION['userID']     = $results['userID'];
         $_SESSION['customerID'] = $results['customerID'];
         $_SESSION['username']   = $results['username'];
@@ -35,10 +35,14 @@ if(isset($_POST['submit'])){
         $_SESSION['lastName']   = $results['lastName'];
         $_SESSION['last_activity'] = time();
         $_SESSION['last_update']   = time();
+
+        header('Location: ../');
+    }else{
+        header('Location: ../?a=nl'); // a = Alert  nl = No Login
     }
 
 
-    header('Location: ../');
+
 }
 
 ?>
