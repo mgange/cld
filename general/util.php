@@ -3,9 +3,9 @@
  * A utilities file, for functions, classes, what have you.
  */
 
-function hashPassword($pass)
+function hashPassword($config, $pass)
 {
-    return sha1($pass);
+    return crypt($pass, $config['salt']);
 }
 
 function comparePasswords($pass, $repass)

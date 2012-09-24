@@ -75,7 +75,7 @@ if(count($_POST) > 0) {
             header('Location: ../?id=' . intval($_POST['userID']) . '&a=ef');
         }
         $query = 'UPDATE users SET password = :password WHERE userID = :userID';
-        $bind[':password'] = hashPassword($_POST['pass']);
+        $bind[':password'] = hashPassword($config, $_POST['pass']);
         $bind[':userID'] = intval($_POST['userID']);
 
         if($db -> execute($query, $bind)) {
