@@ -118,11 +118,6 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
     echo $config['site_name'];
 }
     ?></a>
-            <button type="button" class="btn btn-navbar pull-right" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
 <?php
 if(! isset($_SESSION['userID'])){
     include_once(__DIR__ . '/../includes/signIn.php');
