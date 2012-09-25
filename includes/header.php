@@ -67,18 +67,12 @@ if(isset($_SESSION['last_update'])) {
      * It is controlled in the config file at $config['path_in_title']
      */
     if($config['path_in_title'] > 0) {
-        $crumbs = explode(
-            "/",
-            preg_replace(
-                '/\?.*$/',
-                '',
-                preg_replace(
-                    '/' . $config['base_dir'],
-                    '',
-                    $_SERVER["REQUEST_URI"]
-                    )
+        $crumbs = arrayRemoveEmpty(
+            explode('/',
+                preg_replace('/\?.*/','',
+                    preg_replace('/' . preg_replace('/\//', '\/', $config['base_dir']) . '/','',$_SERVER['REQUEST_URI']))
                 )
-            );
+        );
         $crumbs = arrayRemoveEmpty($crumbs);
         if(count($crumbs) > 0) {
             if($config['path_in_title'] == 1) {
