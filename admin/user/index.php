@@ -81,11 +81,6 @@ if(count($_POST) > 0) {
 
 
 ?>
-?>
-
-        <div class="row">
-            <h1 class="span8 offset2">Administration</h1>
-        </div>
 
         <div class="row">
             <h1 class="span8 offset2">User Profile</h1>
