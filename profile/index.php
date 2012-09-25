@@ -81,7 +81,7 @@ $results = $db -> fetchRow($query, $bind);
                 <label class='span6 offset3'>Email <br>
                     <input
                         class='span6'
-                        type='text'
+                        type='email'
                         name='email'
                         value='<?php echo $results['email'] ?>'
                         placeholder='First Name'

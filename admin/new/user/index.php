@@ -96,7 +96,7 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
 
                 <div class="span6">
                     <label for="email">Email
-                        <input class="span6" type="text" name="email">
+                        <input class="span6" type="email" name="email">
                     </label>
                 </div>
                 <div class="span6">

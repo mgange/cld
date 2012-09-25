@@ -108,7 +108,7 @@ if(count($_POST) > 0) {
                 </div>
                 <div class="span6 offset3">
                     <label for="email">Email
-                        <input class="span6" type="text" name="email" value="<?php echo $user['email']; ?>">
+                        <input class="span6" type="email" name="email" value="<?php echo $user['email']; ?>">
                     </label>
                 </div>
             </div>

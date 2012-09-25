@@ -87,10 +87,10 @@ foreach($state_list as $abbr => $state) {
 
                 <div class="span6">
                     <label for="email1">Email
-                        <input type="text" class="span6" name="email1">
+                        <input type="email" class="span6" name="email1">
                     </label>
                     <label for="email1">Alternate Email
-                        <input type="text" class="span6" name="email2">
+                        <input type="email" class="span6" name="email2">
                     </label>
                 </div>
             </div>
