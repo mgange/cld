@@ -3,11 +3,21 @@
  * A utilities file, for functions, classes, what have you.
  */
 
+/**
+ * Run one-way encryption on a password string using the crypt() function and a
+ * salt stored in the config array. Hashing prevents any passwords stored in the
+ * database being stolen if the database is compromised, and then used to
+ * compromise both the application and the accounts of users on other services
+ * if they do not use unique passwords.
+ */
 function hashPassword($config, $pass)
 {
     return crypt($pass, $config['salt']);
 }
 
+/**
+ * Returns true if two strings passed to it are the same and not empty.
+ */
 function comparePasswords($pass, $repass)
 {
     if($pass != $repass || $pass == '') {
@@ -17,6 +27,11 @@ function comparePasswords($pass, $repass)
     }
 }
 
+/**
+ * Redirect users to the homepage with an Unauthorized Access message. Useful
+ * any time you're restricting access, e.g. people viewing another customer
+ * accout's data or pages meant for a higher authLevel.
+ */
 function gtfo($config){
     header('Location: ' . $config['base_domain'] . $config['base_dir'] . '?a=ua');
 }
@@ -42,6 +57,10 @@ function pprint($arr, $label = '')
     echo "</div>";
 }
 
+/**
+ * returns the array passed to it with empty values( == '' ) removed. Probably
+ * most useful for parsing URIs.
+ */
 function arrayRemoveEmpty($array)
 {
     foreach ($array as $key => $value) {
