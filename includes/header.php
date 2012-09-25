@@ -147,7 +147,7 @@ if($config['breadcrumbs']) {
     $crumbs = arrayRemoveEmpty(
         explode('/',
             preg_replace('/\?.*/','',
-                preg_replace('/' . $config['base_dir'],'',$_SERVER['REQUEST_URI']))
+                preg_replace('/' . preg_replace('/\//', '\/', $config['base_dir']) . '/','',$_SERVER['REQUEST_URI']))
             )
         );
     if(count($crumbs) > 1) {
