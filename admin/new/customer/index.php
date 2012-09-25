@@ -37,8 +37,8 @@ pprint($_POST);
 ?>
 
         <div class="row">
-            <div class="span6 offset3">
-                <h1>Add a New Customer</h1>
+            <div class="span8 offset2">
+                <h1>New Customer</h1>
             </div>
         </div>
 

@@ -42,8 +42,10 @@ if(count($_POST) > 0) {
 }
 
 ?>
+        <div class="row">
+            <h1 class="span8 offset2">Customer Info</h1>
+        </div>
 
-<h1>Customer Info</h1>
 <?php
 
 if(! isset($_GET['id']) || $_GET['id'] == '') {

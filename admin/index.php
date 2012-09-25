@@ -32,7 +32,13 @@ switch($_SESSION['authLevel']) {
         $where = 'WHERE 1';
         break;
 }
+?>
 
+        <div class="row">
+            <h1 class="span8 offset2">Site Administration</h1>
+        </div>
+
+<?php
 $query = 'SELECT * FROM customers ' . $where;
 $customers = $db -> fetchAll($query);
 

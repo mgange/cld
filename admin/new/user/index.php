@@ -50,8 +50,8 @@ $customers = $db -> fetchAll($query);
 ?>
 
         <div class="row">
-            <div class="span6 offset3">
-                <h1>new user</h1>
+            <div class="span8 offset2">
+                <h1>New User</h1>
             </div>
         </div>
 
