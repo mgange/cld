@@ -20,7 +20,7 @@ if(count($_POST) > 0) {
         if($db -> execute($query, $bind)) {
             header('Location: ../../login/logout.php');
         }else{
-            header('Location: ../?a=e'); // a = Alert  e = Error(generiv)
+            header('Location: ../?a=e'); // a = Alert  e = Error(generic)
         }
     }
 

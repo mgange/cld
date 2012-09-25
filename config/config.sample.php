@@ -33,7 +33,8 @@ $config['base_dir']    = '';
  * 'dbName' = Name of the database being used
  * 'dbUser' = Database username
  * 'dbPass' = Database pasword
- * 'salt' = A salt string to base the password hashing on
+ * 'salt' = A salt string to base the password hashing on. This can be anything
+ * at all as ong as it doesn't change once you start making passwords.
  */
 $config['dbHost'] = '';
 $config['dbName'] = '';

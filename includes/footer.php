@@ -17,6 +17,7 @@
 ?>
 
     </div><!-- End of .container -->
+
     <footer class="footer footer-fixed-bottom">
         <div class="container">
             <small>

@@ -47,15 +47,14 @@ $results = $db -> fetchRow($query, $bind);
             <h1 class='span8 offset2'>User Profile</h1>
         </div>
 
-
-<div class="row">
-    <div class="span6 offset3">
-        <a href="password?id=<?php echo intval($_GET['id']); ?>&a=pww" class="btn btn-warning pull-right">
-                <i class="icon-refresh icon-white"></i>
-                Reset Password
-            </a>
-    </div>
-</div>
+        <div class="row">
+            <div class="span6 offset3">
+                <a href="password?id=<?php echo intval($_GET['id']); ?>&a=pww" class="btn btn-warning pull-right">
+                        <i class="icon-refresh icon-white"></i>
+                        Reset Password
+                    </a>
+            </div>
+        </div>
 
         <form action='./' method='POST' accept-charset='utf-8'>
             <div class="row">
