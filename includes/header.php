@@ -37,6 +37,11 @@ if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['bas
     header('Location: ' . $config['base_domain'] . $config['base_dir']);
 }
 
+/* Get rid of the index.php in the url */
+if(preg_match('/index.php$/', $_SERVER['REQUEST_URI'])) {
+    header('Location: ./');
+}
+
 if(isset($_SESSION['last_activity'])) {
     if(time() - $_SESSION['last_activity'] > $config['sess_expiration']) {
         header('Location: '
