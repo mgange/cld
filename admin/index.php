@@ -77,18 +77,21 @@ foreach($customers as $cust) {
 
                     <br><br>
 
-                    <h4 class="pull-left">User Accounts</h4>
+                    <div class="row">
+                        <h4 class="span5">User Accounts</h4>
 <?php
 if($_SESSION['authLevel'] == 3) {
 ?>
-                    <a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success offset1">
-                        <i class="icon-plus icon-white"></i>
-                        Add User
-                    </a>
+                        <div class="span5">
+                            <a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success">
+                                <i class="icon-plus icon-white"></i>
+                                Add User
+                            </a>
+                        </div>
 <?php
 }
 ?>
-                    <div class="clearfix"></div>
+                    </div>
 <?php
             foreach($users as $user) {
                 if($user['customerID'] == $cust['customerID']) {
@@ -142,4 +145,14 @@ if($_SESSION['authLevel'] == 3) {
 }
 
 require_once('../includes/footer.php');
+?>
+<?php
+if($_SESSION['authLevel'] == 3) {
+?>
+                    <a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success offset1">
+                        <i class="icon-plus icon-white"></i>
+                        Add User
+                    </a>
+<?php
+}
 ?>
