@@ -30,11 +30,11 @@ else {  echo '<font color="blue">';
         echo '<font color="black">';
      }
 ?>
-     </center> </h3></div>      
+     </center> </h3></div>
 <!--<pre>
    user    : user
     manager : manager
-    admin   : admin  
+    admin   : admin
 </pre> -->
 <div class="row">
     <div class="span6">
@@ -44,10 +44,10 @@ else {  echo '<font color="blue">';
     </div>
    <div class="span6">
         <h3>Home Geothermal System</h3>
-        <p><img src="../cld/Images/geothermal-heat-pump-systems.jpg" width="414" height="342" longdesc="geothermal-heat-pump-systems.jpg" /></p>
+        <p><img src="img/geothermal-heat-pump-systems.jpg" width="414" height="342" longdesc="geothermal-heat-pump-systems.jpg" /></p>
    </div>
 </div>
-<!-- 
+<!--
 <hr>
 
 <div class="row">
