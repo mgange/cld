@@ -126,7 +126,7 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
                     <li>
                         <a href="http://ecs.hvtdc.org/cld/">Home</a>
                     </li>
-                    <li  class="offset1">
+                    <li>
                         <a href="#">About CLD</a>
                     </li>
                     <li>
