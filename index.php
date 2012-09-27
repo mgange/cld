@@ -22,11 +22,11 @@ $_SESSION['base_dir'] = $config['base_dir'];
 
 require_once('includes/header.php');
 
-if(! isset($_SESSION['userID'])) {
-    include_once('includes/noLoginHome.php');
-}else{
+//if(! isset($_SESSION['userID'])) {
+//    include_once('includes/noLoginHome.php');
+//}else{
     include_once('includes/loginHome.php');
-}
+//}
 
 require_once('includes/footer.php');
 ?>
