@@ -37,21 +37,4 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
                     <li><a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>login/logout.php">Sign Out</a></li>
                 </ul>
             </div>
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <?php
-                    /* Generate navigation here */
-                    ?>
-                <!--
-                    <li class="active">
-                        <a href="#">SAMPLE</a>
-                    </li>
-                    <li>
-                        <a href="#">SAMPLE</a>
-                    </li>
-                    <li>
-                        <a href="#">SAMPLE</a>
-                    </li>
-                -->
-                </ul>
-            </div>
+         
