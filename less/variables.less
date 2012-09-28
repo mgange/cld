@@ -6,6 +6,10 @@
 // Global values
 // --------------------------------------------------
 
+// CLD branding values
+// -------------------------
+@cldPrimary:            #797;
+@cldSecondary:          #ccf;
 
 // Grays
 // -------------------------
@@ -159,7 +163,7 @@
 @navbarCollapseWidth:             979px;
 
 @navbarHeight:                    40px;
-@navbarBackgroundHighlight:       #779977;
+@navbarBackgroundHighlight:       @cldPrimary;
 @navbarBackground:                darken(@navbarBackgroundHighlight, 5%);
 @navbarBorder:                    darken(@navbarBackground, 12%);
 
@@ -201,7 +205,7 @@
 
 // Hero unit
 // -------------------------
-@heroUnitBackground:              #ccccff;   //@grayLighter;
+@heroUnitBackground:              @cldSecondary;
 @heroUnitHeadingColor:            inherit;
 @heroUnitLeadColor:               inherit;
 
