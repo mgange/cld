@@ -39,13 +39,13 @@ if( isset($_SESSION['userID'])){
                 <h3>Learn More about GeoThermal Systems</h2>
                 <p>
                     <a href="http://energy.gov/energysaver/articles/geothermal-heat-pumps">
-                        Energy.Gov - GeoThermal Heat Pumps"
+                        Energy.Gov - GeoThermal Heat Pumps
                     </a>
                 </p>
             </h3>
             </div>
            <div class="span6">
                 <h3>Home Geothermal System</h3>
-                <p><img src="img/geothermal-heat-pump-systems.jpg" width="414" height="342" longdesc="geothermal-heat-pump-systems.jpg" /></p>
+                <img src="img/geothermal-heat-pump-systems.jpg" />
            </div>
         </div>
