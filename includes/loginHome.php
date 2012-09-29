@@ -12,10 +12,10 @@
  */
 ?>
         <div class="hero-unit" >
-            <h2>CLD is a Industry Leader in Alternative Energy Systems. Their GeoThermal
-                Monitoring System provides home owners and building managers with real
-                system status and system effiency monitors and long term insight into
-                their energy savings realizations.
+            <h2>CLD is a Industry Leader in Alternative Energy Systems. Their
+                GeoThermal Monitoring System provides home owners and building
+                managers with real system status and system effiency monitors
+                and long term insight into their energy savings realizations.
             </h2>
         </div>
         <div class="hero-unit" >
@@ -23,7 +23,7 @@
 <?php
 if( isset($_SESSION['userID'])){
 ?>
-                <a href="dashboard/index.php" >GeoThermal System Monitor</a>
+                <a href="dashboard" >GeoThermal System Monitor</a>
 <?php
 }else{
 ?>
