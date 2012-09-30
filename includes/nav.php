@@ -18,6 +18,10 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
+
+<?php
+if(isset($_SESSION['userID'])) {
+?>
             <div class="btn-group pull-right">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="icon-user"></i> <?php
@@ -35,6 +39,24 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
 <?php } ?>
                     <li class="divider"></li>
                     <li><a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>login/logout.php">Sign Out</a></li>
+
                 </ul>
             </div>
-         
+<?php
+}else{
+    require_once('./includes/signIn.php');
+}
+?>
+            <div class="nav-collapse collapse" >
+                <ul class="nav">
+                    <li>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a>
+                    </li>
+                    <li>
+                        <a href="#">About CLD</a>
+                    </li>
+                    <li>
+                        <a href="#">Contact Us</a>
+                    </li>
+                </ul>
+            </div>

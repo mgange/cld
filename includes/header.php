@@ -119,32 +119,11 @@ if(isset($config['site_name']) && $config['site_name'] !== '') {
 }
     ?></a>
 
-    <div class="nav-collapse collapse" >
-                <ul class="nav">
-                   <!-- /* Generate navigation here */ -->
 
-                    <li>
-                        <a href="http://ecs.hvtdc.org/cld/">Home</a>
-                    </li>
-                    <li>
-                        <a href="#">About CLD</a>
-                    </li>
-                    <li>
-                        <a href="#">Contact Us</a>
-                    </li>
-
-
-
-                </ul>
-    </div>
 
 
 <?php
-if(! isset($_SESSION['userID'])){
-    include_once(__DIR__ . '/../includes/signIn.php');
-}else{
-    include_once(__DIR__ . '/../includes/nav.php');
-}
+include_once(__DIR__ . '/../includes/nav.php');
 ?>
 
         </div>
