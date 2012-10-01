@@ -40,7 +40,7 @@ switch(count($buildings)) {
 $query = 'SELECT sysID FROM SystemConfig WHERE buildingID = :buildingID';
 $systemConfigBind[':buildingID'] = $buildings[0]['buildingID'];
 
-$sysConfigs = $db -> fetchAll($query, $systemConfigBind); /* made up results --> */$sysConfigs = array(0 => array('sysID' => 99));
+$sysConfigs = $db -> fetchAll($query, $systemConfigBind);
 
 switch(count($sysConfigs)) {
     case 0:
