@@ -267,16 +267,5 @@ if(isset($_GET['a'])) {
             break;
     }
 }
-/**
- * This switch statement will display alerts immediately below the navbar based
- * on the value of variable 'action' variable passed in the URL. By default no
- * message is displayed just as if the variable didn't exist.
- */
-if(isset($_GET['action'])) {
-    switch($_GET['action']) {
-        default:
-            break;
-    }
-}
 ?>
         </div>
