@@ -43,8 +43,6 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
                 </ul>
             </div>
 <?php
-}else{
-    require_once('./includes/signIn.php');
 }
 ?>
             <div class="nav-collapse collapse" >
@@ -59,4 +57,9 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
                         <a href="#">Contact Us</a>
                     </li>
                 </ul>
+<?php
+if(!isset($_SESSION['userID'])) {
+    require_once('./includes/signIn.php');
+}
+?>
             </div>
