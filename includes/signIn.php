@@ -21,5 +21,5 @@
                     <input id="password" type="password" name="password" >
                 </label>
 
-                <input class="submit btn btn-small" type="submit" name="submit" value="Sign In">
+                <input class="submit btn" type="submit" name="submit" value="Sign In">
             </form>
