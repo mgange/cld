@@ -91,6 +91,28 @@ function arrayRemoveEmpty($array)
 }
 
 /**
+ * Adds a link to the system chooser for users with more than one system. Use
+ * can probably be limited /dashboard pages
+ * @param  array $config site-wide config array
+ * @return null
+ */
+function systemSwitch($config)
+{
+    if(isset($_SESSION['numSystems']) && $_SESSION['numSystems'] > 1) {
+    ?>
+            <div class="container">
+                <a
+                href="<?php echo $config['base_domain'] . $config['base_dir'] . 'dashboard/buildings' ?>"
+                class="btn btn-info btn-mini pull-right">
+                    <i class="icon-th-list icon-white"></i>
+                    Change System
+                </a>
+            </div>
+    <?php
+    }
+}
+
+/**
  *------------------------------------------------------------------------------
  * PDO Wrapper Class
  *------------------------------------------------------------------------------
