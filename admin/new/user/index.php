@@ -17,9 +17,11 @@ if($_SESSION['authLevel'] != 3) {
 }
 
 if(count($_POST) > 0) {
+    // Check that the username isn't taken and meets the minimum length req.
     $query = 'SELECT username FROM users WHERE username = :username';
     $UNBind[':username'] = $_POST['username'];
-    if($db -> numRows($query, $UNBind) > 0) {
+    if($db -> numRows($query, $UNBind) > 0
+        || strlen($_POST['username']) < $config['usernameMinLength']) {
         header('Location: ./?a=une'); //a = Alert  une = Username Error
     }elseif(! comparePasswords($_POST['pass'], $_POST['repass'])) {
         header('Location: ./?a=pe'); //a = Alert  pe = Password Error
