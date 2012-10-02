@@ -144,7 +144,7 @@ if($config['breadcrumbs']) {
                 preg_replace('/' . preg_replace('/\//', '\/', $config['base_dir']) . '/','',$_SERVER['REQUEST_URI']))
             )
         );
-    if(count($crumbs) > 1) {
+    if(count($crumbs) >= $config['breadcrumbThreshold']) {
 ?>
     <div class="container">
         <ul class="breadcrumb">

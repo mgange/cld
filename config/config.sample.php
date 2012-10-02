@@ -58,10 +58,14 @@ $config['salt']   = '';
  * in the url. The site's 'base_dir' value will be left out
  * WARNING - clicking breadcrumb links may not always work for pages where
  * values must be passed in the url.
+ * 'breadcrumbThreshold' sets the minimum number of breadcrumb elements that
+ * must be detected before the breadcrumbs row is displayed. It's irrelevant
+ * though, if breadcrumbs is set to 0
  */
 $config['site_name'] = 'SITE NAME';
 $config['path_in_title'] = 1;
 $config['breadcrumbs'] = 0;
+$config['breadcrumbThreshold'] = 2;
 
 /*
  *------------------------------------------------------------------------------
