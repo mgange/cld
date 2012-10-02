@@ -29,7 +29,7 @@ if(isset($_GET['buildingID']) && isset($_GET['SysID'])) {
 $db = new db($config);
 
 // Get all their buildings
-$query = 'SELECT * FROM buildings WHERE customerID = :customerID';
+$query = 'SELECT buildingID, address1, address2, city, state, zip FROM buildings WHERE customerID = :customerID';
 $buildingsBind[':customerID'] = $_SESSION['customerID'];
 
 $buildings = $db -> fetchAll($query, $buildingsBind);
@@ -43,9 +43,9 @@ $buildings = $db -> fetchAll($query, $buildingsBind);
 // Get the systemms associated with each building
 $numSystems = 0;
 foreach($buildings as $building) {
-    $query = 'SELECT * FROM SystemConfig WHERE buildingID = :buildingID';
+    $query = 'SELECT SysID, DAMID FROM SystemConfig WHERE buildingID = :buildingID';
     $bind['buildingID'] = $building['buildingID'];
-    $configs = $db -> fetchAll($query, $bind);
+    $sysConfigs = $db -> fetchAll($query, $bind);
 ?>
         <div class="well clearfix">
             <h4 class="span5 offset1">
@@ -63,18 +63,18 @@ foreach($buildings as $building) {
                 <?php echo $building['zip']; ?>
             </h5>
 <?php
-    foreach($configs as $config) {
+    foreach($sysConfigs as $sysConfig) {
 ?>
             <div class="span8 offset2">
                 <a href="./?buildingID=<?php
                 echo $building['buildingID']
                 ?>&SysID=<?php
-                echo $config['SysID'];
+                echo $sysConfig['SysID'];
                 if(isset($_GET['intent'])) {
                     echo '&intent=' . $_GET['intent'];
                 }
                 ?>">
-                    <?php echo $config['DAMID']; ?>
+                    <?php echo $sysConfig['DAMID']; ?>
 
                 </a>
             </div>
