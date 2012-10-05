@@ -51,10 +51,10 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
                         <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a>
                     </li>
                     <li>
-                        <a href="#">About CLD</a>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>about">About CLD</a>
                     </li>
                     <li>
-                        <a href="#">Contact Us</a>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>contact">Contact Us</a>
                     </li>
                 </ul>
 <?php
