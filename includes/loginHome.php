@@ -11,6 +11,7 @@
  *
  */
 ?>
+
         <div class="hero-unit" >
             <h2>CLD is a Industry Leader in Alternative Energy Systems. Their
                 GeoThermal Monitoring System provides home owners and building
@@ -36,13 +37,27 @@ if( isset($_SESSION['userID'])){
 
         <div class="row">
             <div class="span6">
-                <h3>Learn More about GeoThermal Systems</h2>
+                <h3>Learn More about GeoThermal Systems</h3>
+
+<?php
+/**
+ * 'Learn More' links pulled in from another file.
+ * The links list is generated from a json object in /includes/learnMore.js
+ */
+$file = $_SESSION['base_domain'] . $_SESSION['base_dir'] . 'includes/learnMore.js';
+$fh = fopen($file, 'r');
+$links = fread($fh, 9999);
+fclose($fh);
+
+$obj = json_decode($links);
+foreach(get_object_vars($obj) as $title => $link) {
+?>
                 <p>
-                    <a href="http://energy.gov/energysaver/articles/geothermal-heat-pumps">
-                        Energy.Gov - GeoThermal Heat Pumps
-                    </a>
+                    <a href="<?php echo $link; ?>"><?php echo $title; ?></a>
                 </p>
-            </h3>
+<?php
+}
+?>
             </div>
            <div class="span6">
                 <h3>Home Geothermal System</h3>
