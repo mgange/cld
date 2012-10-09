@@ -48,14 +48,20 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
             <div class="nav-collapse collapse" >
                 <ul class="nav">
                     <li>
-                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a>
-                    </li>
-                    <li>
                         <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>about">About CLD</a>
                     </li>
                     <li>
                         <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>contact">Contact Us</a>
                     </li>
+<?php
+if(isset($_SESSION['userID'])) {
+?>
+                    <li>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>dashboard">Dashboard</a>
+                    </li>
+<?php
+}
+?>
                 </ul>
 <?php
 if(!isset($_SESSION['userID'])) {
