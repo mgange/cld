@@ -56,8 +56,29 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
 <?php
 if(isset($_SESSION['userID'])) {
 ?>
-                    <li>
-                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>dashboard">Dashboard</a>
+                    <li class="dropdown">
+                        <a href="systems" role="button" class="dropdown-toggle" data-toggle="dropdown">Systems <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>alarms">Alarms</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>status">Status</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>performance">Performance</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>information">Information</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>maintenance">Maintenance</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>systems">Choose System</a>
+                            </li>
+                        </ul>
                     </li>
 <?php
 }
