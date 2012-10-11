@@ -8,7 +8,7 @@
  * $_SESSION and they'll be redirected someplace else.
  */
 
-require_once('../includes/header.php');
+session_start();
 
 /**
  * Handle links coming from this same page. Set the buildingID and SysID as
@@ -20,11 +20,13 @@ if(isset($_GET['buildingID']) && isset($_GET['SysID'])) {
     $_SESSION['buildingID'] = intval($_GET['buildingID']);
     $_SESSION['SysID'] = intval($_GET['SysID']);
     if(isset($_GET['intent'])) {
-        header('Location: ../../' . $_GET['intent']);
+        header('Location: ../' . $_GET['intent']);
     }else{
         header('Location: ../');
     }
 }
+
+require_once('../includes/header.php');
 
 $db = new db($config);
 
@@ -40,7 +42,7 @@ $buildings = $db -> fetchAll($query, $buildingsBind);
         </div>
 
 <?php
-// Get the systemms associated with each building
+// Get the systems associated with each building
 $numSystems = 0;
 foreach($buildings as $building) {
     $query = 'SELECT SysID, DAMID, SysName FROM SystemConfig WHERE buildingID = :buildingID';
@@ -65,57 +67,34 @@ foreach($buildings as $building) {
 <?php
     foreach($sysConfigs as $sysConfig) {
 ?>
-            <div class="span8 offset2">
-                <table>
-                    <tr>
-                        <td width="20%">
-                            <?php echo $sysConfig['SysName']; ?>   
-                        </td>
-                        <td width="20%">
-                            <a href="./?buildingID=<?php
-                               echo $building['buildingID']
+            <div class="span2 offset1">
+                <?php echo $sysConfig['SysName']; ?>
+            </div>
+
+            <a href="./?buildingID=<?php
+                               echo $building['buildingID'];
                                ?>&SysID=<?php
                                 echo $sysConfig['SysID'];
-                                if(isset($_GET['intent'])) {
-                                echo '&intent=' . $_GET['intent'];
-                                 }
-                                 ?>">                
-                               Information                 
-                             </a>
-                        </td>
-                         <td width="20%">
-               
-                         <a href="./?buildingID=<?php
-                         echo $building['buildingID']
-                         ?>&SysID=<?php
-                         echo $sysConfig['SysID']; ?>">
-                         System Alarms 
-                         </a>
-                        </td>
-                          <td width="20%">
-               
-                         <a href="../Dashboard/?buildingID=<?php
-                         echo $building['buildingID']
-                         ?>&SysID=<?php
-                         echo $sysConfig['SysID'];if(isset($_GET['intent'])) {
-                                echo '&intent=' . $_GET['intent'];
-                                 }
-                                 ?>">
-                         Status DashBoard 
-                         </a>
-                        </td>
-                          <td width="10%">
-               
-                         <a href="./?buildingID=<?php
-                         echo $building['buildingID']
-                         ?>&SysID=<?php
-                         echo $sysConfig['SysID']; ?>">
-                         Performance Charts
-                         </a>
-                        </td>
-                     </tr>
-                </Table>
-            </div>
+                                ?>&intent=information" class="span2">Information</a>
+
+            <a href="./?buildingID=<?php
+                               echo $building['buildingID'];
+                               ?>&SysID=<?php
+                                echo $sysConfig['SysID'];
+                                ?>&intent=alarms" class="span2">Alarms</a>
+
+            <a href="./?buildingID=<?php
+                               echo $building['buildingID'];
+                               ?>&SysID=<?php
+                                echo $sysConfig['SysID'];
+                                ?>&intent=status" class="span2">Status</a>
+
+            <a href="./?buildingID=<?php
+                               echo $building['buildingID'];
+                               ?>&SysID=<?php
+                                echo $sysConfig['SysID'];
+                                ?>&intent=performance" class="span2">Performance</a>
+
 <?php
         $numSystems++;
     }
