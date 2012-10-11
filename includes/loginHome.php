@@ -24,7 +24,7 @@
 <?php
 if( isset($_SESSION['userID'])){
 ?>
-                <a href="dashboard" >GeoThermal System Monitor</a>
+                <a href="systems" >GeoThermal System Monitor</a>
 <?php
 }else{
 ?>
