@@ -6,6 +6,13 @@
  */
 
 
+/**
+ * Ask the user if they're sure when they click a .confirm element
+ */
+$('.confirm').click(function(){
+  return confirm('Are you sure you want to continue?');
+});
+
 
 // Sample date
 var data = [

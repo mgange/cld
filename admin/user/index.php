@@ -132,7 +132,7 @@ if(count($_POST) > 0) {
 
         <div class="row">
             <div class="span6 offset3">
-                <a href="remove?id=<?php echo intval($_GET['id']); ?>" class="btn btn-danger pull-right">
+                <a href="remove?id=<?php echo intval($_GET['id']); ?>" class="btn btn-danger pull-right confirm">
                     <i class="icon-trash icon-white"></i>
                     Remove User
                 </a>
