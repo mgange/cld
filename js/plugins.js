@@ -779,7 +779,7 @@ License: www.highcharts.com/license
             }
         },
         credits: {
-            enabled: !0,
+            enabled: 0,
             text: "Highcharts.com",
             href: "http://www.highcharts.com",
             position: {
