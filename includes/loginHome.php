@@ -44,7 +44,7 @@ if( isset($_SESSION['userID'])){
  * 'Learn More' links pulled in from another file.
  * The links list is generated from a json object in /includes/learnMore.js
  */
-$file = $_SESSION['base_domain'] . $_SESSION['base_dir'] . 'includes/learnMore.js';
+$file = $_SESSION['base_domain'] . $_SESSION['base_dir'] . 'includes/learnMore.json';
 $fh = fopen($file, 'r');
 $links = fread($fh, 9999);
 fclose($fh);
