@@ -72,8 +72,17 @@ $config['breadcrumbThreshold'] = 2;
  * User Details
  *------------------------------------------------------------------------------
  * 'usernameMinLength' Sets a minimum length for usernames.
+ * 'passMinLength' Sets the minimum password length
+ * 'passRequireLetter' Determine if at least one letter is required in passwords
+ * 'passRequireNumber' Determine if at least one number is required in passwords
+ * 'passRequireCapital' Determine if at least one capital letter is required in
+ * passwords
  */
 $config['usernameMinLength'] = 3;
+$config['passMinLength'] = 1;
+$config['passRequireLetter'] = 1;
+$config['passRequireNumber'] = 0;
+$config['passRequireCapital'] = 0;
 
 /*
  *------------------------------------------------------------------------------
