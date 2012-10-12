@@ -14,18 +14,22 @@
         action="<?php echo $_SESSION['base_url']; ?>login/login.php"
         method="POST">
             <div class="row">
-                <div class="span6">
-                    <label for="username">Username &nbsp;
-                        <input id="username" class="span6" type="text" name="username" >
-                    </label>
-                </div>
-                <div class="span6">
-                    <label for="password">Password &nbsp;
-                        <input id="password" class="span6" type="password" name="password" >
-                    </label>
-                </div>
-                <div class="span10 offset1">
-                <input class="submit btn btn-large btn-block span10" type="submit" name="submit" value="Sign In">
+                <div class="span8 offset2 well">
+                    <div class="row">
+                        <div class="span4 ">
+                            <label for="username">Username &nbsp;
+                                <input id="username" class="span4" type="text" name="username" >
+                            </label>
+                        </div>
+                        <div class="span4">
+                            <label for="password">Password &nbsp;
+                                <input id="password" class="span4" type="password" name="password" >
+                            </label>
+                        </div>
+                        <div class="span6 offset1">
+                            <input class="submit btn btn-large btn-block" type="submit" name="submit" value="Sign In">
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
