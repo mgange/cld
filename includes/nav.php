@@ -84,9 +84,4 @@ if(isset($_SESSION['userID'])) {
 }
 ?>
                 </ul>
-<?php
-if(!isset($_SESSION['userID'])) {
-    require_once('./includes/signIn.php');
-}
-?>
             </div>

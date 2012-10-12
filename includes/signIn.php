@@ -10,16 +10,22 @@
  *
  */
 ?>
-            <form
-            class="sign-in-form pull-right form-inline"
-            action="<?php echo $_SESSION['base_url']; ?>login/login.php"
-            method="POST">
-                <label for="username">Username &nbsp;
-                    <input id="username" type="text" name="username" >
-                </label>
-                <label for="password">Password &nbsp;
-                    <input id="password" type="password" name="password" >
-                </label>
-
-                <input class="submit btn" type="submit" name="submit" value="Sign In">
-            </form>
+        <form
+        action="<?php echo $_SESSION['base_url']; ?>login/login.php"
+        method="POST">
+            <div class="row">
+                <div class="span6">
+                    <label for="username">Username &nbsp;
+                        <input id="username" class="span6" type="text" name="username" >
+                    </label>
+                </div>
+                <div class="span6">
+                    <label for="password">Password &nbsp;
+                        <input id="password" class="span6" type="password" name="password" >
+                    </label>
+                </div>
+                <div class="span10 offset1">
+                <input class="submit btn btn-large btn-block span10" type="submit" name="submit" value="Sign In">
+                </div>
+            </div>
+        </form>

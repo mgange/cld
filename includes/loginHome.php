@@ -10,8 +10,11 @@
  * Logged in users get link to Geothermal Monitoring System
  *
  */
-?>
 
+if(!isset($_SESSION['userID'])) {
+    require_once('./includes/signIn.php');
+}
+?>
         <div class="hero-unit" >
             <h2>CLD is a Industry Leader in Alternative Energy Systems. Their
                 GeoThermal Monitoring System provides home owners and building
