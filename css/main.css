@@ -7098,6 +7098,22 @@ body > .page-content {
 .align-center {
   text-align: center;
 }
+.status-container {
+  border: 3px solid red;
+  height: 500px;
+  position: relative;
+}
+.status-child {
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+.map {
+  z-index: 5;
+}
+.glyphs {
+  z-index: 6;
+}
 /*!
  * Bootstrap Responsive v2.1.1
  *
