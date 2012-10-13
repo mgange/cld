@@ -7099,20 +7099,46 @@ body > .page-content {
   text-align: center;
 }
 .status-container {
-  border: 3px solid red;
-  height: 500px;
+  border: 3px solid DarkGreen;
+  height: 800px;
   position: relative;
+  border: 1px solid Green;
 }
-.status-child {
-  left: 0;
+.status-Back {
+  left: 0px;
+  width: 500px;
+  height: 450px;
   position: absolute;
-  top: 0;
+  top: 0px;
+  z-index: 1;
+  border: 1px solid Green;
 }
-.map {
-  z-index: 5;
+.status-OpenLoop {
+  left: 375px;
+  position: absolute;
+  top: 420px;
+  width: 300px;
+  height: 350px;
+  z-index: 3;
+  border: 1px solid Green;
 }
-.glyphs {
-  z-index: 6;
+.status-OpenLoopDryWell {
+  left: 500px;
+  position: absolute;
+  top: 300px;
+  width: 400px;
+  height: 250px;
+  z-index: 2;
+  border: 1px solid Green;
+}
+.status-ClosedLoop {
+  left: 433px;
+  position: absolute;
+  top: 300px;
+  width: 400px;
+  height: 250px;
+  z-index: 2;
+  border: 1px solid Green;
 }
 /*!
  * Bootstrap Responsive v2.1.1
