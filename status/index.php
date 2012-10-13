@@ -13,12 +13,18 @@ require_once('../includes/header.php');
         </div>
 
         <div class="row">
-            <div class="status-container span8 offset2">
-                <div class="status-child map">
-                    <img src="../img/SysIll.png" alt="alt">
+            <div class="status-container span10 offset1">
+                <div class="status-Back map">
+                    <img src="../status/image/WebBackGroundHeatingMode.png" alt="Heat Exchanger">
                 </div>
-                <div class="status-child glyphs">
-                    <img src="../img/glyphicons-halflings.png" alt="alt">
+                <div class="status-OpenLoop">
+                    <img src="../status/image/WebOpenLoop.png" alt="Open Loop ">
+                </div>t
+                  <div class="status-OpenLoopDryWell">
+                    <img src="../status/image/WebOpenLoopDryWell.png" alt="Open Loop Dry Well">
+                </div>
+                  <div class="status-ClosedLoop hidden">
+                    <img src="../status/image/WebClosedLoop.png" alt="Closed Loop">
                 </div>
             </div>
         </div>
