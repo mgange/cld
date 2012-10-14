@@ -5,6 +5,7 @@
  *------------------------------------------------------------------------------
  *
  */
+require_once('../includes/pageStart.php');
 require_once('../includes/header.php');
 ?>
 

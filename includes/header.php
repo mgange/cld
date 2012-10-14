@@ -17,46 +17,7 @@
  * PHP version 5.3.0
  *
  */
-session_start();
 
-/**
- * The base domain and directory are needed to build links to resources like
- * javascript and stylesheets. If they're not set then the user hasn't been to
- * the homepage(and therefore hasn't been to a login page). Since you can't
- * reliably know the homepage without these values we'll just dump them  back to
- * the domain root.
- */
-if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
-    header("Location: /");
-}
-
-if(! include_once(__DIR__ . '/../config/config.php')){ die('Config file could not be loaded.'); }
-if(! require_once(__DIR__ . '/../general/util.php')){ die('Core files could not be loaded.'); }
-
-if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['base_dir'] . 'index.php'){
-    header('Location: ' . $config['base_domain'] . $config['base_dir']);
-}
-
-/* Get rid of the index.php in the url */
-if(preg_match('/index.php$/', $_SERVER['REQUEST_URI'])) {
-    header('Location: ./');
-}
-
-if(isset($_SESSION['last_activity'])) {
-    if(time() - $_SESSION['last_activity'] > $config['sess_expiration']) {
-        header('Location: '
-            . $config['base_domain']
-            . $config['base_dir']
-            . 'login/logout.php');
-    }else{
-        $_SESSION['last_activity'] = time();
-    }
-}
-if(isset($_SESSION['last_update'])) {
-    if(time()-$_SESSION['last_update'] > $config['sess_time_to_update']) {
-        require_once(__DIR__ . '/../includes/sessionUpdate.php');
-    }
-}
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->

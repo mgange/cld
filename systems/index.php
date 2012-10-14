@@ -8,7 +8,7 @@
  * $_SESSION and they'll be redirected someplace else.
  */
 
-session_start();
+require_once('../includes/pageStart.php');
 
 /**
  * Handle links coming from this same page. Set the buildingID and SysID as

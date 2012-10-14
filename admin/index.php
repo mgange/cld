@@ -17,6 +17,7 @@
  * PHP version 5.3.0
  *
  */
+require_once('../includes/pageStart.php');
 require_once('../includes/header.php');
 
 $db = new db($config);

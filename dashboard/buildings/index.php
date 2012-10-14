@@ -8,6 +8,7 @@
  * $_SESSION and they'll be redirected someplace else.
  */
 
+require_once('../includes/pageStart.php');
 require_once('../../includes/header.php');
 
 /**
@@ -77,21 +78,21 @@ foreach($buildings as $building) {
                                 echo '&intent=' . $_GET['intent'];
                                  }
                                  ?>">
-                
-                              <?php echo $sysConfig['SysName']; ?>                 
+
+                              <?php echo $sysConfig['SysName']; ?>
                              </a>
                         </td>
                          <td width="20%">
-               
+
                          <a href="./?buildingID=<?php
                          echo $building['buildingID']
                          ?>&SysID=<?php
                          echo $sysConfig['SysID']; ?>">
-                         System Alarms 
+                         System Alarms
                          </a>
                         </td>
                           <td width="20%">
-               
+
                          <a href="../../SystemStatus/?buildingID=<?php
                          echo $building['buildingID']
                          ?>&SysID=<?php
@@ -99,11 +100,11 @@ foreach($buildings as $building) {
                                 echo '&intent=' . $_GET['intent'];
                                  }
                                  ?>">
-                         Status DashBoard 
+                         Status DashBoard
                          </a>
                         </td>
                           <td width="20%">
-               
+
                          <a href="./?buildingID=<?php
                          echo $building['buildingID']
                          ?>&SysID=<?php
