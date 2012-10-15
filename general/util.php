@@ -48,6 +48,21 @@ function gtfo($config){
 }
 
 
+/**
+ * Check if buildingID and SysID are set int the SESSION variable. If no the
+ * user is redirected to the system selection page.
+ * @param  array  $config The site-wide config array
+ */
+function checkSystemSet($config)
+{
+    if(!isset($_SESSION['buildingID']) || !isset($_SESSION['SysId'])) {
+        header('Location: '
+            . $config['base_domain']
+            . $config['base_dir']
+            . 'systems');
+    }
+}
+
 
 /**
  * Pretty Print
