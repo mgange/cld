@@ -57,7 +57,12 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
 if(isset($_SESSION['userID'])) {
 ?>
                     <li class="dropdown">
-                        <a href="systems" role="button" class="dropdown-toggle" data-toggle="dropdown">Systems <b class="caret"></b></a>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>systems"
+                            role="button"
+                            class="dropdown-toggle"
+                            data-toggle="dropdown">
+                            Systems <b class="caret"></b>
+                        </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>information">Information</a>
