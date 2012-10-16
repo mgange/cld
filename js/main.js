@@ -14,124 +14,62 @@ $('.confirm').click(function(){
 });
 
 
-// Sample date
-var data = [
-            {
-              name: 'Water In',
-              data: [49.44,49.44,49.55,49.55,49.55,49.55,49.44]
-            },
-            {
-              name: 'Water out',
-              data: [43.03,43.03,43.03,43.03,43.03,43.03,42.8]
-            },
-            {
-              name: 'Air In',
-              data: [64.85,65.07,64.74,64.85,64.96,64.96,64.85]
-            },
-            {
-              name: 'Air Out',
-              data: [91.06,91.18,91.06,91.18,91.18,91.29,91.51]
-            },
-            {
-              name: 'Outside',
-              data: [66.65,67.21,68.45,68.22,68.56,69.01,69.57]
-            },
-            {
-              name: 'In 1',
-              data: [1,1,1,1,1,1,1]
-            },
-            {
-              name: 'In 2',
-              data: [0,0,0,0,0,0,0]
-            },
-            {
-              name: 'In 3',
-              data: [0,0,0,0,1,1,1]
-            },
-            {
-              name: 'In 4',
-              data: [1,1,1,1,1,1,1]
-            },
-            {
-              name: 'In 5',
-              data: [0,0,0,0,0,0,0]
-            },
-            {
-              name: 'In 6',
-              data: [0,0,0,0,0,0,0]
-            },
-            {
-              name: 'In 7',
-              data: [0,0,0,0,0,0,0]
-            },
-            {
-              name: 'In 8',
-              data: [1,1,1,1,1,1,1]
-            },
-            {
-              name: 'Flow 1 GPM',
-              data: [5.62,5.65,5.47,5.65,7.07,7.58,7.58]
-            },
-            {
-              name: 'Pressure PSI',
-              data: [37.5,37.5,37.56,37.5,13.03,12.77,12.74]
-            }
-          ]; // End series
-
 
 // sample chart
-$(function () {
-    var chart;
-    $(document).ready(function() {
-        chart = new Highcharts.Chart({
-            chart: {
-                renderTo: 'chart',
-                type: 'line'
-            },
-            // legend: {align: 'right',
-            //          borderRadius: 3,
-            //          layout: 'vertical',
-            //          verticalAlign: 'middle'
-            //        },
-            // loading: {hideDuration: 0},
-            // subtitle: {text: 'From RFP'},
-            // title: {text: 'Sample Data'},
-            // tooltip: {enabled: true,
-            //           animate: false
-            // },
-            plotOptions: {
-                line: {
-                    allowPointSelect: false,
-                    dataLabels: {
-                        enabled: false
-                    },
-                    enableMouseTracking: true
-                    },
-                    lineWidth: 1,
-                    series: {
-                      point: {
-                        events: {
-                          click: function(){console.log(this);}
+if($('#chart').length) {
+  $(function () {
+      var chart;
+      $(document).ready(function() {
+          chart = new Highcharts.Chart({
+              chart: {
+                  renderTo: 'chart',
+                  type: 'line'
+              },
+              // legend: {align: 'right',
+              //          borderRadius: 3,
+              //          layout: 'vertical',
+              //          verticalAlign: 'middle'
+              //        },
+              // loading: {hideDuration: 0},
+              // subtitle: {text: 'From RFP'},
+              // title: {text: 'Sample Data'},
+              // tooltip: {enabled: true,
+              //           animate: false
+              // },
+              plotOptions: {
+                  line: {
+                      allowPointSelect: false,
+                      dataLabels: {
+                          enabled: false
+                      },
+                      enableMouseTracking: true
+                      },
+                      lineWidth: 1,
+                      series: {
+                        point: {
+                          events: {
+                            click: function(){console.log(this);}
+                          }
                         }
-                      }
-                    },
-                    shadow: false
-            },
-            xAxis: {
-                categories: ['13:48', '13:48','13:48','13:48','13:48','13:49','13:49']
-            },
-            yAxis: {
-              title: {text: 'Temperature (°F)'}
-            },
-            series: data
-        }); // End Highcharts.Chart
-    }); // End $.ready()
+                      },
+                      shadow: false
+              },
+              xAxis: {
+                  categories: ['13:48', '13:48','13:48','13:48','13:48','13:49','13:49']
+              },
+              yAxis: {
+                title: {text: 'Temperature (°F)'}
+              },
+              series: data
+          }); // End Highcharts.Chart
+      }); // End $.ready()
 
-});
+  })
+}
 
 
 /**
- * Highcharts tracker now don't prevent default behavior (like scrolling on touch devices).
+ * Highcharts tracker now doesn't prevent default behavior (like scrolling on touch devices).
  * https://gist.github.com/2983403
  */
 Highcharts.Chart.prototype.callbacks.push(function(chart) {
