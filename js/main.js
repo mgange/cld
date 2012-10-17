@@ -16,7 +16,7 @@ $('.confirm').click(function(){
 
 
 // sample chart
-if($('#chart').length) {
+if($('#chart').length && (typeof(data) != "undefined" && data !== null) ) {
   $(function () {
       var chart;
       $(document).ready(function() {
