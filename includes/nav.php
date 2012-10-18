@@ -23,7 +23,9 @@
 if(isset($_SESSION['userID'])) {
 ?>
             <div class="btn-group pull-right">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn dropdown-toggle"
+                   data-toggle="dropdown"
+                   href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>profile">
                     <i class="icon-user"></i> <?php
 if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
     echo $_SESSION['firstName'] . ' ' . $_SESSION['lastName'];
@@ -47,6 +49,9 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
 ?>
             <div class="nav-collapse collapse" >
                 <ul class="nav">
+                    <li>
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a>
+                    </li>
                     <li>
                         <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>about">About CLD</a>
                     </li>
