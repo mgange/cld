@@ -24,6 +24,20 @@
                 Lovingly handcrafted at
                 <a href="http://hvtdc.org" title="HVTDC">HVTDC</a>
             </small>
+
+            <div class="pull-right">
+            <small>
+                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir'] ?>about">
+                    About CLD
+                </a>
+            </small>
+            |
+            <small>
+                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir'] ?>contact">
+                    Contact Us
+                </a>
+            </small>
+            </div>
         </div>
     </footer>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
