@@ -43,23 +43,44 @@ function echoJSarray($array, $wrapper=''){
 
 checkSystemSet($config);
 
+if(isset($_GET['date'])) {
+    // pprint($_GET);
+    $datetime = date_create($_GET['date'] . ' ' . $_GET['time']);
+    $date = date_format($datetime, 'Y-m-d');
+    $time = date_format($datetime, 'H:i:s');
+    $startTime = $time;
+    $endTime = $time;
+}
+
 $db = new db($config);
 $query = 'SELECT SourceHeader.Recnum,
                 SourceHeader.DateStamp,         SourceHeader.TimeStamp,
                 SourceData0.Senchan01,          SourceData0.Senchan02,
                 SourceData0.Senchan03,          SourceData0.Senchan04,
                 SourceData0.Senchan05,          SourceData0.Senchan06,
-                                                SourceData0.Senchan08
+                SourceData0.Senchan08
           FROM SourceHeader, SourceData0
-          WHERE SourceHeader.Recnum = SourceData0.HeadID
-            AND SourceHeader.SysID = :SysID
-          ORDER BY SourceHeader.DateStamp DESC,
-                   SourceHeader.TimeStamp DESC
-          LIMIT 0,120';
-$bind[':SysID'] = $_SESSION['SysID'];
+          ';
+if(isset($_GET['date']) && isset($_GET['time'])) {
+    $query .= " WHERE SourceHeader.DateStamp <= '" . $date . "'";
+    $query .= " AND SourceHeader.TimeStamp <= '" . $time . "'";
+    // $bind[':date'] = (string)$date;
+    // $bind[':time'] = (string)$time;
+}else{
+    $query .= "WHERE SourceHeader.Recnum = SourceData0.HeadID";
+}
+$query .= "
+    AND SourceHeader.SysID = 1
+    AND SourceHeader.Recnum = SourceData0.HeadID
+    ORDER BY SourceHeader.DateStamp DESC,
+        SourceHeader.TimeStamp DESC
+    LIMIT 0,500";
+// $bind[':SysID'] = $_SESSION['SysID'];
 
 // array_reverse() because the most recent data belongs at the end of the graph
+try{
 $result = array_reverse( $db -> fetchAll($query, $bind) );
+}catch(Exception $e){echo $e->getMessage();}
 
 foreach($result as $resultRow) {
     foreach($resultRow as $key => $val) {
@@ -76,8 +97,9 @@ foreach($result as $val) {
 require_once('../includes/header.php');
 ?>
             <script type="text/javascript">
+            var recnums = [<?php echoJSarray($Recnum); ?>]<?php // TODO (Geoff Young): Recnums are being divided by 100 ?>
+
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
-            var recnums = [<?php echoJSarray($Recnum); ?>]
             var data = [
 <?php
 
