@@ -27,15 +27,25 @@
 
             <div class="pull-right">
             <small>
-                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir'] ?>about">
-                    About CLD
-                </a>
+                <a href="javascript:void(0);"
+                            name=""
+                            title=""
+                            onclick="window.open(
+                                '<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>about',
+                                'Popup','width=850,height=600,dependent=yes,0,status=0,resizable=1,');">
+                            About CLD
+                        </a>
             </small>
             |
             <small>
-                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir'] ?>contact">
-                    Contact Us
-                </a>
+                <a href="javascript:void(0);"
+                            name=""
+                            title=""
+                            onclick="window.open(
+                                '<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>contact',
+                                'Popup','width=850,height=600,dependent=yes,0,status=0,resizable=1,');">
+                            About CLD
+                        </a>
             </small>
             </div>
         </div>
