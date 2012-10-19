@@ -69,7 +69,7 @@ if($_SESSION['firstName'] != '' && $_SESSION['lastName'] != '') {
                             onclick="window.open(
                                 '<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>contact',
                                 'Popup','width=850,height=600,dependent=yes,0,status=0,resizable=1,');">
-                            About CLD
+                            Contact Us
                         </a>
                     </li>
 <?php
