@@ -30,11 +30,16 @@ require_once('../includes/header.php');
 
 $db = new db($config);
 
-// Get all their buildings
-$query = 'SELECT buildingID, address1, address2, city, state, zip FROM buildings WHERE customerID = :customerID';
-$buildingsBind[':customerID'] = $_SESSION['customerID'];
+$query = 'SELECT buildingID, address1, address2, city, state, zip FROM buildings ';
+if($_SESSION['authLevel'] == 3) {
+    $query .= 'WHERE 1';
+}else{
+    $query .= 'WHERE customerID = ' . $_SESSION['customerID'];
+}
 
-$buildings = $db -> fetchAll($query, $buildingsBind);
+
+$buildings = $db -> fetchAll($query);
+
 ?>
 
         <div class="row">
@@ -45,9 +50,10 @@ $buildings = $db -> fetchAll($query, $buildingsBind);
 // Get the systems associated with each building
 $numSystems = 0;
 foreach($buildings as $building) {
-    $query = 'SELECT SysID, DAMID, SysName FROM SystemConfig WHERE buildingID = :buildingID';
-    $bind['buildingID'] = $building['buildingID'];
-    $sysConfigs = $db -> fetchAll($query, $bind);
+    $query = 'SELECT SysID, DAMID, SysName FROM SystemConfig WHERE buildingID = ' . $building['buildingID'];
+    //If there's a system for this building ...
+    if($db -> numRows($query) > 0) {
+        $sysConfigs = $db -> fetchAll($query);
 ?>
         <div class="well clearfix">
             <h4 class="span5 offset1">
@@ -61,47 +67,50 @@ foreach($buildings as $building) {
                      echo ', ' . $building['state'];
                 }
                 ?>
-                <br>
-                <?php echo $building['zip']; ?>
             </h5>
 <?php
     foreach($sysConfigs as $sysConfig) {
 ?>
-            <div class="span2 offset1">
-                <?php echo $sysConfig['SysName']; ?>
+            <div class="row clearfix">
+                <div class="span2 offset1">
+                    <?php echo $sysConfig['SysName']; ?>
+                </div>
+
+                <a href="./?buildingID=<?php
+                                   echo $building['buildingID'];
+                                   ?>&SysID=<?php
+                                    echo $sysConfig['SysID'];
+                                    ?>&intent=information" class="span2">Information</a>
+
+                <a href="./?buildingID=<?php
+                                   echo $building['buildingID'];
+                                   ?>&SysID=<?php
+                                    echo $sysConfig['SysID'];
+                                    ?>&intent=alarms" class="span2">Alarms</a>
+
+                <a href="./?buildingID=<?php
+                                   echo $building['buildingID'];
+                                   ?>&SysID=<?php
+                                    echo $sysConfig['SysID'];
+                                    ?>&intent=status" class="span2">Status</a>
+
+                <a href="./?buildingID=<?php
+                                   echo $building['buildingID'];
+                                   ?>&SysID=<?php
+                                    echo $sysConfig['SysID'];
+                                    ?>&intent=performance" class="span2">Performance</a>
             </div>
-
-            <a href="./?buildingID=<?php
-                               echo $building['buildingID'];
-                               ?>&SysID=<?php
-                                echo $sysConfig['SysID'];
-                                ?>&intent=information" class="span2">Information</a>
-
-            <a href="./?buildingID=<?php
-                               echo $building['buildingID'];
-                               ?>&SysID=<?php
-                                echo $sysConfig['SysID'];
-                                ?>&intent=alarms" class="span2">Alarms</a>
-
-            <a href="./?buildingID=<?php
-                               echo $building['buildingID'];
-                               ?>&SysID=<?php
-                                echo $sysConfig['SysID'];
-                                ?>&intent=status" class="span2">Status</a>
-
-            <a href="./?buildingID=<?php
-                               echo $building['buildingID'];
-                               ?>&SysID=<?php
-                                echo $sysConfig['SysID'];
-                                ?>&intent=performance" class="span2">Performance</a>
 
 <?php
         $numSystems++;
+        }
+?>
+        </div>
+<?php
     }
 }
 $_SESSION['numSystems'] = $numSystems;
 ?>
-        </div>
 <?php
 require_once('../includes/footer.php');
 ?>
