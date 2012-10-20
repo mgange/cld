@@ -56,18 +56,20 @@ foreach($buildings as $building) {
         $sysConfigs = $db -> fetchAll($query);
 ?>
         <div class="well clearfix">
-            <h4 class="span5 offset1">
-                <?php echo $building['address1']; ?>
-                <br>
-                <?php echo $building['address2']; ?>
-            </h4>
-            <h5 class="span5">
-                <?php echo $building['city'];
-                if($building['state'] != '') {
-                     echo ', ' . $building['state'];
-                }
-                ?>
-            </h5>
+            <div class="row">
+                <h4 class="span5 offset1">
+                    <?php echo $building['address1']; ?>
+                    <br>
+                    <?php echo $building['address2']; ?>
+                </h4>
+                <h5 class="span5">
+                    <?php echo $building['city'];
+                    if($building['state'] != '') {
+                         echo ', ' . $building['state'];
+                    }
+                    ?>
+                </h5>
+            </div>
 <?php
     foreach($sysConfigs as $sysConfig) {
 ?>
