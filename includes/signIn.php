@@ -18,7 +18,7 @@
                     <div class="row">
                         <div class="span4 ">
                             <label for="username">Username &nbsp;
-                                <input id="username" class="span4" type="text" name="username" >
+                                <input id="username" class="span4" type="text" name="username" autofocus="autofocus">
                             </label>
                         </div>
                         <div class="span4">
