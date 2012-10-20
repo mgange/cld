@@ -18,7 +18,7 @@ if(!isset($_SESSION['userID'])) {
         <div class="hero-unit" >
             <h2>CLD is a Industry Leader in Alternative Energy Systems. Their
                 GeoThermal Monitoring System provides home owners and building
-                managers with real system status and system effiency monitors
+                managers with real system status and system efficiency monitors
                 and long term insight into their energy savings realizations.
             </h2>
         </div>
@@ -56,7 +56,10 @@ $obj = json_decode($links);
 foreach(get_object_vars($obj) as $title => $link) {
 ?>
                 <p>
-                    <a href="<?php echo $link; ?>"><?php echo $title; ?></a>
+                    <a href="<?php
+                    
+                    if ($link !="#")  {echo $link; }?>" target="_blank">
+                    <?php if ($link !="#") {echo $title;} ?></a>
                 </p>
 <?php
 }
