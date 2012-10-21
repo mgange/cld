@@ -1,3 +1,5 @@
+Allow from all
+Satisfy any
 # Apache configuration file
 # httpd.apache.org/docs/2.2/mod/quickreference.html
 
