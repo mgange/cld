@@ -59,7 +59,13 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+    <!-- touch icons -->
+    <link rel="icon" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-72x72-precomposed.png"   sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-114x114-precomposed.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-144x144-precomposed.png" sizes="144x144">
+
 
     <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/main.css">
     <script src="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>js/vendor/modernizr-2.6.1.min.js"></script>
