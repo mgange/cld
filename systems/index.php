@@ -73,38 +73,45 @@ foreach($buildings as $building) {
 <?php
     foreach($sysConfigs as $sysConfig) {
 ?>
+
             <div class="row clearfix">
                 <div class="span2 offset1">
                     <?php echo $sysConfig['SysName']; ?>
+
                 </div>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=information" class="systems-info span2">Information</a>
+                                    ?>&intent=information" class="systems-icon systems-info span2">Information</a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=alarms" class="span2">Alarms</a>
+                                    ?>&intent=alarms" class="systems-icon systems-alarms span2">Alarms</a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=status" class="span2">Status</a>
+                                    ?>&intent=status" class="systems-icon systems-status span2">Status</a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=performance" class="span2">Performance</a>
+                                    ?>&intent=performance" class="systems-icon systems-performance span2">Performance</a>
             </div>
 
 <?php
         $numSystems++;
+            if($numSystems < count($sysConfigs)) {
+?>
+            <br><hr><br>
+<?php
+            }
         }
 ?>
         </div>
