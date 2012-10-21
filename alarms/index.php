@@ -28,24 +28,24 @@ $db -> execute($query);
             <h1 class="span6 offset2">Alarms &nbsp;&nbsp; <font color="blue">   System - <?php  echo $SysName; ?></font></h1>
         </div>
         <?php
-        	$query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID;
-        	$results = $db -> fetchAll($query);
+            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID;
+            $results = $db -> fetchAll($query);
             if(!empty($results)){
         ?>
         <div class="row">
-        	<h3 style="text-align:left">Active</h3>
-        	<table class="table">
-        		<tr style="background-color:#00FFFF">
-        			<th>Date</th>
-        			<th>Time</th>
-        			<th>Description</th>
-        			<th>Zone</th>
-        			<th>Alarm Type</th>
-        			<th>Duration (Hrs:Mins)</th>
-        			<th>Resolution</th>
-        			<th>Notes</th>
-        			<th>Email Sent</th>
-        		</tr>
+            <h3 style="text-align:left">Active</h3>
+            <table class="table">
+                <tr style="background-color:#00FFFF">
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Description</th>
+                    <th>Zone</th>
+                    <th>Alarm Type</th>
+                    <th>Duration (Hrs:Mins)</th>
+                    <th>Resolution</th>
+                    <th>Notes</th>
+                    <th>Email Sent</th>
+                </tr>
                 <?php
                     foreach ($results as $value) {
                         $dateTime = date_create($value['TimeStamp_Start']);
@@ -55,12 +55,12 @@ $db -> execute($query);
                         $query = "SELECT * FROM Alarm_Codes WHERE Alarm_Code = " . $value['Alarm_Code'];
                         $alarm = $db -> fetchRow($query);
                 ?>
-        		<tr>
-        			<td><?=$date?></td>
-        			<td><?=$time?></td>
-        			<td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></span></td>
-        			<td><?=$value['Alarm_Source']?></td>
-        			<td><?php
+                <tr>
+                    <td><?=$date?></td>
+                    <td><?=$time?></td>
+                    <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></span></td>
+                    <td><?=$value['Alarm_Source']?></td>
+                    <td><?php
                         switch($alarm['Alarm_Type']){
                             case 1:
                                 echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Temperature Sensor</span>";
@@ -71,16 +71,16 @@ $db -> execute($query);
                         }
                     ?>
                     </td>
-        			<td><?=$durationTime?></td>
-        			<td><?=$value['Resolution']?></td>
-        			<td><?=$value['Notes']?></td>
-        			<td><?=(isset($value['Alarm_Email_Sent'])) ? "Yes" : "No"?></td>
-        		</tr>
+                    <td><?=$durationTime?></td>
+                    <td><?=$value['Resolution']?></td>
+                    <td><?=$value['Notes']?></td>
+                    <td><?=(isset($value['Alarm_Email_Sent'])) ? "Yes" : "No"?></td>
+                </tr>
                 <?php
                         unset($value);
                     }//end of foreach
                 ?>
-        	</table>
+            </table>
         </div>
         <?php
             }//end of if(!empty($results))
@@ -89,7 +89,7 @@ $db -> execute($query);
             if(!empty($results)){
         ?>
         <div class="row">
-        	<h3 style="text-align:left">History</h3>
+            <h3 style="text-align:left">History</h3>
             <table class="table">
                 <tr style="background-color:#00FFFF">
                     <th>Started</th>

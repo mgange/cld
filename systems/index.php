@@ -82,7 +82,7 @@ foreach($buildings as $building) {
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=information" class="span2">Information</a>
+                                    ?>&intent=information" class="systems-info span2">Information</a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];

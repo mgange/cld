@@ -14,9 +14,9 @@ require_once('../includes/header.php');
     $dateTimeOffset = 5;
 
     $db = new db($config);
-    $SysID=$_SESSION["SysID"];   
-     
-     
+    $SysID=$_SESSION["SysID"];
+
+
     // first get DAMID for this System from SysMap
     $query = "Select * from SystemConfig, buildings where
               buildings.buildingID=SystemConfig.BuildingID and SystemConfig.SysID=".$SysID;
@@ -71,10 +71,10 @@ require_once('../includes/header.php');
       }
 
 
- 
+
      $sysStatus0 = $db -> fetchRow($query0);
      if ($SysZNum >= 1) {$sysStatus1 = $db -> fetchRow($query1);}
-  
+
      $sysStatus4 = $db -> fetchRow($query4);
      // Not using Calculations for now
   //   $sysStatusCalc = $db -> fetchRow($queryCalc);
@@ -90,9 +90,9 @@ require_once('../includes/header.php');
 
      $SysName=$sysDAMID[SysName];
      $SysLocation=$sysDAMID[address1]." ".$sysDAMID[address2]." ".$sysDAMID[city]." ".$sysDAMID[state];
-  
+
     // determine number of zones and which one is displayed
- if (isset($_GET['z']))  {$SysZNum=$_GET['z'];} else {$SysZNum=0;} 
+ if (isset($_GET['z']))  {$SysZNum=$_GET['z'];} else {$SysZNum=0;}
      $SysLocMain=$sysDAMID[LocationMainSystem];
      if ($SysZNum==0) {$SysZone="Main";}
      if ($SysZNum >= 1) {$SysZone="RSM ".$SysZNum;}
@@ -106,7 +106,7 @@ require_once('../includes/header.php');
      $systemDesc=$sysDAMID[SystemDescription].$lf.$sysDAMID[HeatExchangeUnit].$lf.
                  "Location-".$sysDAMID[LocationMainSystem].$lf."Main DAMID-".$sysDAMID[DAMID].$lf.
                  "RSMs-".$sysDAMID[NumofRSM];
-   
+
 
 
        $exchangermode = 0;
@@ -120,11 +120,11 @@ require_once('../includes/header.php');
 
        $LblA=array($Pageelem);
        $ValA=array($Pageelem);
-   
+
        $ShwA=array($Pageelem);
        $ForA=array($Pageelem);
        $SizA=array($Pageelem);
-// Positions arrary 
+// Positions arrary
        $PosA = array(
             0 => array('xpos' => 550,
                        'ypos' => 25),
@@ -462,7 +462,7 @@ require_once('../includes/header.php');
        $LblA[40]="Spare";
 
        // quick set up for query0  user else for query1 until mapping is complete
-       
+
        if ($SysZNum == 0)  {
        $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
        $SDateTime = date_create($SDateTime);
@@ -639,11 +639,11 @@ require_once('../includes/header.php');
        $ShwA[37]=true;
        $ShwA[38]=true;
        $ShwA[39]=false;
-       $ShwA[40]=false;    
-           
-           
-           
-           
+       $ShwA[40]=false;
+
+
+
+
        }
        $ForA[0]="";
        $ForA[1]="";
@@ -698,14 +698,14 @@ require_once('../includes/header.php');
 
        function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$size,$show,$form)
        {
-          $alertfactor=.15;   // alerts at 15% of limit 
+          $alertfactor=.15;   // alerts at 15% of limit
           $alertdelta=($uplimit-$lolimit)*$alertfactor;
          // Hide display
         if ($show != true) {$EngHide="hidden";} else {$EndHide="";}
          // set background color based on limits
         $BackColor=lightgreen;
-       
-       
+
+
         if (($lolimit=="")  and ($hilimit=="")) {$BackColor=lightblue;}
         // yellow alert
         if (($value < ($lolimit+$alertdelta)) or ($value > ($uplimit-$alertdelta)))
@@ -713,9 +713,9 @@ require_once('../includes/header.php');
         // red alert
          if (($value < $lolimit) or ($value > $uplimit))
            { $BackColor=red;}
-           
+
          // no alerts
-        if (($lolimit=="")  and ($hilimit=="")) {$BackColor=lightblue;}      
+        if (($lolimit=="")  and ($hilimit=="")) {$BackColor=lightblue;}
 // need limit code here
 
 
