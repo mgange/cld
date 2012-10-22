@@ -7088,6 +7088,9 @@ body > .page-content {
   position: fixed;
   width: 100%;
 }
+.alarm-header {
+  background: #0ff;
+}
 .align-left {
   text-align: left;
 }

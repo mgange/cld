@@ -33,9 +33,9 @@ $db -> execute($query);
             if(!empty($results)){
         ?>
         <div class="row">
-            <h3 style="text-align:left">Active</h3>
-            <table class="table">
-                <tr style="background-color:#00FFFF">
+            <h3 class="span12">Active</h3>
+            <table class="table span12">
+                <tr class="alarm-header">
                     <th>Date</th>
                     <th>Time</th>
                     <th>Description</th>
@@ -89,9 +89,9 @@ $db -> execute($query);
             if(!empty($results)){
         ?>
         <div class="row">
-            <h3 style="text-align:left">History</h3>
-            <table class="table">
-                <tr style="background-color:#00FFFF">
+            <h3 class="span12">History</h3>
+            <table class="table span12">
+                <tr class="alarm-header">
                     <th>Started</th>
                     <th>Ended</th>
                     <th>Description</th>
