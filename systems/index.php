@@ -84,25 +84,41 @@ foreach($buildings as $building) {
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=information" class="systems-icon systems-info span2">Information</a>
+                                    ?>&intent=information" class="systems-icon systems-info span2">
+                    <img src="<?php echo $config['base_domain'] . $config['base_dir']?>img/buildingInfo.png" alt="Information">
+                    <br>
+                    Information
+                </a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=alarms" class="systems-icon systems-alarms span2">Alarms</a>
+                                    ?>&intent=alarms" class="systems-icon systems-alarms span2">
+                    <img src="<?php echo $config['base_domain'] . $config['base_dir']?>img/alarm_Red.png" alt="Information">
+                    <br>
+                        Alarms
+                    </a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=status" class="systems-icon systems-status span2">Status</a>
+                                    ?>&intent=status" class="systems-icon systems-status span2">
+                    <img src="<?php echo $config['base_domain'] . $config['base_dir']?>img/status.png" alt="Information">
+                    <br>
+                    Status
+                </a>
 
                 <a href="./?buildingID=<?php
                                    echo $building['buildingID'];
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
-                                    ?>&intent=performance" class="systems-icon systems-performance span2">Performance</a>
+                                    ?>&intent=performance" class="systems-icon systems-performance span2">
+                    <img src="<?php echo $config['base_domain'] . $config['base_dir']?>img/performance.png" alt="Information">
+                    <br>
+                    Performance
+                </a>
             </div>
 
 <?php
