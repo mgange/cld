@@ -89,7 +89,7 @@ function checkSystemSet($config)
          * what they want a dashboard for. Otherwise set sysID as a session
          * variable.
          */
-        $systemQuery = 'SELECT sysID FROM SystemConfig WHERE buildingID = :buildingID';
+        $systemQuery = 'SELECT SysID FROM SystemConfig WHERE buildingID = :buildingID';
         $systemConfigBind[':buildingID'] = $buildings[0]['buildingID'];
 
         $sysConfigs = $db -> fetchAll($systemQuery, $systemConfigBind);
