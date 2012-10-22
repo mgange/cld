@@ -76,7 +76,7 @@ foreach($buildings as $building) {
 
             <div class="row clearfix">
                 <div class="span2 offset1">
-                    <?php echo $sysConfig['SysName']; ?>
+                    <h4 class="system-name"><?php echo $sysConfig['SysName']; ?></h4>
 
                 </div>
 

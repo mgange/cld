@@ -7162,6 +7162,9 @@ body > .page-content {
   top: 200px;
   z-index: 100;
 }
+.system-name {
+  color: #0088cc;
+}
 .systems-icon {
   height: 60px;
   width: 60px;
