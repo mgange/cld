@@ -83,7 +83,13 @@ $db -> execute($query);
             </table>
         </div>
         <?php
-            }//end of if(!empty($results))
+            }else{//end of if(!empty($results))
+        ?>
+        <div>
+            <h3 class="span12">No Active Alarms</h3>
+        </div>
+        <?php
+            }
             $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID;
             $results = $db -> fetchAll($query);
             if(!empty($results)){
