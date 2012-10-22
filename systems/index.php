@@ -72,6 +72,8 @@ foreach($buildings as $building) {
             </div>
 <?php
     foreach($sysConfigs as $sysConfig) {
+        $redAlert    = $db -> numRows("SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND Alarm_Level = 1 AND SysID = " . $sysConfig['SysID']);
+        $yellowAlert = $db -> numRows("SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND Alarm_Level = 2 AND SysID = " . $sysConfig['SysID']);
 ?>
 
             <div class="row clearfix">
@@ -95,7 +97,17 @@ foreach($buildings as $building) {
                                    ?>&SysID=<?php
                                     echo $sysConfig['SysID'];
                                     ?>&intent=alarms" class="systems-icon systems-alarms span2">
-                    <img src="<?php echo $config['base_domain'] . $config['base_dir']?>img/alarm_Red.png" alt="Information">
+                    <img src="<?php echo $config['base_domain'] . $config['base_dir'];
+                        if($redAlert){
+                            echo 'img/alarmRed-60x60.png';
+                        }else{
+                            if($yellowAlert){
+                                echo 'img/alarmYellow-60x60.png';
+                            }else{
+                                echo 'img/alarmGreen-60x60.png';
+                            }
+                        }
+                    ?>" alt="Information">
                     <br>
                         Alarms
                     </a>
