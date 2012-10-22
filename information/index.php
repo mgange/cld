@@ -90,7 +90,7 @@ require_once('../includes/header.php');
                 <hr>
 
                 <div class="row">
-                    <p class="span3"><strong>DAMIN:</strong></p>
+                    <p class="span3"><strong>DAMID:</strong></p>
                     <p class="span3"><?php echo $systemInfo['DAMID']; ?></p>
                 </div>
 
