@@ -60,7 +60,7 @@
     <meta name="viewport" content="width=device-width">
 
     <!-- touch icons -->
-    <link rel="icon" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>favicon.ico">
+    <link rel="shortcut icon" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>favicon.ico">
     <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-72x72-precomposed.png"   sizes="72x72">
     <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-114x114-precomposed.png" sizes="114x114">
