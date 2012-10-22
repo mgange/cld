@@ -31,11 +31,13 @@ function printVarName($var) {
  * e.g. outputting strings.
  * @return null
  */
-function echoJSarray($array, $wrapper=''){
+function echoJSarray($array, $wrapper='', $divisor=1){
 
     $i=1;
     foreach($array as $val) {
-        echo $wrapper . $val . $wrapper;
+        echo $wrapper;
+        if($divisor != 1){echo $val/$divisor;}else{echo $val;}
+        echo $wrapper;
         if($i < count($array)) {echo ', ';}
         $i++;
     }
@@ -53,14 +55,14 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 
 $db = new db($config);
 
-// TODO(Geoff Young): fix SysID
 // TODO(Geoff Young): use prepared statement
     $query = "SELECT
-    SourceHeader.Recnum,       SourceHeader.DateStamp,
+     SourceHeader.Recnum,       SourceHeader.DateStamp,
      SourceHeader.TimeStamp,    SourceData0.Senchan01,
      SourceData0.Senchan02,     SourceData0.Senchan03,
      SourceData0.Senchan04,     SourceData0.Senchan05,
-     SourceData0.Senchan06,     SourceData0.Senchan08
+     SourceData0.Senchan06,     SourceData0.Senchan07,
+     SourceData0.FlowPress01,   SourceData0.FlowPress02
     FROM SourceHeader, SourceData0";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
@@ -101,7 +103,6 @@ require_once('../includes/header.php');
 ?>
             <script type="text/javascript">
             var recnums = [<?php echoJSarray($Recnum); ?>]
-            <?php // TODO (Geoff Young): Recnums are being divided by 100 ?>
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
             var data = [
 <?php
@@ -116,7 +117,7 @@ foreach($result[0] as $key => $val) {
 ?>
                 {
                     name: "<?php echo $key; ?>",
-                    data: [<?php echoJSarray(eval('return $'. $key . ';')); ?>]
+                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 100); ?>]
                 },
 <?php
 }
