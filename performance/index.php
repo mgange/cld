@@ -7,6 +7,10 @@
  */
 require_once('../includes/pageStart.php');
 
+if(isset($_POST['date'])) {
+    header('Location: ./?date=' . $_POST['date'] . '&time=12:00:00');
+}
+
 /**
  * Returns the name of a variable as a string.
  * e.g. printVarName($foo); returns "foo"
@@ -132,6 +136,17 @@ foreach($result[0] as $key => $val) {
 
 
             <div id="chart" class="chart-container data" style="min-width: 400px; min-height: 500px; margin: 0 auto"></div>
+
+            <div class="row">
+                <div class="span8 offset2">
+                    <form class="form-inline" action="./" method="POST">
+                        <label for="date">Date &nbsp;
+                            <input id="date" class="dates" type="text" name="date">
+                        </label>
+                        <input class="btn" type="submit">
+                    </form>
+                </div>
+            </div>
 
 <?php
 require_once('../includes/footer.php');
