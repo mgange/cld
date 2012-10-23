@@ -103,6 +103,21 @@ foreach($result as $val) {
     $Stamp[$val['Recnum']]   = $val['DateStamp'] . '<br>' . $val['TimeStamp'];
 }
 
+// TODO(Geoff Young): Get this from the database instead
+$systemMap = array(
+    'Senchan01' => 'Water In 1',
+    'Senchan02' => 'Water In 2',
+    'Senchan03' => 'Water Out 1',
+    'Senchan04' => 'Water out 2',
+    'Senchan05' => 'Air In',
+    'Senchan06' => 'Air Out',
+    'Senchan07' => 'Outside',
+    'Senchan08' => 'Mech RT(Aux 1)',
+    'FlowPress02' => 'Pressure',
+    'FlowPress03' => 'Flow',
+    'FlowPress04' => 'Flow (RSM)'
+);
+
 require_once('../includes/header.php');
 ?>
             <script type="text/javascript">
@@ -120,7 +135,7 @@ for ($i=0; $i < count($result); $i++) {
 foreach($result[0] as $key => $val) {
 ?>
                 {
-                    name: "<?php echo $key; ?>",
+                    name: "<?php echo $systemMap[$key]; ?>",
                     data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 100); ?>]
                 },
 <?php
