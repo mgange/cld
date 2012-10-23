@@ -154,6 +154,15 @@ foreach($result[0] as $key => $val) {
 
         <div class="row">
             <h1 class="span8 offset2">Performance</h1>
+<?php
+$numRows = $db -> numRows($query)/2;
+if($numRows > 60) {
+    echo floor($numRows/60) . ' Hour';
+    if(floor($numRows/60) > 1) {echo 's';}
+}else{
+    echo $numrows . ' Minutes';
+}
+?>
         </div>
 
 
