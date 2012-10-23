@@ -73,15 +73,15 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     WHERE SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
-    AND SourceHeader.SysID = 1
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
-    AND SourceHeader.SysID = 1
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
     $query .= "
     WHERE SourceHeader.Recnum = SourceData0.HeadID
-    AND SourceHeader.SysID = 1
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
 $query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
