@@ -7,8 +7,15 @@
  */
 require_once('../includes/pageStart.php');
 
-if(isset($_POST['date'])) {
-    header('Location: ./?date=' . $_POST['date'] . '&time=12:00:00');
+if(isset($_POST['date']) && isset($_POST['time'])) {
+    if(substr($_POST['time'], -2, 2) == "PM") {
+        $hour = intval(substr($_POST['time'], 0, 2))+12;
+    }else{
+        $hour = intval(substr($_POST['time'], 0, 2));
+    }
+    $minute = substr($_POST['time'], 3, 2);
+    $seconds = '00';
+    header('Location: ./?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds);
 }
 
 /**
@@ -152,13 +159,33 @@ foreach($result[0] as $key => $val) {
 
             <div id="chart" class="chart-container data" style="min-width: 400px; min-height: 500px; margin: 0 auto"></div>
 
+            <br>
             <div class="row">
-                <div class="span8 offset2">
+                <h5 class="span12 align-center">Date/Time Filter</h5>
+            </div>
+            <div class="row">
+                <div class="span6 offset3">
                     <form class="form-inline" action="./" method="POST">
-                        <label for="date">Date &nbsp;
-                            <input id="date" class="dates" type="text" name="date">
-                        </label>
-                        <input class="btn" type="submit">
+                        <div class="row">
+                            <label class="span3" for="date">Date &nbsp;
+                                <input
+                                    id="date"
+                                    class="datepick span3"
+                                    type="text"
+                                    name="date"
+                                    value="<?php if(isset($_GET['date'])){echo $_GET['date'];} ?>">
+                            </label>
+                            <label class="span3" for="time">Time &nbsp;
+                                <input
+                                    id="time"
+                                    class="timepick span3"
+                                    type="text"
+                                    name="time"
+                                    value="<?php if(isset($_GET['date'])){echo $_GET['time'];} ?>">
+                            </label>
+                        </div>
+                        <br>
+                        <input class="btn btn-block" type="submit" value="Submit">
                     </form>
                 </div>
             </div>
