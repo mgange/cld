@@ -37,6 +37,12 @@ $('.nav li a').each(function(){
   }
 });
 
+// Date Picker
+$('.dates').datepick({
+  dateFormat: 'yyyy-mm-dd',
+  showSpeed: 1
+});
+
 // sample chart
 if($('.chart-container').length) {
   $(function () {
