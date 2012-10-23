@@ -38,9 +38,15 @@ $('.nav li a').each(function(){
 });
 
 // Date Picker
-$('.dates').datepick({
+$('.datepick').datepick({
   dateFormat: 'yyyy-mm-dd',
   showSpeed: 1
+});
+// Time Picker
+$('.timepick').timepicker({
+  scrollDefaultNow: true,
+  step: 10,
+  timeFormat: 'h:i A'
 });
 
 // sample chart
@@ -69,7 +75,11 @@ if($('.chart-container').length) {
                           dashStyle: 'solid',
                           width: 1
                         },
-                        false
+                        { // Horizontal
+                          color: '#eee',
+                          dashStyle: 'solid',
+                          width: 1
+                        }
                         ],
                         enabled: true
                         /* Position the tooltip displayed on hover */
@@ -107,12 +117,18 @@ if($('.chart-container').length) {
               xAxis: {
                   categories: categories,
                   labels: {
-                    enabled: (data && data[3].data.length > 10)?false:true
+                    step: Math.floor(data[0].data.length/Math.floor(document.width/180))-1
                   }
               },
-              yAxis: {
+              yAxis: [{
                 title: {text: 'Temperature (°F)'}
               },
+              {
+                title: {text: 'Pressure (PSI)'},
+                style: {color: '#3f3'},
+                max: 6,
+                opposite: true
+              }],
               series: data
           }); // End Highcharts.Chart
       }); // End $.ready()
