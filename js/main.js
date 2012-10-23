@@ -126,7 +126,7 @@ if($('.chart-container').length) {
               {
                 title: {text: 'Pressure (PSI)'},
                 style: {color: '#3f3'},
-                max: 6,
+                max: 10,
                 opposite: true
               }],
               series: data
