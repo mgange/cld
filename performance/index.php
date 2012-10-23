@@ -66,7 +66,7 @@ $db = new db($config);
      SourceData0.Senchan02,     SourceData0.Senchan03,
      SourceData0.Senchan04,     SourceData0.Senchan05,
      SourceData0.Senchan06,     SourceData0.Senchan07,
-     SourceData0.FlowPress01,   SourceData0.FlowPress02
+     SourceData0.FlowPress02
     FROM SourceHeader, SourceData0";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
