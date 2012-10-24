@@ -7,7 +7,6 @@
  */
 
 require_once('../../../includes/pageStart.php');
-require_once('../../../includes/header.php');
 
 $db = new db($config);
 
@@ -54,6 +53,8 @@ if($db -> execute($query, $bind)) {
 }else{
     header('Location: ../../?a=e'); // a = Alert  e = Error(generic)
 }
+
+require_once('../../../includes/header.php');
 
 require_once('../../../includes/footer.php');
 ?>

@@ -7,7 +7,6 @@
  */
 
 require_once('../../../includes/pageStart.php');
-require_once('../../../includes/header.php');
 
 $db = new db($config);
 
@@ -86,6 +85,10 @@ if(count($_POST) > 0) {
         }
     }
 }
+
+
+require_once('../../../includes/header.php');
+
 
 ?>
 

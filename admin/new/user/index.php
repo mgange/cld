@@ -6,7 +6,6 @@
  *
  */
 require_once('../../includes/pageStart.php');
-require_once('../../../includes/header.php');
 
 $db = new db($config);
 
@@ -46,6 +45,10 @@ if(count($_POST) > 0) {
         die(require_once('../../../includes/footer.php'));
     }
 }
+
+
+require_once('../../../includes/header.php');
+
 
 $query = 'SELECT customerID, customerName FROM customers WHERE 1';
 $customers = $db -> fetchAll($query);

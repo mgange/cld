@@ -6,7 +6,6 @@
  *
  */
 require_once('../../includes/pageStart.php');
-require_once('../../../includes/header.php');
 
 $db = new db($config);
 
@@ -34,6 +33,10 @@ pprint($_POST);
         header('Location: ../../a=e');
     }
 }
+
+
+require_once('../../../includes/header.php');
+
 
 ?>
 
