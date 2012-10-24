@@ -231,6 +231,20 @@ if(isset($_GET['a'])) {
             </div>
 <?php        break;
 
+        case 'ss': // ss = Secondary Success
+?>          <div class="alert alert-success span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Well done!</strong> Information updated successfully.
+            </div>
+<?php        break;
+
+        case 'ne': // ne = Number Error
+?>          <div class="alert alert-error span8 offset2">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Whoa!</strong> Must enter a valid number.
+            </div>
+<?php        break;
+
         default:
             break;
     }
