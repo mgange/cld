@@ -21,7 +21,28 @@ require_once('../includes/header.php');
     $query = "Select * from SystemConfig, buildings where
               buildings.buildingID=SystemConfig.BuildingID and SystemConfig.SysID=".$SysID;
     $sysDAMID = $db -> fetchRow($query);
-
+    $SysConfig=$sysDAMID['Configuration'];
+    $openloop   = false;
+    $openloopdw = false;
+    $closedloop = false;
+     
+    // selects which system diagram to display
+   switch  ($SysConfig) 
+   {
+    case 1: 
+      $openloopdw=true;
+        break;
+    case 2:
+       $openloop=true;
+        break;
+    case 3:
+       $closedloop=true;
+    
+   }
+    
+    
+    
+    
     if(isset($_GET['z'])){
       switch($_GET['z']){
         case 1:
@@ -62,26 +83,26 @@ require_once('../includes/header.php');
       $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData4.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
       $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
       // Querey for RSMs 1, 2, 3, or 5
-    //  if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData1.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
     }else{
-      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.SourceID = 0 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.Recnum = SourceData4.HeadID AND SourceHeader.SourceID = 4 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
-      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.RecNum = SensorCalc.RecNum ORDER BY DateStamp Desc,TimeStamp Desc limit 1";
-    //  if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
+      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.SourceID = 0 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
+      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID AND SourceHeader.SourceID = 4 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
+      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum ORDER BY DateStamp Desc,TimeStamp Desc limit 1";
+      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
       }
 
 
 
      $sysStatus0 = $db -> fetchRow($query0);
-     if ($SysZNum >= 1) {$sysStatus1 = $db -> fetchRow($query1);}
+     if (isset($zone)) {$sysStatus1 = $db -> fetchRow($query1);}
 
      $sysStatus4 = $db -> fetchRow($query4);
      // Not using Calculations for now
   //   $sysStatusCalc = $db -> fetchRow($queryCalc);
 
      //get next and previous recnum's
-      $queryPrev = "SELECT SourceHeader.Recnum FROM SourceHeader,SourceData0 WHERE SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
-      $queryNext = "SELECT SourceHeader.Recnum FROM SourceHeader WHERE SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp ASC,TimeStamp ASC LIMIT 1";
+      $queryPrev = "SELECT SourceHeader.Recnum FROM SourceHeader,SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
+      $queryNext = "SELECT Recnum FROM SourceHeader WHERE SysID = " . $SysID . " AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp ASC,TimeStamp ASC LIMIT 1";
       $result = $db -> fetchRow($queryPrev);
       $prev = $result['Recnum'];
       $result = $db -> fetchRow($queryNext);
@@ -97,9 +118,54 @@ require_once('../includes/header.php');
      if ($SysZNum==0) {$SysZone="Main";}
      if ($SysZNum >= 1) {$SysZone="RSM ".$SysZNum;}
      $NumRSM=$sysDAMID[NumofRSM];
-
-
-
+     
+    // define arrays for data and labels and positions etc
+       $LblA=array($Pageelem);
+       $ValA=array($Pageelem);
+       $ShwA=array($Pageelem);
+       $ForA=array($Pageelem);
+       $SizA=array($Pageelem);
+       $PosAX=array($Pageelem);
+       $PosAY=array($Pageelem);
+       $MapA =array($Pageelem);
+       $Uplim = array($Pageelem);
+       $Lolim = array($Pageelem);
+       
+// get positions and labels for this page from Web Reference table
+     // first get total number of page positions
+      $querypos="Select * from WebRefTable where WebPageName='StatusDB' and WebSubPageName='Main'";
+      $Pageelem = $db -> numRows($querypos);
+     // now get positions for main page
+      $PosMain = $db -> fetchAll($querypos);
+      // define pos Array
+      $i=0;
+      foreach($PosMain as $resultRow) { 
+          $i=$resultRow['WebPagePosNo'];
+          $PosAX[$i]=$resultRow['PageLocX'];      
+          $PosAY[$i]=$resultRow['PageLocY'];
+          $LblA[$i] =$resultRow['SensorName'];
+          $ForA[$i] =$resultRow['Format'];
+        
+      }
+      
+     // then get positions for RSM pages
+     if ($zone >= 1) {
+         
+     }
+     
+     
+     // Field to Data mappings
+     // first get default value for Main Page
+     $DeftMapquery="Select SouceID, SensorColName from SysMap, WebRefTable 
+                       join SysMap.SensorRefName = WebRefTable.SensorName 
+                       where WebPageName='StatusDB' and SysMap.SysID=0";
+     
+     $UniqMapquery="Select SouceID, SensorColName from SysMap, WebRefTable 
+                       join SysMap.SensorRefName = WebRefTable.SensorName 
+                       where WebPageName=StatusDB and SysID=".$SysID;
+     
+    // $MapMain = $db -> fetchAll($DeftMapquery);
+     
      $lf="<br>";
 
      $systemInfo=$SysName." - ". $SysLocation;
@@ -111,165 +177,8 @@ require_once('../includes/header.php');
 
        $exchangermode = 0;
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
-       $openloop=false;
-       $openloopdw=true;
-       $closedloop=false;
+      
 
-
-       $Pageelem=40;
-
-       $LblA=array($Pageelem);
-       $ValA=array($Pageelem);
-
-       $ShwA=array($Pageelem);
-       $ForA=array($Pageelem);
-       $SizA=array($Pageelem);
-// Positions arrary
-       $PosA = array(
-            0 => array('xpos' => 550,
-                       'ypos' => 25),
-
-
-            1 => array('xpos' => 380,
-                       'ypos' => 25),
-
-            2 => array('xpos' => 380,
-                       'ypos' => 100),
-
-
-            3 => array('xpos' => 800,
-                       'ypos' => 25),
-
-            4 => array('xpos' => 550,
-                       'ypos' => 100),
-
-
-            5 => array('xpos' => 675,
-                       'ypos' => 100),
-
-            6 => array('xpos' => 800,
-                       'ypos' => 100),
-
-
-            7 => array('xpos' => 20,
-                       'ypos' => 25),
-
-            8 => array('xpos' => 20,
-                       'ypos' => 75),
-
-            9 => array('xpos' => 20,
-                       'ypos' => 125),
-
-            10 => array('xpos' => 20,
-                       'ypos' => 175),
-
-
-            11 => array('xpos' => 20,
-                       'ypos' => 225),
-
-            12 => array('xpos' => 525,
-                       'ypos' => 175),
-
-
-            13 => array('xpos' => 525,
-                       'ypos' => 275),
-
-            14 => array('xpos' => 400,
-                       'ypos' => 460),
-
-
-            15 => array('xpos' => 400,
-                       'ypos' => 580),
-
-            16 => array('xpos' => 510,
-                       'ypos' => 580),
-
-
-            17 => array('xpos' => 625,
-                       'ypos' => 580),
-
-            18 => array('xpos' => 720,
-                       'ypos' => 430),
-
-
-            19 => array('xpos' => 720,
-                       'ypos' => 475),
-
-            20 => array('xpos' => 720,
-                       'ypos' => 510),
-
-
-            21 => array('xpos' => 25,
-                       'ypos' => 650),
-
-            22 => array('xpos' => 75,
-                       'ypos' => 650),
-
-
-            23 => array('xpos' => 125,
-                       'ypos' => 650),
-
-            24 => array('xpos' => 175,
-                       'ypos' => 650),
-
-
-            25 => array('xpos' => 225,
-                       'ypos' => 650),
-
-            26 => array('xpos' =>275,
-                       'ypos' => 650),
-
-
-            27 => array('xpos' => 325,
-                       'ypos' => 650),
-
-            28 => array('xpos' => 375,
-                       'ypos' => 650),
-
-
-            29 => array('xpos' => 425,
-                       'ypos' => 650),
-
-
-            30 => array('xpos' => 25,
-                       'ypos' => 700),
-
-            31 => array('xpos' => 75,
-                       'ypos' => 700),
-
-
-            32 => array('xpos' => 125,
-                       'ypos' => 700),
-
-            33 => array('xpos' => 175,
-                       'ypos' => 700),
-
-            34 => array('xpos' => 225,
-                       'ypos' => 700),
-
-            35 => array('xpos' => 275,
-                       'ypos' => 700),
-
-
-            36 => array('xpos' => 325,
-                       'ypos' => 700),
-
-
-            37 => array('xpos' => 375,
-                       'ypos' => 700),
-
-            38 => array('xpos' =>425,
-                       'ypos' => 700),
-
-
-            39 => array('xpos' => 650,
-                       'ypos' => 650),
-
-            40 => array('xpos' => 650,
-                       'ypos' => 700)
-
-           );
-    ;
 // Alert Limits array
        $LmtA = array(
             0 => array('lolim' => Null,
@@ -483,29 +392,29 @@ require_once('../includes/header.php');
        $ValA[14]=number_format($sysStatus0[Senchan03]/100,2);
        $ValA[15]=number_format($sysStatus0[Senchan01]/100,2);
        $ValA[16]=number_format($sysStatus0[FlowPress02]/100,2);
-       $ValA[17]=number_format($sysStatus0[FlowPress03]/100,2);
-       $ValA[18]=$sysStatus0[DigIn6];
-       $ValA[19]=$sysStatus0[DigIn7];
-       $ValA[20]=$sysStatus0[DigIn8];
+       $ValA[17]=number_format($sysStatus0[FlowPress01]/100,2);
+       $ValA[18]=$sysStatus0[DigIn06];
+       $ValA[19]=$sysStatus0[DigIn07];
+       $ValA[20]=$sysStatus0[DigIn08];
 
-       $ValA[21]=$sysStatus4[BS01];
-       $ValA[22]=$sysStatus4[BS04];
-       $ValA[23]=$sysStatus4[BS02];
-       $ValA[24]=$sysStatus4[BS03];
-       $ValA[25]=$sysStatus4[BS05];
-       $ValA[26]=$sysStatus4[BS06];
-       $ValA[27]=$sysStatus4[BS07];
-       $ValA[28]=$sysStatus4[BS08];
+       $ValA[21]=$sysStatus4[ThermStat01];
+       $ValA[22]=$sysStatus4[ThermStat04];
+       $ValA[23]=$sysStatus4[ThermStat02];
+       $ValA[24]=$sysStatus4[ThermStat03];
+       $ValA[25]=$sysStatus4[ThermStat05];
+       $ValA[26]="";    //$sysStatus4[BS06];
+       $ValA[27]="";    //$sysStatus4[BS07];
+       $ValA[28]="";    //$sysStatus4[BS08];
        $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25]);
 
-       $ValA[30]=$sysStatus0[DigIn4];
-       $ValA[31]=$sysStatus0[DigIn1];
-       $ValA[32]=$sysStatus0[DigIn2];
-       $ValA[33]=$sysStatus0[DigIn3];
-       $ValA[34]=$sysStatus0[DigIn5];
-       $ValA[35]=$sysStatus0[DigIn6];
-       $ValA[36]=$sysStatus0[DigIn7];
-       $ValA[37]=$sysStatus0[DigIn8];
+       $ValA[30]=$sysStatus0[DigIn04];
+       $ValA[31]=$sysStatus0[DigIn01];
+       $ValA[32]=$sysStatus0[DigIn02];
+       $ValA[33]=$sysStatus0[DigIn03];
+       $ValA[34]=$sysStatus0[DigIn05];
+       $ValA[35]=$sysStatus0[DigIn06];
+       $ValA[36]=$sysStatus0[DigIn07];
+       $ValA[37]=$sysStatus0[DigIn08];
        $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34]);
        $ValA[39]="";
        $ValA[40]="";
@@ -536,18 +445,18 @@ require_once('../includes/header.php');
        $ShwA[23]=true;
        $ShwA[24]=true;
        $ShwA[25]=true;
-       $ShwA[26]=true;
-       $ShwA[27]=true;
-       $ShwA[28]=true;
+       $ShwA[26]=false;
+       $ShwA[27]=false;
+       $ShwA[28]=false;
        $ShwA[29]=true;
        $ShwA[30]=true;
        $ShwA[31]=true;
        $ShwA[32]=true;
        $ShwA[33]=true;
        $ShwA[34]=true;
-       $ShwA[35]=true;
-       $ShwA[36]=true;
-       $ShwA[37]=true;
+       $ShwA[35]=false;
+       $ShwA[36]=false;
+       $ShwA[37]=false;
        $ShwA[38]=true;
        $ShwA[39]=false;
        $ShwA[40]=false;
@@ -572,10 +481,10 @@ require_once('../includes/header.php');
        $ValA[14]=number_format($sysStatus1[Senchan03]/100,2);
        $ValA[15]=number_format($sysStatus1[Senchan01]/100,2);
        $ValA[16]=number_format($sysStatus0[FlowPress02]/100,2);
-       $ValA[17]=number_format($sysStatus0[FlowPress03]/100,2);
-       $ValA[18]=$sysStatus1[DigIn6];
-       $ValA[19]=$sysStatus1[DigIn7];
-       $ValA[20]=$sysStatus1[DigIn8];
+       $ValA[17]=number_format($sysStatus0[FlowPress04]/100,2);
+       $ValA[18]=$sysStatus0[DigIn06];
+       $ValA[19]=$sysStatus0[DigIn07];
+       $ValA[20]=$sysStatus0[DigIn08];
 
        $ValA[21]=$sysStatus4[BS01];
        $ValA[22]=$sysStatus4[BS04];
@@ -587,14 +496,14 @@ require_once('../includes/header.php');
        $ValA[28]=$sysStatus4[BS08];
        $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25]);
 
-       $ValA[30]=$sysStatus0[DigIn4];
-       $ValA[31]=$sysStatus0[DigIn1];
-       $ValA[32]=$sysStatus0[DigIn2];
-       $ValA[33]=$sysStatus0[DigIn3];
-       $ValA[34]=$sysStatus0[DigIn5];
-       $ValA[35]=$sysStatus0[DigIn6];
-       $ValA[36]=$sysStatus0[DigIn7];
-       $ValA[37]=$sysStatus0[DigIn8];
+       $ValA[30]=$sysStatus0[DigIn04];
+       $ValA[31]=$sysStatus0[DigIn01];
+       $ValA[32]=$sysStatus0[DigIn02];
+       $ValA[33]=$sysStatus0[DigIn03];
+       $ValA[34]=$sysStatus0[DigIn05];
+       $ValA[35]=$sysStatus0[DigIn06];
+       $ValA[36]=$sysStatus0[DigIn07];
+       $ValA[37]=$sysStatus0[DigIn08];
        $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34]);
        $ValA[39]="";
        $ValA[40]="";
@@ -620,24 +529,24 @@ require_once('../includes/header.php');
        $ShwA[18]=true;
        $ShwA[19]=true;
        $ShwA[20]=true;
-       $ShwA[21]=true;
-       $ShwA[22]=true;
-       $ShwA[23]=true;
-       $ShwA[24]=true;
-       $ShwA[25]=true;
-       $ShwA[26]=true;
-       $ShwA[27]=true;
-       $ShwA[28]=true;
-       $ShwA[29]=true;
+       $ShwA[21]=false;
+       $ShwA[22]=false;
+       $ShwA[23]=false;
+       $ShwA[24]=false;
+       $ShwA[25]=false;
+       $ShwA[26]=false;
+       $ShwA[27]=false;
+       $ShwA[28]=false;
+       $ShwA[29]=false;
        $ShwA[30]=true;
        $ShwA[31]=true;
        $ShwA[32]=true;
        $ShwA[33]=true;
        $ShwA[34]=true;
        $ShwA[35]=true;
-       $ShwA[36]=true;
-       $ShwA[37]=true;
-       $ShwA[38]=true;
+       $ShwA[36]=false;
+       $ShwA[37]=false;
+       $ShwA[38]=false;
        $ShwA[39]=false;
        $ShwA[40]=false;
 
@@ -758,17 +667,18 @@ require_once('../includes/header.php');
 
 
        }
-      function Systemlogic($O,$W,$Y2,$Y1,$G)
+      function Systemlogic($G,$Y1,$Y2,$O,$W)
                {
                   $SState="Invalid State";
 
                   if (!$O and !$W and !$Y2 and  !$Y1 and !$G) {$SState="System Off";}
                   if (!$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only";}
                   if (!$O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Heat";}
+                  if (!$O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Heat";}
                   if (!$O and  $W and !$Y2 and  !$Y1 and  $G) {$SState="Emerg. Heat";}
                   if (!$O and  $W and  $Y2 and   $Y1 and  $G) {$SState="Stage 3 Heat";}
-                  if (!$O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Cool";}
-                  if (!$O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Cool";}
+                  if ($O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Cool";}
+                  if ($O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Cool";}
 
                   Return $SState;
                }
@@ -818,8 +728,9 @@ require_once('../includes/header.php');
 
            for ($i=0;$i<$Pageelem+1;$i++)
            {
-                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosA[$i]['xpos'],$PosA[$i]['ypos'],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
-echo $BackColor;
+                
+                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
+//echo $BackColor;
            }
 
 
