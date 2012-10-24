@@ -117,18 +117,23 @@ if($('.chart-container').length) {
               xAxis: {
                   categories: categories,
                   labels: {
-                    step: Math.floor(data[0].data.length/Math.floor(document.width/180))-1
+                    step: Math.floor(data[0].data.length/Math.floor($(document).width()/180))-1
                   }
               },
-              yAxis: [{
-                title: {text: 'Temperature (°F)'}
+              yAxis: [
+              {
+                title: {text: 'Temperature / Pressure'}
               },
               {
-                title: {text: 'Pressure (PSI)'},
-                style: {color: '#3f3'},
+                title: {text: 'Pressure (PSI)',
+                        style: {
+                          color: '#aaa'
+                        }
+                      },
                 max: 10,
                 opposite: true
-              }],
+              }
+              ],
               series: data
           }); // End Highcharts.Chart
       }); // End $.ready()
