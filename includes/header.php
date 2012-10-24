@@ -39,7 +39,7 @@
                     preg_replace('/' . preg_replace('/\//', '\/', $config['base_dir']) . '/','',$_SERVER['REQUEST_URI']))
                 )
         );
-        $crumbs = arrayRemoveEmpty($crumbs);
+        $crumbs = arrayRemoveEmpty(preg_replace('/_/', ' ', $crumbs));
         if(count($crumbs) > 0) {
             if($config['path_in_title'] == 1) {
                 echo ucfirst(end($crumbs)) . ' | ';
@@ -118,7 +118,7 @@ if($config['breadcrumbs']) {
             <li><a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a> <span class="divider">/</span></li>
 <?
         $i = 1;
-        foreach($crumbs as $crumb) {
+        foreach(preg_replace('/_/',' ',$crumbs) as $crumb) {
             if($i != count($crumbs)) {
                 $path = $config['base_domain'] . $config['base_dir'];
                 foreach(array_slice($crumbs, 0, $i) as $peice) {
