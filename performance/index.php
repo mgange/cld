@@ -160,7 +160,7 @@ foreach($result[0] as $key => $val) {
 }
 ?>
             ];
-
+xPlotBands = [];
             </script>
 
         <div class="row">

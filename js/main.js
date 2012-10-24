@@ -118,7 +118,8 @@ if($('.chart-container').length) {
                   categories: categories,
                   labels: {
                     step: Math.floor(data[0].data.length/Math.floor($(document).width()/180))-1
-                  }
+                  },
+                  plotBands: xPlotBands
               },
               yAxis: [
               {
