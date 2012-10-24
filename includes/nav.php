@@ -100,6 +100,9 @@ if(isset($_SESSION['userID'])) {
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>maintenance">Maintenance</a>
                             </li>
                             <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>setup">Setup</a>
+                            </li>
+                            <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>systems">Choose System</a>
                             </li>
                         </ul>
