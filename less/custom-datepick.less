@@ -1,8 +1,8 @@
 // Default styling for jQuery Datepicker v4.0.6.
 .datepick {
-    background-color: #fff;
-    color: #000;
-    border: 1px solid #444;
+    background-color: @white;
+    color: @black;
+    border: 1px solid @grayDark;
     border-radius: 0.25em;
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
@@ -23,7 +23,7 @@
     filter: alpha(opacity=50);
 }
 .datepick a {
-    color: #fff;
+    color: @white;
     text-decoration: none;
 }
 .datepick select {
@@ -32,13 +32,13 @@
     width: auto;
 }
 .datepick a.datepick-disabled {
-    color: #888;
+    color: @grayLight;
     cursor: auto;
 }
 .datepick button {
     margin: 0.25em;
     padding: 0.125em 0em;
-    background-color: #fcc;
+    background-color: lighten(@cldPrimary, 10%);
     border: none;
     border-radius: 0.25em;
     -moz-border-radius: 0.25em;
@@ -48,8 +48,8 @@
 .datepick-nav, .datepick-ctrl {
     float: left;
     width: 100%;
-    background-color: #000;
-    color: #fff;
+    background-color: @black;
+    color: @white;
     font-size: 90%;
     font-weight: bold;
 }
@@ -60,7 +60,7 @@
     width: 30%;
 }
 .datepick-cmd:hover {
-    background-color: #777;
+    background-color: @gray;
 }
 .datepick-ctrl .datepick-cmd:hover {
     background-color: @cldPrimary;
@@ -111,7 +111,7 @@ button.datepick-cmd {
 }
 .datepick-month-nav {
     float: left;
-    background-color: #777;
+    background-color: @gray;
     text-align: center;
 }
 .datepick-month-nav div {
@@ -121,7 +121,7 @@ button.datepick-cmd {
     padding: 1%;
 }
 .datepick-month-nav span {
-    color: #888;
+    color: @grayLight;
 }
 .datepick-month-row {
     clear: left;
@@ -129,13 +129,13 @@ button.datepick-cmd {
 .datepick-month {
     float: left;
     width: 15em;
-    border: 1px solid #444;
+    border: 1px solid @grayDark;
     text-align: center;
 }
 .datepick-month-header, .datepick-month-header select, .datepick-month-header input {
     height: 1.9em;
-    background-color: #444;
-    color: #fff;
+    background-color: @gray;
+    color: @white;
     font-weight: bold;
 }
 .datepick-month-header select, .datepick-month-header input {
@@ -151,7 +151,7 @@ button.datepick-cmd {
     border-collapse: collapse;
 }
 .datepick-month thead {
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid @grayLighter;
 }
 .datepick-month th, .datepick-month td {
     margin: 0em;
@@ -160,30 +160,30 @@ button.datepick-cmd {
     text-align: center;
 }
 .datepick-month th {
-    border: 1px solid #777;
+    border: 1px solid @grayLight;
 }
 .datepick-month th, .datepick-month th a {
-    background-color: #777;
-    color: #fff;
+    background-color: @grayLight;
+    color: @white;
 }
 .datepick-month td {
-    background-color: #eee;
+    background-color: @grayLight;
     border: 1px solid #aaa;
 }
 .datepick-month td.datepick-week {
-    border: 1px solid #777;
+    border: 1px solid @grayLight;
 }
 .datepick-month td.datepick-week * {
-    background-color: #777;
-    color: #fff;
+    background-color: @grayLight;
+    color: @white;
     border: none;
 }
 .datepick-month a {
     display: block;
     width: 100%;
     padding: 0.125em 0em;
-    background-color: #eee;
-    color: #000;
+    background-color: @grayLighter;
+    color: @black;
     text-decoration: none;
 }
 .datepick-month span {
@@ -192,13 +192,13 @@ button.datepick-cmd {
     padding: 0.125em 0em;
 }
 .datepick-month td span {
-    color: #888;
+    color: @grayLight;
 }
 .datepick-month td .datepick-other-month {
-    background-color: #fff;
+    background-color: @white;
 }
 .datepick-month td .datepick-weekend {
-    background-color: #ddd;
+    background-color: @grayLighter;
 }
 .datepick-month td .datepick-today {
     background-color: lighten(@cldPrimary, 20%);
@@ -207,16 +207,16 @@ button.datepick-cmd {
     background-color: lighten(@cldPrimary, 5%);
 }
 .datepick-month td .datepick-selected {
-    background-color: #777;
-    color: #fff;
+    background-color: @grayLight;
+    color: @white;
 }
 .datepick-month th.datepick-week {
-    background-color: #777;
-    color: #fff;
+    background-color: @gray;
+    color: @white;
 }
 .datepick-status {
     clear: both;
-    background-color: #ddd;
+    background-color: @grayLighter;
     text-align: center;
 }
 .datepick-clear-fix {
@@ -232,4 +232,93 @@ button.datepick-cmd {
     left: -1px;
     width: 100px;
     height: 100px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.ui-timepicker-list {
+    overflow-y: auto;
+    height: 150px;
+    width: 8em;
+    background: @white;
+    border: 1px solid @grayLighter;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    -webkit-box-shadow:0 5px 10px rgba(0,0,0,0.2);
+    -moz-box-shadow:0 5px 10px rgba(0,0,0,0.2);
+    box-shadow:0 5px 10px rgba(0,0,0,0.2);
+    outline: none;
+    z-index: 10001;
+}
+
+.ui-timepicker-list.ui-timepicker-with-duration {
+    width: 11em;
+}
+
+.ui-timepicker-duration {
+    margin-left: 5px; color: @grayLight;
+}
+
+.ui-timepicker-list:hover .ui-timepicker-duration {
+    color: @gray;
+}
+
+.ui-timepicker-list li {
+    padding: 3px 0 3px 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: @black;
+    list-style: none;
+    margin: 0;
+}
+
+.ui-timepicker-list:hover .ui-timepicker-selected {
+    background: @white;
+    color: @black;
+}
+
+li.ui-timepicker-selected,
+.ui-timepicker-list li:hover,
+.ui-timepicker-list:hover .ui-timepicker-selected:hover {
+    background: @cldPrimary;
+    color: @white;
+}
+
+li.ui-timepicker-selected .ui-timepicker-duration,
+.ui-timepicker-list li:hover .ui-timepicker-duration {
+    color: #$grayLighter;
 }
