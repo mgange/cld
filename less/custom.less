@@ -12,6 +12,12 @@ body {
     margin-top: 0;
 }
 
+// Zebra stripes
+.over:hover {
+    background: @cldSecondary
+}
+
+
 /* Stretch the page, forcing the footer to the bottom */
 html,
 body,
@@ -24,6 +30,10 @@ body > .page-content {
 }
 .page-content {
     padding-bottom: 3em;
+}
+
+.building-name {
+    color: darken(@linkColor, 15%);
 }
 
 .footer {
