@@ -66,14 +66,17 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 
 $db = new db($config);
 
+$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$buildingName = $buildingNames['SysName'];
+
 // TODO(Geoff Young): use prepared statement
     $query = "SELECT
      SourceHeader.Recnum,       SourceHeader.DateStamp,
      SourceHeader.TimeStamp,    SourceData0.Senchan01,
-     SourceData0.Senchan02,     SourceData0.Senchan03,
-     SourceData0.Senchan04,     SourceData0.Senchan05,
+     SourceData0.Senchan03,
+     SourceData0.Senchan05,
      SourceData0.Senchan06,     SourceData0.Senchan07,
-     SourceData0.FlowPress02
+     SourceData0.FlowPress01,   SourceData0.FlowPress02
     FROM SourceHeader, SourceData0";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
@@ -92,7 +95,7 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     ";
 }
 $query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
-    LIMIT 0 , 500";
+    LIMIT 0 , 480";
 
 // array_reverse() because the most recent data belongs at the end of the graph
 $result = array_reverse( $db -> fetchAll($query, $bind) );
@@ -120,6 +123,7 @@ $systemMap = array(
     'Senchan06' => 'Air Out',
     'Senchan07' => 'Outside',
     'Senchan08' => 'Mech RT(Aux 1)',
+    'FlowPress01' => 'Flow',
     'FlowPress02' => 'Pressure',
     'FlowPress03' => 'Flow',
     'FlowPress04' => 'Flow (RSM)'
@@ -143,6 +147,13 @@ foreach($result[0] as $key => $val) {
 ?>
                 {
                     name: "<?php echo $systemMap[$key]; ?>",
+<?php if($key == 'FlowPress01'){ ?>
+                    color: '#aaa',
+                    yAxis: 1,
+                    zIndex: 1,
+<?php }else{ ?>
+                    zIndex: 10,
+<?php } ?>
                     data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 100); ?>]
                 },
 <?php
@@ -153,14 +164,14 @@ foreach($result[0] as $key => $val) {
             </script>
 
         <div class="row">
-            <h1 class="span8 offset2">Performance</h1>
+            <h1 class="span8 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
 <?php
 $numRows = $db -> numRows($query)/2;
 if($numRows > 60) {
     echo floor($numRows/60) . ' Hour';
     if(floor($numRows/60) > 1) {echo 's';}
 }else{
-    echo $numrows . ' Minutes';
+    echo $numRows . ' Minutes';
 }
 ?>
         </div>
