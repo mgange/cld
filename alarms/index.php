@@ -25,7 +25,7 @@ $db -> execute($query);
 ?>
 
         <div class="row">
-            <h1 class="span6 offset2">Alarms &nbsp;&nbsp; <font color="blue">   System - <?php  echo $SysName; ?></font></h1>
+            <h1 class="span10 offset2">Alarms - <span class="building-name">   System - <?php  echo $SysName; ?></span></h1>
         </div>
         <?php
             $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID;

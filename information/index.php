@@ -22,7 +22,7 @@ require_once('../includes/header.php');
         $customerInfo = $db -> fetchRow($query);
 ?>
         <div class="row">
-            <h1 class="span8 offset2">'<?=$systemInfo['SysName']?>' Information</h1>
+            <h1 class="span8 offset2">Information - <span class="building-name"><?=$systemInfo['SysName']?></span></h1>
         </div>
 
         <div class="row">

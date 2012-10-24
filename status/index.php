@@ -25,11 +25,11 @@ require_once('../includes/header.php');
     $openloop   = false;
     $openloopdw = false;
     $closedloop = false;
-     
+
     // selects which system diagram to display
-   switch  ($SysConfig) 
+   switch  ($SysConfig)
    {
-    case 1: 
+    case 1:
       $openloopdw=true;
         break;
     case 2:
@@ -37,12 +37,12 @@ require_once('../includes/header.php');
         break;
     case 3:
        $closedloop=true;
-    
+
    }
-    
-    
-    
-    
+
+
+
+
     if(isset($_GET['z'])){
       switch($_GET['z']){
         case 1:
@@ -118,7 +118,7 @@ require_once('../includes/header.php');
      if ($SysZNum==0) {$SysZone="Main";}
      if ($SysZNum >= 1) {$SysZone="RSM ".$SysZNum;}
      $NumRSM=$sysDAMID[NumofRSM];
-     
+
     // define arrays for data and labels and positions etc
        $LblA=array($Pageelem);
        $ValA=array($Pageelem);
@@ -130,7 +130,7 @@ require_once('../includes/header.php');
        $MapA =array($Pageelem);
        $Uplim = array($Pageelem);
        $Lolim = array($Pageelem);
-       
+
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
       $querypos="Select * from WebRefTable where WebPageName='StatusDB' and WebSubPageName='Main'";
@@ -139,33 +139,33 @@ require_once('../includes/header.php');
       $PosMain = $db -> fetchAll($querypos);
       // define pos Array
       $i=0;
-      foreach($PosMain as $resultRow) { 
+      foreach($PosMain as $resultRow) {
           $i=$resultRow['WebPagePosNo'];
-          $PosAX[$i]=$resultRow['PageLocX'];      
+          $PosAX[$i]=$resultRow['PageLocX'];
           $PosAY[$i]=$resultRow['PageLocY'];
           $LblA[$i] =$resultRow['SensorName'];
           $ForA[$i] =$resultRow['Format'];
-        
+
       }
-      
+
      // then get positions for RSM pages
      if ($zone >= 1) {
-         
+
      }
-     
-     
+
+
      // Field to Data mappings
      // first get default value for Main Page
-     $DeftMapquery="Select SouceID, SensorColName from SysMap, WebRefTable 
-                       join SysMap.SensorRefName = WebRefTable.SensorName 
+     $DeftMapquery="Select SouceID, SensorColName from SysMap, WebRefTable
+                       join SysMap.SensorRefName = WebRefTable.SensorName
                        where WebPageName='StatusDB' and SysMap.SysID=0";
-     
-     $UniqMapquery="Select SouceID, SensorColName from SysMap, WebRefTable 
-                       join SysMap.SensorRefName = WebRefTable.SensorName 
+
+     $UniqMapquery="Select SouceID, SensorColName from SysMap, WebRefTable
+                       join SysMap.SensorRefName = WebRefTable.SensorName
                        where WebPageName=StatusDB and SysID=".$SysID;
-     
+
     // $MapMain = $db -> fetchAll($DeftMapquery);
-     
+
      $lf="<br>";
 
      $systemInfo=$SysName." - ". $SysLocation;
@@ -177,7 +177,7 @@ require_once('../includes/header.php');
 
        $exchangermode = 0;
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
-      
+
 
 // Alert Limits array
        $LmtA = array(
@@ -686,7 +686,7 @@ require_once('../includes/header.php');
        ?>
 
         <div class="row">
-           <h1 class="span6 offset2">Status &nbsp;&nbsp; <font color="blue">   System - <?php  echo $SysName." - ".$SysZone ?></font></h1>
+           <h1 class="span6 offset2">Status - <span class="building-name">System - <?php  echo $SysName." - ".$SysZone ?></span></h1>
             <p style="text-align:center"><?php
               if(isset($zone)){
                 echo (isset($prev)) ? "<a href=\"./?id=" . $prev . "&z=" . $zone . "\"><img src=\"../img/backArrow.jpg\" /></a>&nbsp;" : "&nbsp;&nbsp;";
@@ -728,7 +728,7 @@ require_once('../includes/header.php');
 
            for ($i=0;$i<$Pageelem+1;$i++)
            {
-                
+
                  DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
 //echo $BackColor;
            }
