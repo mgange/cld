@@ -177,6 +177,22 @@ function UnitLabel($SenUnitField)
 
 
 /**
+ * Check if a value is awithin an acceptable range
+ * @param  int    $val The value to test
+ * @param  int    $min Minimum limit
+ * @param  int    $max Maximum limit
+ * @return bool        True or false
+ */
+function withinRange($val, $min, $max)
+{
+    if($val > $min && $val < $max) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/**
  * Pretty Print
  * For development it's convenient to print and array. This will output and array
  * wrapped in <pre> tags to maintain formatting. This is not intended for
