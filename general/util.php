@@ -155,6 +155,28 @@ function Systemlogic($G,$Y1,$Y2,$O,$W){
 
 
 /**
+ * unitLabel decodes units and add degree symbol
+ * @param string $SenUnitField Marker to indicate type of units
+ */
+function UnitLabel($SenUnitField)
+{
+     $deg=htmlentities(chr(176), ENT_QUOTES, 'cp1252');
+
+         switch ($SenUnitField)
+         {  case "dF":
+             $SUnit=$deg."F";
+             break;
+            case "dC":
+             $SUnit=$deg."C";
+                break;
+            default : $SUnit=$SenUnitField;
+         }
+
+    return $SUnit;
+}
+
+
+/**
  * Pretty Print
  * For development it's convenient to print and array. This will output and array
  * wrapped in <pre> tags to maintain formatting. This is not intended for
