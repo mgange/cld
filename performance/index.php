@@ -73,10 +73,12 @@ $buildingName = $buildingNames['SysName'];
     $query = "SELECT
      SourceHeader.Recnum,       SourceHeader.DateStamp,
      SourceHeader.TimeStamp,    SourceData0.Senchan01,
-     SourceData0.Senchan03,
-     SourceData0.Senchan05,
+     SourceData0.Senchan03,     SourceData0.Senchan05,
      SourceData0.Senchan06,     SourceData0.Senchan07,
-     SourceData0.FlowPress01,   SourceData0.FlowPress02
+     SourceData0.FlowPress01,   SourceData0.FlowPress02,
+     SourceData0.DigIn01,       SourceData0.DigIn02,
+     SourceData0.DigIn03,       SourceData0.DigIn04,
+     SourceData0.DigIn05
     FROM SourceHeader, SourceData0";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
@@ -134,6 +136,101 @@ require_once('../includes/header.php');
             <script type="text/javascript">
             var recnums = [<?php echoJSarray($Recnum); ?>]
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
+            xPlotBands = [
+<?php
+$statusIndex['System Off'] = array(
+    'text' => 'System Off',
+    'color' => 'rgba(255, 255, 255, 0)'
+);
+$statusIndex['Fan Only'] = array(
+    'text' => 'Fan Only',
+    'color' => 'rgba(137, 255, 93, 0.2)'
+);
+$statusIndex['Stage 1 Heat'] = array(
+    'text' => 'Stage 1 Heat',
+    'color' => 'rgba(232, 193, 6, 0.2)'
+);
+$statusIndex['Stage 2 Heat'] = array(
+    'text' => 'Stage 2 Heat',
+    'color' => 'rgba(255, 131, 7, 0.2)'
+);
+$statusIndex['Emerg. Heat'] = array(
+    'text' => 'Emerg. Heat',
+    'color' => 'rgba(255, 0, 0, 0.2)'
+);
+$statusIndex['Stage 3 Heat'] = array(
+    'text' => 'Stage 3 Heat',
+    'color' => 'rgba(232, 88, 35, 0.2)'
+);
+$statusIndex['Stage 1 Cool'] = array(
+    'text' => 'Stage 1 Cool',
+    'color' => 'rgba(30, 155, 255, 0.2)'
+);
+$statusIndex['Stage 2 Cool'] = array(
+    'text' => 'Stage 2 Cool',
+    'color' => 'rgba(15, 72, 232, 0.2)'
+);
+$statusIndex['Invalid State'] = array(
+    'text' => 'Invalid State',
+    'color' => 'rgba(0, 0, 0, 0.5)'
+);
+
+$i = 0;
+
+$currStatus = Systemlogic(
+    $result[0]['DigIn04'],
+    $result[0]['DigIn01'],
+    $result[0]['DigIn02'],
+    $result[0]['DigIn03'],
+    $result[0]['DigIn05']);
+
+echo "
+{
+    from: " . $i . ",";
+
+foreach($result as $datapoint) {
+    $i++;
+    $datapointStatus = Systemlogic(
+        $datapoint['DigIn04'],
+        $datapoint['DigIn01'],
+        $datapoint['DigIn02'],
+        $datapoint['DigIn03'],
+        $datapoint['DigIn05']);
+
+    if($datapointStatus != $currStatus) {
+        echo "
+    to: " . $i . ",
+    label: {
+        style: {
+            fontSize: '1.2em'
+        },
+    text: '" . $statusIndex[$currStatus]['text'] . "',
+    rotation: -30,
+    y: 34},
+    color: '" . $statusIndex[$currStatus]['color'] . "'
+},";
+        if($i < count($result)) {
+            echo "
+{
+    from: " . $i . ",";
+        }
+    }
+
+    $currStatus = $datapointStatus;
+}
+echo "
+    to: " . $i . ",
+    label: {
+        style: {
+            fontSize: '1.2em'
+        },
+    text: '" . $statusIndex[$currStatus]['text'] . "',
+    rotation: -30,
+    y: 34},
+    color: '" . $statusIndex[$datapointStatus]['color'] . "'
+}";
+?>
+            ];
             var data = [
 <?php
 
@@ -142,6 +239,11 @@ for ($i=0; $i < count($result); $i++) {
     unset($result[$i][Recnum]);
     unset($result[$i][DateStamp]);
     unset($result[$i][TimeStamp]);
+    unset($result[$i][DigIn01]);
+    unset($result[$i][DigIn02]);
+    unset($result[$i][DigIn03]);
+    unset($result[$i][DigIn04]);
+    unset($result[$i][DigIn05]);
 }
 foreach($result[0] as $key => $val) {
 ?>
@@ -160,7 +262,6 @@ foreach($result[0] as $key => $val) {
 }
 ?>
             ];
-xPlotBands = [];
             </script>
 
         <div class="row">
