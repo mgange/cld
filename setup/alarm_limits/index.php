@@ -111,11 +111,22 @@ require_once('../../includes/header.php');
 <?php
 	foreach ($sysMap as $resultRow) {
         if(isset($resultRow['AlarmUpLimit']) | isset($resultRow['AlarmLoLimit']) | isset($resultRow['AlertPercent'])){
+            switch($resultRow['SensorUnits']){
+                case "dF":
+                    $unit = "&degF";
+                    break;
+                case "dC":
+                    $unit = "&degC";
+                    break;
+                default:
+                    $unit = $resultRow['SensorUnits'];
+                    break;
+            }
 ?>
 	<div class="row over">
 		<p class="span3" style="margin-top:10px"><strong><?=$resultRow['SensorName']?></strong></p>
-		<p class="span3" style="margin-top:10px"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" onchange="LimitChangeLo(<?=$resultRow['Recnum']?>)" type="text" class="span2" style="text-align:right" value="<?=$resultRow['AlarmLoLimit']?>"> <?php echo $resultRow['SensorUnits']; } ?></p>
-        <p class="span3" style="margin-top:10px"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" onchange="LimitChangeHi(<?=$resultRow['Recnum']?>)" type="text" class="span2" style="text-align:right" value="<?=$resultRow['AlarmUpLimit']?>"> <?php echo $resultRow['SensorUnits']; } ?></p>
+		<p class="span3" style="margin-top:10px"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" onchange="LimitChangeLo(<?=$resultRow['Recnum']?>)" type="text" class="span2" style="text-align:right" value="<?=$resultRow['AlarmLoLimit']?>"> <?php echo $unit; } ?></p>
+        <p class="span3" style="margin-top:10px"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" onchange="LimitChangeHi(<?=$resultRow['Recnum']?>)" type="text" class="span2" style="text-align:right" value="<?=$resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?></p>
         <p class="span3" style="margin-top:10px"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" onchange="LimitChangePercent(<?=$resultRow['Recnum']?>)" type="text" class="span2" style="text-align:right" value="<?=$resultRow['AlertPercent']?>"> %<?php } ?></p>
 	</div>
 <?php
