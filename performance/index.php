@@ -355,7 +355,7 @@ if(isset($_GET['range']) && $_GET['range'] == $i) {
                             </label>
                         </div>
                         <br>
-                        <input class="btn btn-block" type="submit" value="Submit">
+                        <input class="btn btn-large btn-block" type="submit" value="Submit">
                     </form>
                 </div>
             </div>
