@@ -49,74 +49,70 @@ require_once('../../includes/header.php');
 <form action="./" method="POST">
     <div class="row">
         <div class="span6">
-            <div class="row">
-                <label for="name">Customer Name
-                    <input readonly="true" type="text" class="span6" value="<?=$customerInfo['customerName']?>">
-                </label>
-                <label for="cLocation">Customer Location
-                    <textarea style="resize:none" readonly="true" class="span6" rows="<?=isset($customerInfo['addr2']) ? 3 : 2?>"><?=$customerInfo['addr1'] . "\n" . (!empty($customerInfo['addr2']) ? $customerInfo['addr2'] . "\n" : "") . $customerInfo['city'] . ", " . $customerInfo['state'] . " " . $customerInfo['zip']?></textarea>
-                </label>
-                <label for="email1">Customer Email
-                    <input name="email1" type="text" class="span6" value="<?=$customerInfo['email1']?>">
-                </label>
-                <label for="email2">Alternate Email
-                    <input name="email2" type="text" class="span6" value="<?=$customerInfo['email2']?>">
-                </label>
-                <label for="bLocation">Building Location
-                    <textarea readonly="true" style="resize:none" class="span6" rows="<?=isset($buildingInfo['address2']) ? 3 : 2?>"><?=$buildingInfo['address1'] . "\n" . (!empty($buildingInfo['address2']) ? $buildingInfo['address2'] . "\n" : "") . $buildingInfo['city'] . ", " . $buildingInfo['state'] . " " . $buildingInfo['zip']?></textarea>
-                </label>
-                <label for="installDate">Install Date
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['InstallDate']?>">
-                </label>
-                <label for="installer">Installer
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Installer']?>">
-                </label>
-                <label for="maintainer">Maintainer
-                    <input name="maintainer" type="text" class="span6" value="<?=$systemInfo['Maintainer']?>">
-                </label>
-            </div>
+            <label for="name">Customer Name
+                <input readonly="true" type="text" class="span6" value="<?=$customerInfo['customerName']?>">
+            </label>
+            <label for="cLocation">Customer Location
+                <textarea style="resize:none" readonly="true" class="span6" rows="<?=isset($customerInfo['addr2']) ? 3 : 2?>"><?=$customerInfo['addr1'] . "\n" . (!empty($customerInfo['addr2']) ? $customerInfo['addr2'] . "\n" : "") . $customerInfo['city'] . ", " . $customerInfo['state'] . " " . $customerInfo['zip']?></textarea>
+            </label>
+            <label for="email1">Customer Email
+                <input name="email1" type="text" class="span6" value="<?=$customerInfo['email1']?>">
+            </label>
+            <label for="email2">Alternate Email
+                <input name="email2" type="text" class="span6" value="<?=$customerInfo['email2']?>">
+            </label>
+            <label for="bLocation">Building Location
+                <textarea readonly="true" style="resize:none" class="span6" rows="<?=isset($buildingInfo['address2']) ? 3 : 2?>"><?=$buildingInfo['address1'] . "\n" . (!empty($buildingInfo['address2']) ? $buildingInfo['address2'] . "\n" : "") . $buildingInfo['city'] . ", " . $buildingInfo['state'] . " " . $buildingInfo['zip']?></textarea>
+            </label>
+            <label for="installDate">Install Date
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['InstallDate']?>">
+            </label>
+            <label for="installer">Installer
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Installer']?>">
+            </label>
+            <label for="maintainer">Maintainer
+                <input name="maintainer" type="text" class="span6" value="<?=$systemInfo['Maintainer']?>">
+            </label>
         </div>
         <div class="span6">
-            <div class="row">
-                <label for="maintainer">DAMID
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['DAMID']?>">
-                </label>
-                <label for="sysType">System Type
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Systype']?>">
-                </label>
-                <label for="config">Configuration
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Configuration']?>">
-                </label>
-                <label for="heatExchange">Heat Exchange Unit
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['HeatExchangeUnit']?>">
-                </label>
-                <label for="NumofSensGrp">Number of Sensor Group
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumofSensGrp']?>">
-                </label>
-                <label for="NumDigSenChan">Number of Digital Sensor Channels
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumDigSenChan']?>">
-                </label>
-                <label for="NumTempSenChan">Number of Temperature Sensor Channels
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumTempSenChan']?>">
-                </label>
-                <label for="NumFlowCntlChan">Number of Flow Control Channels
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumFlowCntlChan']?>">
-                </label>
-                <label for="NumAnlgChan">Number of Analog Channels
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumAnlgChan']?>">
-                </label>
-                <label for="NumTempSenChan">Number of RSM's
-                    <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumofRSM']?>">
-                </label>
-                <?php
-                    for($i=0;$i<$systemInfo['NumofRSM'];$i++){
-                        $rsmNum = "LocationRSM" . ($i + 1);
-                        echo "<label for=\"locationRSM . ($i+1) . \">Location of RSM " . ($i + 1) . "
-                            <input readonly=\"true\" type=\"text\" class=\"span6\" value=\"" . $systemInfo[$rsmNum] . "\">";
-                        //echo $systemInfo['$rsmNum'];
-                    }
-                ?>
-            </div>
+            <label for="maintainer">DAMID
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['DAMID']?>">
+            </label>
+            <label for="sysType">System Type
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Systype']?>">
+            </label>
+            <label for="config">Configuration
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['Configuration']?>">
+            </label>
+            <label for="heatExchange">Heat Exchange Unit
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['HeatExchangeUnit']?>">
+            </label>
+            <label for="NumofSensGrp">Number of Sensor Group
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumofSensGrp']?>">
+            </label>
+            <label for="NumDigSenChan">Number of Digital Sensor Channels
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumDigSenChan']?>">
+            </label>
+            <label for="NumTempSenChan">Number of Temperature Sensor Channels
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumTempSenChan']?>">
+            </label>
+            <label for="NumFlowCntlChan">Number of Flow Control Channels
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumFlowCntlChan']?>">
+            </label>
+            <label for="NumAnlgChan">Number of Analog Channels
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumAnlgChan']?>">
+            </label>
+            <label for="NumTempSenChan">Number of RSM's
+                <input readonly="true" type="text" class="span6" value="<?=$systemInfo['NumofRSM']?>">
+            </label>
+            <?php
+                for($i=0;$i<$systemInfo['NumofRSM'];$i++){
+                    $rsmNum = "LocationRSM" . ($i + 1);
+                    echo "<label for=\"locationRSM . ($i+1) . \">Location of RSM " . ($i + 1) . "
+                        <input readonly=\"true\" type=\"text\" class=\"span6\" value=\"" . $systemInfo[$rsmNum] . "\">";
+                    //echo $systemInfo['$rsmNum'];
+                }
+            ?>
         </div>
     </div>
     <div class="row">
