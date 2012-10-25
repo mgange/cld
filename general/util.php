@@ -130,6 +130,31 @@ function checkSystemSet($config)
 
 
 /**
+ * Determine the system status based on digital inputs
+ * @param bool   $G  SourceData0.DigIn04
+ * @param bool   $Y1 SourceData0.DigIn01
+ * @param bool   $Y2 SourceData0.DigIn02
+ * @param bool   $O  SourceData0.DigIn03
+ * @param bool   $W  SourceData0.DigIn05
+ * @return string    Description of the system status
+ */
+function Systemlogic($G,$Y1,$Y2,$O,$W){
+    $SState="Invalid State";
+
+    if (!$O and !$W and !$Y2 and  !$Y1 and !$G) {$SState="System Off";}
+    if (!$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only";}
+    if (!$O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Heat";}
+    if (!$O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Heat";}
+    if (!$O and  $W and !$Y2 and  !$Y1 and  $G) {$SState="Emerg. Heat";}
+    if (!$O and  $W and  $Y2 and   $Y1 and  $G) {$SState="Stage 3 Heat";}
+    if ( $O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Cool";}
+    if ( $O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Cool";}
+
+    Return $SState;
+}
+
+
+/**
  * Pretty Print
  * For development it's convenient to print and array. This will output and array
  * wrapped in <pre> tags to maintain formatting. This is not intended for
