@@ -27,7 +27,7 @@ require_once('../includes/header.php');
             <h2 class="span8 offset3">Web Chart Mapping</h2>
         </div>
         <div class="row">
-            <h2 class="span8 offset3"><a href="alarm_aimits/">Alarm Limits</a></h2>
+            <h2 class="span8 offset3"><a href="alarm_limits/">Alarm Limits</a></h2>
         </div>
         <div class="row">
             <h2 class="span8 offset3">Maintenance</h2>
