@@ -15,7 +15,13 @@ if(isset($_POST['date']) && isset($_POST['time'])) {
     }
     $minute = substr($_POST['time'], 3, 2);
     $seconds = '00';
-    header('Location: ./?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds);
+    $range = $_POST['range'];
+
+    $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
+    if(isset($range) && $range > 0) {
+        $location .= '&range=' . $range;
+    }
+    header('Location: ' . $location);
 }
 
 /**
@@ -97,7 +103,12 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     ";
 }
 $query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
-    LIMIT 0 , 480";
+    LIMIT 0 , ";
+if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
+    $query .= intval($_GET['range'])*120;
+}else{
+    $query .= '480';
+}
 
 // array_reverse() because the most recent data belongs at the end of the graph
 $result = array_reverse( $db -> fetchAll($query, $bind) );
@@ -301,21 +312,46 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                 <div class="span6 offset3">
                     <form class="form-inline" action="./" method="POST">
                         <div class="row">
-                            <label class="span3" for="date">Date &nbsp;
+                            <label class="span2" for="date">Date &nbsp;
                                 <input
                                     id="date"
-                                    class="datepick span3"
+                                    class="datepick span2"
                                     type="text"
                                     name="date"
                                     value="<?php if(isset($_GET['date'])){echo $_GET['date'];} ?>">
                             </label>
-                            <label class="span3" for="time">Time &nbsp;
+                            <label class="span2" for="time">Time &nbsp;
                                 <input
                                     id="time"
-                                    class="timepick span3"
+                                    class="timepick span2"
                                     type="text"
                                     name="time"
                                     value="<?php if(isset($_GET['date'])){echo $_GET['time'];} ?>">
+                            </label>
+                            <label class="span2" for="range">Range &nbsp;
+                                <select
+                                    id="range"
+                                    class="span2"
+                                    type="text"
+                                    name="range"
+                                    >
+                                    <option value=""></option>
+<?php
+
+for ($i=1; $i <= 6; $i++) {
+?>
+                                    <option value="<?php echo $i; ?>"<?php
+if(isset($_GET['range']) && $_GET['range'] == $i) {
+    echo ' selected';
+}
+                                    ?>>
+                                        <?php echo $i . ' Hour'; if($i > 1){ echo 's'; } ?>
+
+                                    </option>
+<?php
+}
+?>
+                                </select>
                             </label>
                         </div>
                         <br>
