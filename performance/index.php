@@ -312,7 +312,7 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
         </div>
 
 
-            <div id="chart" class="chart-container data" style="min-width: 400px; min-height: 500px; margin: 0 auto"></div>
+            <div id="chart" class="chart-container data refresh" style="min-width: 400px; min-height: 500px; margin: 0 auto"></div>
 
             <br>
             <div class="row">
