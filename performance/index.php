@@ -7,19 +7,29 @@
  */
 require_once('../includes/pageStart.php');
 
-if(isset($_POST['date']) && isset($_POST['time'])) {
-    if(substr($_POST['time'], -2, 2) == "PM") {
-        $hour = intval(substr($_POST['time'], 0, 2))+12;
-    }else{
-        $hour = intval(substr($_POST['time'], 0, 2));
-    }
-    $minute = substr($_POST['time'], 3, 2);
-    $seconds = '00';
-    $range = $_POST['range'];
+if(count($_POST) > 0) {
+    if(isset($_POST['date']) && $_POST['date'] != ''
+        && isset($_POST['time']) && $_POST['time'] != '' ) {
+        if(substr($_POST['time'], -2, 2) == "PM") {
+            $hour = intval(substr($_POST['time'], 0, 2))+12;
+        }else{
+            $hour = intval(substr($_POST['time'], 0, 2));
+        }
+        $minute = substr($_POST['time'], 3, 2);
+        $seconds = '00';
 
-    $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
-    if(isset($range) && $range > 0) {
-        $location .= '&range=' . $range;
+        $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
+        if(isset($range) && $range > 0) {
+            $location .= '&range=' . $range;
+        }
+    }
+    if(isset($_POST['range']) && $_POST['range'] != '') {
+        if(isset($location)) {
+            $location .= '&';
+        }else{
+            $location = './?';
+        }
+        $location .= 'range=' . $_POST['range'];
     }
     header('Location: ' . $location);
 }
