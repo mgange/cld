@@ -210,7 +210,6 @@ echo "
     from: " . $i . ",";
 
 foreach($result as $datapoint) {
-    $i++;
     $datapointStatus = Systemlogic(
         $datapoint['DigIn04'],
         $datapoint['DigIn01'],
@@ -238,6 +237,7 @@ foreach($result as $datapoint) {
     }
 
     $currStatus = $datapointStatus;
+    $i++;
 }
 echo "
     to: " . $i . ",
