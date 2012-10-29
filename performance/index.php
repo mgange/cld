@@ -134,7 +134,7 @@ extract($vals);
 // Get a list of date/time stamps for chart labels
 foreach($result as $val) {
     $dateTime = strtotime($val[DateStamp].' '.$val[TimeStamp]);
-    $Stamp[$val['Recnum']]  =   date('h:i:s A', $dateTime);
+    $Stamp[$val['Recnum']]  =   date('g:i:s A', $dateTime);
     $Stamp[$val['Recnum']] .= '<br>';
     $Stamp[$val['Recnum']] .= date('M. j, Y', $dateTime);
 }
