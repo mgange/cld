@@ -141,9 +141,9 @@ foreach($result as $val) {
 
 // TODO(Geoff Young): Get this from the database instead
 $systemMap = array(
-    'Senchan01' => 'Water In 1',
+    'Senchan01' => 'Water In',
     'Senchan02' => 'Water In 2',
-    'Senchan03' => 'Water Out 1',
+    'Senchan03' => 'Water Out',
     'Senchan04' => 'Water out 2',
     'Senchan05' => 'Air In',
     'Senchan06' => 'Air Out',
