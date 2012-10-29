@@ -49,10 +49,10 @@ $('.timepick').timepicker({
   timeFormat: 'h:i A'
 });
 
-// One minute auto refresh
+// Auto refresh
 if($('.refresh')) {
-  window.setTimeout("window.location=window.location",60000)
-};
+  window.setTimeout("window.location=window.location", 300000);
+}
 
 // sample chart
 if($('.chart-container').length) {
