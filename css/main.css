@@ -7474,10 +7474,9 @@ li.ui-timepicker-selected .ui-timepicker-duration,
   color: #0088cc;
 }
 .systems-icon {
-  height: 60px;
+  min-height: 70px;
   outline: none;
   text-align: center;
-  width: 60px;
 }
 .systems-icon:hover {
   text-decoration: none;
