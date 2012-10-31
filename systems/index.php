@@ -142,6 +142,7 @@ foreach($buildings as $building) {
             }
         }
 ?>
+            <br>
         </div>
 <?php
     }
