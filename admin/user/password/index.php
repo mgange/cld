@@ -98,16 +98,16 @@ require_once('../../../includes/header.php');
             </div>
         </div>
 
-        <form action="./" method="POST">
+        <form class="validate" action="./" method="POST">
             <div class="row">
                 <div class="span3 offset3">
                     <label>New Password <br>
-                        <input class="span3" type="password" name="pass">
+                        <input class="text span3" type="password" name="pass">
                     </label>
                 </div>
                 <div class="span3">
                     <label>Retype New Password <br>
-                        <input class="span3" type="password" name="repass">
+                        <input class="text span3" type="password" name="repass">
                     </label>
                 </div>
             </div>

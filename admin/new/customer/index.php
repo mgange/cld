@@ -5,7 +5,7 @@
  *------------------------------------------------------------------------------
  *
  */
-require_once('../../includes/pageStart.php');
+require_once('../../../includes/pageStart.php');
 
 $db = new db($config);
 
@@ -25,8 +25,7 @@ if(count($_POST) > 0) {
     $bind[':zip']    = $_POST['zip'];
     $bind[':email1'] = $_POST['email1'];
     $bind[':email2'] = $_POST['email2'];
-pprint($bind);
-pprint($_POST);
+
     if($db -> execute($query, $bind)) {
         header('Location: ../../?a=s');
     }else{
@@ -46,23 +45,23 @@ require_once('../../../includes/header.php');
             </div>
         </div>
 
-        <form action="./" method="POST">
+        <form class="validate" action="./" method="POST">
             <div class="row">
                 <div class="span12">
                     <label for="name">Customer Name
-                        <input type="text" class="span12" name='customerName'>
+                        <input type="text" class="text span12" name='customerName'>
                     </label>
                 </div>
 
                 <div class="span6">
                     <label for="addr1">Address 1
-                        <input type="text" id="addr1" class="span6" name="addr1">
+                        <input type="text" id="addr1" class="text span6" name="addr1">
                     </label>
                     <label for="addr1">Address 2
                         <input type="text" id="addr2" class="span6" name="addr2">
                     </label>
                     <label for="city">City
-                        <input type="text" id="city" class="span6" name="city">
+                        <input type="text" id="city" class="text span6" name="city">
                     </label>
                     <div class="row">
                         <div class="span3">
@@ -83,7 +82,7 @@ foreach($state_list as $abbr => $state) {
                         </div>
                         <div class="span3">
                             <label for="zip">Zip
-                                <input type="text" class="span3" name="zip">
+                                <input type="text" class="zip span3" name="zip">
                             </label>
                         </div>
                     </div>
@@ -91,7 +90,7 @@ foreach($state_list as $abbr => $state) {
 
                 <div class="span6">
                     <label for="email1">Email
-                        <input type="email" class="span6" name="email1">
+                        <input type="email" class="email span6" name="email1">
                     </label>
                     <label for="email1">Alternate Email
                         <input type="email" class="span6" name="email2">

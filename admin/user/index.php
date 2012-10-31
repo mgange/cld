@@ -96,21 +96,21 @@ require_once('../../includes/header.php');
             </div>
         </div>
 
-        <form action="./" method="POST">
+        <form class="validate" action="./" method="POST">
             <div class="row">
                 <div class="span3 offset3">
                     <label for="name">First Name
-                         <input class="span3" type="text" name="firstName" value="<?php echo $user['firstName']; ?>">
+                         <input class="text span3" type="text" name="firstName" value="<?php echo $user['firstName']; ?>">
                     </label>
                 </div>
                 <div class="span3">
                     <label for="name">Last Name
-                         <input class="span3" type="text" name="lastName" value="<?php echo $user['lastName']; ?>">
+                         <input class="text span3" type="text" name="lastName" value="<?php echo $user['lastName']; ?>">
                     </label>
                 </div>
                 <div class="span6 offset3">
                     <label for="email">Email
-                        <input class="span6" type="email" name="email" value="<?php echo $user['email']; ?>">
+                        <input class="email span6" type="email" name="email" value="<?php echo $user['email']; ?>">
                     </label>
                 </div>
             </div>

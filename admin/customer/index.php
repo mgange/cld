@@ -11,8 +11,6 @@ require_once('../../includes/pageStart.php');
 $db = new db($config);
 
 if(count($_POST) > 0) {
-    pprint($_POST);
-
     $query = 'UPDATE customers SET
         addr1  = :addr1,
         addr2  = :addr2,
@@ -37,8 +35,6 @@ if(count($_POST) > 0) {
     }else{
         header('Location: ../?a=e'); // TODO(Geoff Young): make the alert more vague
     }
-
-    die(require_once('../../includes/footer.php'));
 }
 
 require_once('../../includes/header.php');
@@ -72,23 +68,23 @@ $bind[':customerID'] = intval($_GET['id']);
 $customer = $db -> fetchRow($query, $bind);
 
     ?>
-<form action="./?id=<?php echo $_GET['id']; ?>" method="POST">
+<form class="validate" action="./?id=<?php echo $_GET['id']; ?>" method="POST">
     <div class="row">
         <div class="span12">
             <label for="name">Customer Name
-                <input type="text" class="span12" value="<?php echo $customer['customerName']; ?>">
+                <input type="text" class="text span12" value="<?php echo $customer['customerName']; ?>">
             </label>
         </div>
 
         <div class="span6">
             <label for="addr1">Address 1
-                <input type="text" id="addr1" class="span6" name="addr1" value="<?php echo $customer['addr1']; ?>">
+                <input type="text" id="addr1" class="text span6" name="addr1" value="<?php echo $customer['addr1']; ?>">
             </label>
             <label for="addr1">Address 2
                 <input type="text" id="addr2" class="span6" name="addr2" value="<?php echo $customer['addr2']; ?>">
             </label>
             <label for="city">City
-                <input type="text" id="city" class="span6" name="city" value="<?php echo $customer['city']; ?>">
+                <input type="text" id="city" class="span6" name="text city" value="<?php echo $customer['city']; ?>">
             </label>
             <div class="row">
                 <div class="span3">
@@ -111,7 +107,7 @@ foreach($state_list as $abbr => $state) {
                 </div>
                 <div class="span3">
                     <label for="zip">Zip
-                        <input type="text" class="span3" name="zip" value="<?php echo $customer['zip']; ?>">
+                        <input type="text" class="zip span3" name="zip" value="<?php echo $customer['zip']; ?>">
                     </label>
                 </div>
             </div>
@@ -119,7 +115,7 @@ foreach($state_list as $abbr => $state) {
 
         <div class="span6">
             <label for="email1">Email
-                <input type="email" class="span6" name="email1" value="<?php echo $customer['email1'] ?>">
+                <input type="email" class="email span6" name="email1" value="<?php echo $customer['email1'] ?>">
             </label>
             <label for="email1">Alternate Email
                 <input type="email" class="span6" name="email2" value="<?php echo $customer['email2'] ?>">

@@ -61,7 +61,7 @@ $customers = $db -> fetchAll($query);
             </div>
         </div>
 
-        <form action="./" method="POST">
+        <form class="validate" action="./" method="POST">
             <div class="row">
                 <div class="span6">
                     <label for="customerID">Customer Account
@@ -85,24 +85,24 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
                 </div>
                 <div class="span6">
                     <label for="username">User Name
-                        <input id="username" class="span6" type="text" name="username">
+                        <input id="username" class="text span6" type="text" name="username">
                     </label>
                 </div>
 
                 <div class="span6">
                     <label for="firstName">First Name
-                        <input id="firstName" type="text" class="span6" name="firstName">
+                        <input id="firstName" type="text" class="text span6" name="firstName">
                     </label>
                 </div>
                 <div class="span6">
                     <label for="lastName">Last Name
-                        <input id="lastName" type="text" class="span6" name="lastName">
+                        <input id="lastName" type="text" class="text span6" name="lastName">
                     </label>
                 </div>
 
                 <div class="span6">
                     <label for="email">Email
-                        <input class="span6" type="email" name="email">
+                        <input class="email span6" type="email" name="email">
                     </label>
                 </div>
                 <div class="span6">
@@ -119,12 +119,12 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
             <div class="row">
                 <div class="span6">
                     <label for="pass">Password
-                        <input id="pass" class="span6" type="password" name="pass">
+                        <input id="pass" class="text span6" type="password" name="pass">
                     </label>
                 </div>
                 <div class="span6">
                     <label for="repass">Re-Type Password
-                        <input id="repass" class="span6" type="password" name="repass">
+                        <input id="repass" class="text span6" type="password" name="repass">
                     </label>
                 </div>
             </div>

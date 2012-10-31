@@ -11,8 +11,6 @@
  *
  */
 require_once('../includes/pageStart.php');
-require_once('../includes/header.php');
-
 
 
 if(count($_POST) > 0) {
@@ -25,7 +23,6 @@ if(count($_POST) > 0) {
     $bind[':lastName']  = $_POST['lastName'];
     $bind[':email']     = $_POST['email'];
     $bind[':userID']     = $_SESSION['userID'];
-    echo '<pre>';print_r($bind);echo '</pre>';
     $db = new db($config);
     $resp = $db -> execute($query, $bind);
     unset($bind);
@@ -35,6 +32,9 @@ if(count($_POST) > 0) {
         header('Location: ./?a=pe'); // a = Alert  pe = Profile Error
     }
 }
+
+
+require_once('../includes/header.php');
 
 
 $query = 'SELECT * FROM users WHERE userID = :userID LIMIT 0,1';
@@ -57,11 +57,11 @@ $results = $db -> fetchRow($query, $bind);
             </div>
         </div>
 
-        <form action='./' method='POST' accept-charset='utf-8'>
+        <form class="validate" action='./' method='POST' accept-charset='utf-8'>
             <div class="row">
                 <label class='span3 offset3'>First Name <br>
                     <input
-                        class="span3"
+                        class="text span3"
                         type='text'
                         name='firstName'
                         value='<?php echo $results['firstName'] ?>'
@@ -70,7 +70,7 @@ $results = $db -> fetchRow($query, $bind);
                 </label>
                 <label class='span3'>Last Name <br>
                     <input
-                        class="span3"
+                        class="text span3"
                         type='text'
                         name='lastName'
                         value='<?php echo $results['lastName'] ?>'
@@ -81,7 +81,7 @@ $results = $db -> fetchRow($query, $bind);
             <div class="row">
                 <label class='span6 offset3'>Email <br>
                     <input
-                        class='span6'
+                        class='email span6'
                         type='email'
                         name='email'
                         value='<?php echo $results['email'] ?>'
@@ -95,7 +95,7 @@ $results = $db -> fetchRow($query, $bind);
                         <i class="icon-ok icon-white"></i>
                         Save
                     </button>
-                    <a href="password" class="btn pull-right">
+                    <a href="../" class="btn pull-right">
                         <i class="icon-remove"></i>
                         Cancel
                     </a>
