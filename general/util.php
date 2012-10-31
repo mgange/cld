@@ -170,6 +170,18 @@ function Systemlogic($G,$Y1,$Y2,$O,$W,$T){
 }
 
 
+function Emerglogic($InVal,$EM)
+{
+    $EmState= 0;
+    if ($InVal==true and $EM==false) {
+        $EmState=1;} else {$EmState=0;}
+
+  //  echo( "<BR>".$EM."--".$InVal."--".$EmState);
+   //       if ($EmState==0)   {Echo "S1";} else {echo "S2";}
+    Return $EmState;
+}
+
+
 /**
  * unitLabel decodes units and add degree symbol
  * @param string $SenUnitField Marker to indicate type of units
