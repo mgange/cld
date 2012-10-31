@@ -7058,7 +7058,7 @@ body {
   padding: 5px 0 0 0;
 }
 .validate .validationError {
-  border: 1px solid red;
+  border: 1px solid #dc4e44;
 }
 .navbar .sign-in-form .submit {
   margin-top: 0;
