@@ -129,6 +129,20 @@ function checkSystemSet($config)
 }
 
 
+/**  COP Calculation based on Water delta , flow rate and power consumption
+ *
+ */
+  function COPCalc($WaterIn,$WaterOut,$Flow,$Power1,$Power2)
+ {
+      $COP=0;
+      $ABSBTU=($WaterIn-$WaterOut)*$Flow*60*8.35;
+      $ElecBTU=($Power1+$Power2)*3.412;
+    //  Echo ("ABS-".$ABSBTU."---ElecBTU".$ElecBTU."WI".$WaterIn." WO".$WaterOut." --Flow-".$Flow);
+      if ($ElecBTU == 0) {$COP="---";} else {$COP = number_format(($ABSBTU+$ElecBTU)/$ElecBTU,2);}
+      return $COP;
+  }
+
+
 /**
  * Determine the system status based on digital inputs
  * @param bool   $G  SourceData0.DigIn04 or SourceData4.ThermStat01
