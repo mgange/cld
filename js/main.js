@@ -50,7 +50,7 @@ $('.timepick').timepicker({
 });
 
 // Auto Refresh
-if($('.refresh')) {
+if($('.refresh').length) {
   window.setTimeout("window.location=window.location", 300000);
 }
 
