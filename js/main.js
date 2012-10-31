@@ -49,12 +49,12 @@ $('.timepick').timepicker({
   timeFormat: 'h:i A'
 });
 
-// Auto refresh
+// Auto Refresh
 if($('.refresh')) {
   window.setTimeout("window.location=window.location", 300000);
 }
 
-// sample chart
+// Initiate Chart
 if($('.chart-container').length) {
   $(function () {
       var chart;
@@ -65,11 +65,6 @@ if($('.chart-container').length) {
                   type: 'line',
                   zoomType: 'x'
               },
-              legend: {align: 'right',
-                       borderRadius: 3,
-                       layout: 'vertical',
-                       verticalAlign: 'middle'
-                     },
               loading: {hideDuration: 0},
               subtitle: {text: ''},
               title: {text: ''},
@@ -87,10 +82,6 @@ if($('.chart-container').length) {
                         }
                         ],
                         enabled: true
-                        /* Position the tooltip displayed on hover */
-                        // positioner: function () {
-                        //   return { x: 70, y: 11 };
-                        // }
               },
               plotOptions: {
                   line: {
