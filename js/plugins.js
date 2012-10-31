@@ -14,6 +14,61 @@ if (!(window.console && console.log)) {
 // Place any jQuery/helper plugins in here.
 
 /*
+Form Validation
+ */
+(function($) {
+
+  $.fn.validate = function() {
+    var types = {
+/*    "CLASS" :  REGEX     */
+      "text"  : /[a-zA-Z0-9]{3}/,
+      "email" : /.*\@.*/,
+      "phone" : /.{0,1}[0-9]{0,3}.{0,1}[0-9]{3}.{0,1}[0-9]{4}.*/,
+      "zip"   : /[0-9]{5}/
+    };
+    var errorClass = 'validationError',
+        errorFound = false;
+
+    // Get the size of the associative array.
+    Object.size = function(obj) {
+      var size = 0, key;
+      for (key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            size++;
+          }
+      }
+      return size;
+    };
+    var size = Object.size(types);
+
+    function fun() {
+      console.log(this);
+    }
+
+    //test all those elements
+    $(this).submit(function(){
+      errorFound = false;
+      for(var index in types) {
+        $('.'+index).each(function(){
+          if(types[index].test($(this).val())){
+            $(this).removeClass(errorClass);
+          }else{
+            errorFound = true;
+            if(! $(this).hasClass(errorClass)) {
+              $(this).addClass(errorClass);
+            }
+          }
+        });
+      }
+      return (errorFound) ? false : true;
+    });
+
+  };
+}(jQuery));
+$('.validate').validate();
+
+
+/*
 Highcharts JS v2.3.3 (2012-10-04)
 
 (c) 2009-2011 Torstein Hønsi
