@@ -133,7 +133,7 @@ extract($vals);
 
 // Get a list of date/time stamps for chart labels
 foreach($result as $val) {
-    $dateTime = strtotime($val[DateStamp].' '.$val[TimeStamp]);
+    $dateTime = strtotime($val['DateStamp'].' '.$val['TimeStamp']);
     $Stamp[$val['Recnum']]  =   date('g:i:s A', $dateTime);
     $Stamp[$val['Recnum']] .= '<br>';
     $Stamp[$val['Recnum']] .= date('M. j, Y', $dateTime);
@@ -260,14 +260,14 @@ echo "
 
 // Remove some undesirables
 for ($i=0; $i < count($result); $i++) {
-    unset($result[$i][Recnum]);
-    unset($result[$i][DateStamp]);
-    unset($result[$i][TimeStamp]);
-    unset($result[$i][DigIn01]);
-    unset($result[$i][DigIn02]);
-    unset($result[$i][DigIn03]);
-    unset($result[$i][DigIn04]);
-    unset($result[$i][DigIn05]);
+    unset($result[$i]['Recnum']);
+    unset($result[$i]['DateStamp']);
+    unset($result[$i]['TimeStamp']);
+    unset($result[$i]['DigIn01']);
+    unset($result[$i]['DigIn02']);
+    unset($result[$i]['DigIn03']);
+    unset($result[$i]['DigIn04']);
+    unset($result[$i]['DigIn05']);
 }
 foreach($result[0] as $key => $val) {
 ?>
