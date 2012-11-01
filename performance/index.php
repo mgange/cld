@@ -335,7 +335,13 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                                     class="datepick span2"
                                     type="text"
                                     name="date"
-                                    value="<?php if(isset($_GET['date'])){echo $_GET['date'];} ?>">
+                                    value="<?php
+                                        if(isset($_GET['date'])) {
+                                            echo $_GET['date'];
+                                        }else{
+                                            echo date('o-m-d');
+                                        }
+                                    ?>">
                             </label>
                             <label class="span2" for="time">Time &nbsp;
                                 <input
@@ -343,7 +349,13 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                                     class="timepick span2"
                                     type="text"
                                     name="time"
-                                    value="<?php if(isset($_GET['date'])){echo $_GET['time'];} ?>">
+                                    value="<?php
+                                        if(isset($_GET['date'])) {
+                                            echo $_GET['time'];
+                                        }else{
+                                            echo date('h:i A');
+                                        }
+                                    ?>">
                             </label>
                             <label class="span2" for="range">Range &nbsp;
                                 <select
