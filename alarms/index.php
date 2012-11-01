@@ -59,14 +59,31 @@ $db -> execute($query);
                     <td><?=$date?></td>
                     <td><?=$time?></td>
                     <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></span></td>
-                    <td><?=$value['Alarm_Source']?></td>
+                    <td><?php
+                        switch($value['SourceID']){
+                            case 0:
+                            case 4:
+                                echo "Main";
+                                break;
+                            default:
+                                echo "RSM" . $value['SourceID'];
+                                break;
+                        }
+                    ?>
+                    </td>
                     <td><?php
                         switch($alarm['Alarm_Type']){
                             case 1:
-                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Temperature Sensor</span>";
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Temperature</span>";
                                 break;
                             case 2:
-                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Flow/Pressure</span>";
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Flow</span>";
+                                break;
+                            case 3:
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Pressure</span>";
+                                break;
+                            case 4:
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Voltage</span>";
                                 break;
                         }
                     ?>
@@ -124,14 +141,31 @@ $db -> execute($query);
                     <td><?=$dateStart . "<br>" . $timeStart?></td>
                     <td><?=$dateEnd . "<br>" . $timeEnd?></td>
                     <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></span></td>
-                    <td><?=$value['Alarm_Source']?></td>
+                    <td><?php
+                        switch($value['SourceID']){
+                            case 0:
+                            case 4:
+                                echo "Main";
+                                break;
+                            default:
+                                echo "RSM" . $value['SourceID'];
+                                break;
+                        }
+                    ?>
+                    </td>
                     <td><?php
                         switch($alarm['Alarm_Type']){
                             case 1:
-                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Temperature Sensor</span>";
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Temperature</span>";
                                 break;
                             case 2:
-                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Flow/Pressure</span>";
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Flow</span>";
+                                break;
+                            case 3:
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Pressure</span>";
+                                break;
+                            case 4:
+                                echo "<span style=\"border-bottom:dashed 1px gray\" title=\"Sensor " . $value['SensorNo'] . "\">Voltage</span>";
                                 break;
                         }
                     ?>
