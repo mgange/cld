@@ -51,10 +51,10 @@ require_once('../includes/header.php');
         case 2:
           $zone = 2;
           break;
-        case 4:
+        case 3:
           $zone = 3;
           break;
-        case 5:
+        case 4:
           $zone = 5;
           break;
       }
@@ -79,27 +79,34 @@ require_once('../includes/header.php');
       $timeBefore = $result['time'];
       $dateBefore = $result['date'];
       //Produce queries within a certain time frame
+      //query4 limited to 5 groups of records based on max 4 RSMs and 1 DAM
       $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData0.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData4.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData4.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 5";
       $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
-      // Querey for RSMs 1, 2, 3, or 5
-      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+      // Query for RSMs 1, 2, 3, or 5
+      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
     }else{
       $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.SourceID = 0 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID AND SourceHeader.SourceID = 4 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
+      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID AND SourceHeader.SourceID = 4  ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 5";
       $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum ORDER BY DateStamp Desc,TimeStamp Desc limit 1";
       if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
       }
-
+//SourceData4.SysGroup=2 and
+      $NumGrpsin4 = $db -> numRows($query4);
+      $sysStatus4 = $db -> fetchAll($query4);
+  //   echo("E".$NumGrpsin4."<BR>"."GRP-".$sysStatus4[SysGroup]."<BR>");
 
 
      $sysStatus0 = $db -> fetchRow($query0);
      if (isset($zone)) {$sysStatus1 = $db -> fetchRow($query1);}
 
-     $sysStatus4 = $db -> fetchRow($query4);
+ //    $sysStatus4 = $db -> fetchRow($query4);
+
+
      // Not using Calculations for now
   //   $sysStatusCalc = $db -> fetchRow($queryCalc);
-
+    echo("0--".$sysStatus0[HeadID]);
+     echo("<BR>4--".$sysStatus4[Recnum]);
      //get next and previous recnum's
       $queryPrev = "SELECT SourceHeader.Recnum FROM SourceHeader,SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
       $queryNext = "SELECT Recnum FROM SourceHeader WHERE SysID = " . $SysID . " AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp ASC,TimeStamp ASC LIMIT 1";
@@ -116,7 +123,7 @@ require_once('../includes/header.php');
  if (isset($_GET['z']))  {$SysZNum=$_GET['z'];} else {$SysZNum=0;}
      $SysLocMain=$sysDAMID[LocationMainSystem];
      if ($SysZNum==0) {$SysZone="Main";}
-     if ($SysZNum >= 1) {$SysZone="RSM ".$SysZNum;}
+     if ($SysZNum >= 1) $SysZone="RSM " . (($SysZNum == 4) ? ($SysZNum + 1) : $SysZNum);
      $NumRSM=$sysDAMID[NumofRSM];
 
     // define arrays for data and labels and positions etc
@@ -128,8 +135,10 @@ require_once('../includes/header.php');
        $PosAX=array($Pageelem);
        $PosAY=array($Pageelem);
        $MapA =array($Pageelem);
-       $Uplim = array($Pageelem);
-       $Lolim = array($Pageelem);
+       $LolmtA = array($Pageelem);
+       $UplmtA = array($Pageelem);
+       $ValB= array($Pageelem);
+
 
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
@@ -146,25 +155,31 @@ require_once('../includes/header.php');
           $LblA[$i] =$resultRow['SensorName'];
           $ForA[$i] =$resultRow['Format'];
 
-      }
+     }
 
-     // then get positions for RSM pages
+     // then get unique positions for RSM pages if any
      if ($zone >= 1) {
 
      }
 
 
      // Field to Data mappings
-     // first get default value for Main Page
-     $DeftMapquery="Select SouceID, SensorColName from SysMap, WebRefTable
-                       join SysMap.SensorRefName = WebRefTable.SensorName
-                       where WebPageName='StatusDB' and SysMap.SysID=0";
+     // first get default values for Main Page
+     $DeftMapquery="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysMap.SysID=0 and (sourceID=0 or SourceID=4 )order by WebPagePosNo";
 
-     $UniqMapquery="Select SouceID, SensorColName from SysMap, WebRefTable
-                       join SysMap.SensorRefName = WebRefTable.SensorName
-                       where WebPageName=StatusDB and SysID=".$SysID;
+    $UniqMapquery="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDbFactor,SenAdjFactor,Format,Inhibit from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysID=".$SysID." order by WebPagePosNo";
 
-    // $MapMain = $db -> fetchAll($DeftMapquery);
+     $MapMain = $db -> fetchAll($DeftMapquery);
+    // $UniqMain = $db -> fetchAll($UniqMapquery);
+     // loop to define value maps
+     // loop to define labels and unit, lo and up limits
+     // Fixed Labels
 
      $lf="<br>";
 
@@ -174,292 +189,400 @@ require_once('../includes/header.php');
                  "RSMs-".$sysDAMID[NumofRSM];
 
 
+     $LblA[0]="Date Time";
+     $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
+     $SDateTime = date_create($SDateTime);
+     $ValA[0]=date_format($SDateTime, 'm/d/Y g:i:s A');
+     $ShwA[0] =true;
+     $LblA[12]="System Information";
+     $ValA[12]=$systemInfo;
+     $ShwA[12]=true;
+     $LblA[13]="System Description";
+     $ShwA[13]=true;
+     $ValA[13]=$systemDesc;
+     $LblA[29]="ThermStat Mode";
+
+     $LblA[38]="System Status";
+
+
+
+     $ShwA[29]=true;
+     $ShwA[38]=true;
+     $ShwA[40]=true;
+  function value_format ($Value,$Format,$SenAdj,$SenDBFact)
+   {
+
+      switch ($Format)
+      {
+          case 0:  //number
+              $FormValue=number_format($Value*$SenAdj/$SenDBFact,2);
+              break;
+          case 1:  // Text w/back
+              break;
+          case 2:  // Text wo/back
+              break;
+          case 3:  // Dig
+              break;
+          case 4:  // Date Time
+              break;
+          case 5:  // Calc Syslogic
+              break;
+          case 6:  // Calc Energy
+              break;
+          default:
+
+      }
+      return $FormValue;
+   }
+   $i=0;
+     foreach($MapMain as $resultRow) {
+
+            $SUnit=UnitLabel($resultRow[SensorUnits]);
+            $SPos= $resultRow[WebPagePosNo];
+            $LblA[$SPos]=$resultRow[SensorLabel]." ".$SUnit."<BR> ";
+            $LolmtA[$SPos]=$resultRow[AlarmLoLimit];
+            $UplmtA[$SPos]=$resultRow[AlarmUpLimit];
+            $ShwA[$SPos]=!$resultRow[Inhibit];
+            $ForA[$SPos]=$resultRow[Format];
+            // get value and process
+            $DBCol=   $resultRow[SensorColName];
+            switch ($resultRow[SourceID])
+            {
+                case 0: $GetValue=$sysStatus0[$DBCol];
+
+                    break;
+                case 1: $GetValue=$sysStatus1[$DBCol];
+
+                    break;
+                case 4:
+                      foreach ($sysStatus4 as $modrow)
+                {
+                      if (($resultRow[SensorAddress]==$modrow[PwrSubAddress]) or  ($resultRow[SensorAddress]== $modrow[ThermSubAddress]))
+                           {$GetValue=$modrow[$DBCol];}
+                    //   $i=$i+1;
+                      $T=$resultRow[SensorAddress]==$modrow[PwrSubAddress];
+                    //  echo ($T."==".$modrow[$DBCol]."<BR>");
+                    //   echo($DBCol."<BR>");
+
+                }
+                    break;
+            }
+     //     echo ($SPos."-->".$resultRow[SourceID]."--".$DBCol."-".$GetValue."<BR>");
+             if ($ForA[$SPos]==0 )
+                 {$ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}
+                 else {$ValA[$SPos]=$GetValue;}
+       }
+
+  // System Status Inhibits in emergency heat mode
+     // /  $ValA[21]=$sysStatus4[ThermStat01] ;
+     //   $ValA[22]=$sysStatus4[ThermStat04] ;
+   //  $ValA[23]=$sysStatus4[ThermStat02];
+   //    $ValA[24]=$sysStatus4[ThermStat03];
+   //   $ValA[25]=$sysStatus4[ThermStat05];
+ //   echo ($ValA[21]."|".$ValA[22]."|".$ValA[23]."|".$ValA[24]."|".$ValA[25]."|");
+   if ($ValA[41]==5) {$EM=1;} else {$EM=0;}
+
+ //  echo("V".$ValA[41]."----".$EM."Not".($T));
+   $ValA[22]=Emerglogic($ValA[22],$EM);
+   $ValA[23]=Emerglogic($ValA[23],$EM);
+
+//  Echo("<BR>1-:". $ValA[24]."_EM_".$EM);
+   $ValA[24]=Emerglogic($ValA[24],$EM);
+ //   Echo("<BR>2-:". $ValA[24]."_EM_".$EM);
+     if ($EM==1) {$ValA[25]=1;}
+   $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);
+   $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34],false);
+       $ValA[39]="";
+    //   $ValA[5]=$sysStatus4[Power03];
+       $ValA[40]=COPCalc($ValA[15],$ValA[14],$ValA[17],$ValA[5],0);
+
 
        $exchangermode = 0;
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
 
 
 // Alert Limits array
-       $LmtA = array(
-            0 => array('lolim' => Null,
-                       'hilim' => Null),
+  //     $LmtA = array(
+   //         0 => array('lolim' => Null,
+  //                     'hilim' => Null),
 
 
-            1 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          1 => array('lolim' => Null,
+   //                    'hilim' => Null),
 
-            2 => array('lolim' => 32,
-                       'hilim' => 100),
-
-
-            3 => array('lolim' => 216,
-                       'hilim' => 264),
-
-            4 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           2 => array('lolim' => 32,
+ //                      'hilim' => 100),
 
 
-            5 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           3 => array('lolim' => 216,
+ //                      'hilim' => 264),
 
-            6 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            7 => array('lolim' => 32,
-                       'hilim' => 100),
-
-            8 => array('lolim' => 55,
-                       'hilim' => 85),
-
-            9 => array('lolim' => 55,
-                       'hilim' => 85),
-
-            10 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           4 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
 
-            11 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           5 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
-            12 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           6 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
+ //           7 => array('lolim' => 32,
+ //                      'hilim' => 100),
 
-            13 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          8 => array('lolim' => 55,
+  //                     'hilim' => 85),
 
-            14 => array('lolim' => 40,
-                       'hilim' => 70),
+  //          9 => array('lolim' => 50,
+  //                     'hilim' => 85),
 
-
-            15 => array('lolim' => 40,
-                       'hilim' => 70),
-
-            16 => array('lolim' => 0,
-                       'hilim' => 70),
+  //          10 => array('lolim' => Null,
+  //                     'hilim' => Null),
 
 
-            17 => array('lolim' => 0,
-                       'hilim' => 10),
+ //           11 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
-            18 => array('lolim' => Null,
-                       'hilim' => Null),
-
-
-            19 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            20 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          12 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
 
-            21 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           13 => array('lolim' => Null,
+  //                     'hilim' => Null),
 
-            22 => array('lolim' => Null,
-                       'hilim' => Null),
-
-
-            23 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            24 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          14 => array('lolim' => 40,
+  //                     'hilim' => 70),
 
 
-            25 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          15 => array('lolim' => 40,
+  //                     'hilim' => 70),
 
-            26 => array('lolim' => Null,
-                       'hilim' => Null),
-
-
-            27 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            28 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            29 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          16 => array('lolim' => 0,
+  //                     'hilim' => 70),
 
 
-            30 => array('lolim' => Null,
-                       'hilim' => Null),
+  //          17 => array('lolim' => 0,
+  //                     'hilim' => 10),
 
-            31 => array('lolim' => Null,
-                       'hilim' => Null),
-
-
-            32 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            33 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            34 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            35 => array('lolim' => Null,
-                       'hilim' => Null),
-
-            36 => array('lolim' => Null,
-                       'hilim' => Null),
+   //         18 => array('lolim' => Null,
+   //                    'hilim' => Null),
 
 
-            37 => array('lolim' => Null,
-                       'hilim' => Null),
+   //         19 => array('lolim' => Null,
+   //                    'hilim' => Null),
 
-            38 => array('lolim' => Null,
-                       'hilim' => Null),
+//            20 => array('lolim' => Null,
+//                       'hilim' => Null),
 
 
-            39 => array('lolim' => Null,
-                       'hilim' => Null),
+ //           21 => array('lolim' => Null,
+ //                      'hilim' => Null),
 
-            40 => array('lolim' => Null,
-                       'hilim' => Null)
+ //           22 => array('lolim' => Null,
+  //                     'hilim' => Null),
 
-           );
+
+ //           23 => array('lolim' => Null,
+ //                      'hilim' => Null),
+
+ //           24 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+
+   //         25 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+  //          26 => array('lolim' => Null,
+   //                    'hilim' => Null),
+
+
+ //           27 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+ //           28 => array('lolim' => Null,
+ //                      'hilim' => Null),
+
+  //          29 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+   //         30 => array('lolim' => Null,
+   //                    'hilim' => Null),
+
+   //         31 => array('lolim' => Null,
+     //                  'hilim' => Null),
+
+
+    //        32 => array('lolim' => Null,
+    //                   'hilim' => Null),
+
+    //        33 => array('lolim' => Null,
+   //                    'hilim' => Null),
+
+   //         34 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+ //           35 => array('lolim' => Null,
+ //                      'hilim' => Null),
+
+  //          36 => array('lolim' => Null,
+   //                    'hilim' => Null),
+
+
+  //          37 => array('lolim' => Null,
+   //                    'hilim' => Null),
+
+   //         38 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+
+  //          39 => array('lolim' => Null,
+  //                     'hilim' => Null),
+
+   //         40 => array('lolim' => Null,
+  //                     'hilim' => Null)
+
+       //    );
 
        // Set up array here from web reference table
        // Values  Source0 to 4
        // Limits from Alarm and SensorMap
        // Configuration from SysConfig table
 // Labels array fixed for now
-       $deg=htmlentities(chr(176), ENT_QUOTES, 'cp1252');
-       $LblA[0]="Date Time";
-       $LblA[1]="Outside Air ".$deg."F";
-       $LblA[2]="Air In ".$deg."F";
-       $LblA[3]="Voltage V";
-       $LblA[4]="Cntrl. Pwr.  KW";
-       $LblA[5]="Sys. Pwr. KW";
-       $LblA[6]="Sys. Energy KWhr";
-       $LblA[7]="Air Out ".$deg."F";
-       $LblA[8]="Mech RT ".$deg."F";
-       $LblA[9]="LCD Temp ".$deg."F";
-       $LblA[10]="Heat SP ".$deg."F";
-       $LblA[11]="Cool SP ".$deg."F";
-       $LblA[12]="System Information";
-       $LblA[13]="System Description";
-       $LblA[14]="Water Out ".$deg."F";
-       $LblA[15]="Water In ".$deg."F";
-       $LblA[16]="Pressure PSI";
-       $LblA[17]="Flow GPM";
-       $LblA[18]="";
-       $LblA[19]="";
-       $LblA[20]="";
-       $LblA[21]="Fan";
-       $LblA[22]="Stg 1";
-       $LblA[23]="Stg 2";
-       $LblA[24]="Cool";
-       $LblA[25]="Aux H";
-       $LblA[26]="V1";
-       $LblA[27]="V2";
-       $LblA[28]="V2";
-       $LblA[29]="ThermStat Mode";
-       $LblA[30]="Fan";
-       $LblA[31]="Stg 1";
-       $LblA[32]="Stg 2";
-       $LblA[33]="Cool";
-       $LblA[34]="Aux H";
-       $LblA[35]="V1";
-       $LblA[36]="V2";
-       $LblA[37]="V3";
-       $LblA[38]="System Status";
-       $LblA[39]="Spare";
-       $LblA[40]="Spare";
+     //  $deg=htmlentities(chr(176), ENT_QUOTES, 'cp1252');
+     //  $LblA[0]="Date Time";
+    //   $LblA[1]="Outside Air ".$deg."F";
+    //   $LblA[2]="Air In ".$deg."F";
+    //   $LblA[3]="Voltage V";
+   //    $LblA[4]="Cntrl. Pwr.  KW";
+   //    $LblA[5]="Sys. Pwr. KW";
+   //    $LblA[6]="Sys. Energy KWhr";
+   //    $LblA[7]="Air Out ".$deg."F";
+   //    $LblA[8]="Mech RT ".$deg."F";
+   //    $LblA[9]="LCD Temp ".$deg."F";
+   //    $LblA[10]="Heat SP ".$deg."F";
+  //     $LblA[11]="Cool SP ".$deg."F";
+  //     $LblA[12]="System Information";
+   //    $LblA[13]="System Description";
+   //    $LblA[14]="Water Out ".$deg."F";
+   //    $LblA[15]="Water In ".$deg."F";
+   //    $LblA[16]="Pressure PSI";
+   //    $LblA[17]="Flow GPM";
+   //    $LblA[18]="";
+   //    $LblA[19]="";
+    //   $LblA[20]="";
+    //   $LblA[21]="Fan";
+    //   $LblA[22]="Stg 1";
+   //    $LblA[23]="Stg 2";
+   //    $LblA[24]="Cool";
+    //   $LblA[25]="Aux H";
+    //   $LblA[26]="V1";
+   //    $LblA[27]="V2";
+   //    $LblA[28]="V2";
+   //    $LblA[29]="ThermStat Mode";
+   //    $LblA[30]="Fan";
+   //    $LblA[31]="Stg 1";
+   //    $LblA[32]="Stg 2";
+   //    $LblA[33]="Cool";
+   //    $LblA[34]="Aux H";
+   //    $LblA[35]="V1";
+   //    $LblA[36]="V2";
+   //    $LblA[37]="V3";
+  //     $LblA[38]="System Status";
+ //      $LblA[39]="Spare";
+ //      $LblA[40]="Spare";
 
        // quick set up for query0  user else for query1 until mapping is complete
 
        if ($SysZNum == 0)  {
-       $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
-       $SDateTime = date_create($SDateTime);
-       $ValA[0]=date_format($SDateTime, 'm/d/Y g:i:s A');
-       $ValA[1]=number_format($sysStatus0[Senchan07]/100,2);
-       $ValA[2]=number_format($sysStatus0[Senchan05]/100,2);
-       $ValA[3]=number_format($sysStatus4[Power02]/100,2);
-       $ValA[4]=number_format($sysStatus4[Power01]/100,2);
-       $ValA[5]=number_format($sysStatus4[Power03]/100,2);
-       $ValA[6]=number_format($sysStatus4[Power04]/100,2);
-       $ValA[7]=number_format($sysStatus0[Senchan06]/100,2);
-       $ValA[8]=number_format($sysStatus0[Senchan08]/100,2);
-       $ValA[9]=number_format($sysStatus4[LCDTemp],2);
-       $ValA[10]=number_format($sysStatus4[HeatingSetPoint],2);
-       $ValA[11]=number_format($sysStatus4[CoolingTemp],2);
-       $ValA[12]=$systemInfo;
-       $ValA[13]=$systemDesc;
-       $ValA[14]=number_format($sysStatus0[Senchan03]/100,2);
-       $ValA[15]=number_format($sysStatus0[Senchan01]/100,2);
-       $ValA[16]=number_format($sysStatus0[FlowPress02]/100,2);
-       $ValA[17]=number_format($sysStatus0[FlowPress01]/100,2);
-       $ValA[18]=$sysStatus0[DigIn06];
-       $ValA[19]=$sysStatus0[DigIn07];
-       $ValA[20]=$sysStatus0[DigIn08];
+  //     $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
+  //     $SDateTime = date_create($SDateTime);
+  //    $ValA[0]=date_format($SDateTime, 'm/d/Y g:i:s A');
+  //     $ValA[1]=number_format($sysStatus0[Senchan07]/100,2);
+  //     $ValA[2]=number_format($sysStatus0[Senchan05]/100,2);
+ //     $ValA[3]=number_format($sysStatus4[Power02]/100,2);
+ //     $ValA[4]=number_format($sysStatus4[Power01]/100,2);
+ //   $ValA[5]=number_format($sysStatus4[Power03]/100,2);
+ //    $ValA[6]=number_format($sysStatus4[Power04]/100,2);
+ //      $ValA[7]=number_format($sysStatus0[Senchan06]/100,2);
+ //     $ValA[8]=number_format($sysStatus0[Senchan08]/100,2);
+  //     $ValA[9]=number_format($sysStatus4[LCDTemp],2);
+  //    $ValA[10]=number_format($sysStatus4[HeatingSetPoint],2);
+ //   $ValA[11]=number_format($sysStatus4[CoolingSetPoint],2);
+  //    $ValA[12]=$systemInfo;
+  //     $ValA[13]=$systemDesc;
+ //   $ValA[14]=number_format($sysStatus0[Senchan03]/100,2);
+ //     $ValA[15]=number_format($sysStatus0[Senchan01]/100,2);
+ //      $ValA[16]=number_format($sysStatus0[FlowPress02]/100,2);
+ //   $ValA[17]=number_format($sysStatus0[FlowPress01]/100,2);
+  //     $ValA[18]=$sysStatus0[DigIn06];
+  //   $ValA[19]=$sysStatus0[DigIn07];
+  //     $ValA[20]=$sysStatus0[DigIn08];
+   //    $ValA[41]=$sysStatus4[ThermMode];
+    //   if ($ValA[41]==5) {$EM=true;} else {$EM=false;}
+    //   $ValA[22]=$sysStatus4[ThermStat04] ;
+  //    $ValA[23]=$sysStatus4[ThermStat02];
+   //    $ValA[24]=$sysStatus4[ThermStat03];
+  //    $ValA[25]=$sysStatus4[ThermStat05];
+    // echo ("EM".$EM."EMN". (!$EM));
 
-       $ValA[21]=$sysStatus4[ThermStat01];
-       $ValA[22]=$sysStatus4[ThermStat04];
-       $ValA[23]=$sysStatus4[ThermStat02];
-       $ValA[24]=$sysStatus4[ThermStat03];
-       $ValA[25]=$sysStatus4[ThermStat05];
-       $ValA[26]="";    //$sysStatus4[BS06];
-       $ValA[27]="";    //$sysStatus4[BS07];
-       $ValA[28]="";    //$sysStatus4[BS08];
-       $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25]);
+     // echo ("P".$ValA[26].!$EM);//$sysStatus4[BS06];
+   //    $ValA[27]="";    //$sysStatus4[BS07];
+  //     $ValA[28]="";    //$sysStatus4[BS08];
+  //    $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$ValA[26]);
 
-       $ValA[30]=$sysStatus0[DigIn04];
-       $ValA[31]=$sysStatus0[DigIn01];
-       $ValA[32]=$sysStatus0[DigIn02];
-       $ValA[33]=$sysStatus0[DigIn03];
-       $ValA[34]=$sysStatus0[DigIn05];
-       $ValA[35]=$sysStatus0[DigIn06];
-       $ValA[36]=$sysStatus0[DigIn07];
-       $ValA[37]=$sysStatus0[DigIn08];
-       $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34]);
-       $ValA[39]="";
-       $ValA[40]="";
+ //      $ValA[30]=$sysStatus0[DigIn04];
+  //     $ValA[31]=$sysStatus0[DigIn01];
+ //     $ValA[32]=$sysStatus0[DigIn02];
+ //     $ValA[33]=$sysStatus0[DigIn03];
+ //      $ValA[34]=$sysStatus0[DigIn05];
+ //     $ValA[35]=$sysStatus0[DigIn06];
+//       $ValA[36]=$sysStatus0[DigIn07];
+ //     $ValA[37]=$sysStatus0[DigIn08];
+//   $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34],false);
+   //    $ValA[39]="";
+  //     $ValA[40]="";
 
-       $ShwA[0]=true;
-       $ShwA[1]=true;
-       $ShwA[2]=true;
-       $ShwA[3]=true;
-       $ShwA[4]=true;
-       $ShwA[5]=true;
-       $ShwA[6]=true;
-       $ShwA[7]=true;
-       $ShwA[8]=true;
-       $ShwA[9]=true;
-       $ShwA[10]=true;
-       $ShwA[11]=true;
-       $ShwA[12]=true;
-       $ShwA[13]=true;
-       $ShwA[14]=true;
-       $ShwA[15]=true;
-       $ShwA[16]=true;
-       $ShwA[17]=true;
-       $ShwA[18]=true;
-       $ShwA[19]=true;
-       $ShwA[20]=true;
-       $ShwA[21]=true;
-       $ShwA[22]=true;
-       $ShwA[23]=true;
-       $ShwA[24]=true;
-       $ShwA[25]=true;
-       $ShwA[26]=false;
-       $ShwA[27]=false;
-       $ShwA[28]=false;
-       $ShwA[29]=true;
-       $ShwA[30]=true;
-       $ShwA[31]=true;
-       $ShwA[32]=true;
-       $ShwA[33]=true;
-       $ShwA[34]=true;
-       $ShwA[35]=false;
-       $ShwA[36]=false;
-       $ShwA[37]=false;
-       $ShwA[38]=true;
-       $ShwA[39]=false;
-       $ShwA[40]=false;
+ //      $ShwA[0]=true;
+  //     $ShwA[1]=true;
+  //     $ShwA[2]=true;
+   //    $ShwA[3]=true;
+   //    $ShwA[4]=true;
+   //    $ShwA[5]=true;
+  //     $ShwA[6]=true;
+  //     $ShwA[7]=true;
+  //     $ShwA[8]=true;
+   //    $ShwA[9]=true;
+  //     $ShwA[10]=true;
+  //     $ShwA[11]=true;
+ //      $ShwA[12]=true;
+ //      $ShwA[13]=true;
+ //      $ShwA[14]=true;
+ //      $ShwA[15]=true;
+ //      $ShwA[16]=true;
+ //      $ShwA[17]=true;
+  //     $ShwA[18]=true;
+ //      $ShwA[19]=true;
+ //      $ShwA[20]=true;
+  //     $ShwA[21]=true;
+  //     $ShwA[22]=true;
+  //     $ShwA[23]=true;
+ //      $ShwA[24]=true;
+ //      $ShwA[25]=true;
+//       $ShwA[26]=false;
+ //      $ShwA[27]=false;
+ //      $ShwA[28]=false;
+  //     $ShwA[29]=true;
+ //      $ShwA[30]=true;
+  //     $ShwA[31]=true;
+ //      $ShwA[32]=true;
+ //      $ShwA[33]=true;
+ //      $ShwA[34]=true;
+   //    $ShwA[35]=false;
+ //      $ShwA[36]=false;
+  //     $ShwA[37]=false;
+  //     $ShwA[38]=true;
+  //     $ShwA[39]=false;
+  //     $ShwA[40]=false;
        }
        else{
        $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
@@ -554,43 +677,42 @@ require_once('../includes/header.php');
 
 
        }
-       $ForA[0]="";
-       $ForA[1]="";
-       $ForA[3]="";
-       $ForA[5]="";
-       $ForA[6]="";
-       $ForA[9]="";
-       $ForA[10]="";
-       $ForA[11]="";
-       $ForA[12]=2;
-       $ForA[13]=2;
-       $ForA[14]="";
-       $ForA[15]="";
-       $ForA[16]="";
-       $ForA[17]="";
-       $ForA[18]=1;
-       $ForA[19]=1;
-       $ForA[20]=1;
-       $ForA[21]=1;
-       $ForA[22]=1;
-       $ForA[23]=1;
-       $ForA[24]=1;
-       $ForA[25]=1;
-       $ForA[26]=1;
-       $ForA[27]=1;
-       $ForA[28]=1;
-       $ForA[29]="";
-       $ForA[30]=1;
-       $ForA[31]=1;
-       $ForA[32]=1;
-       $ForA[33]=1;
-       $ForA[34]=1;
-       $ForA[35]=1;
-       $ForA[36]=1;
-       $ForA[37]=1;
-       $ForA[38]="";
-       $ForA[39]="";
-       $ForA[40]="";
+  //  $ForA[0]="";
+  //     $ForA[1]="";
+  //     $ForA[3]="";
+ //      $ForA[5]="";
+ //      $ForA[6]="";
+ //      $ForA[9]="";
+ //      $ForA[10]="";
+ //      $ForA[11]="";
+ //      $ForA[12]=2;
+ //      $ForA[14]="";
+ //      $ForA[15]="";
+ //      $ForA[16]="";
+ //      $ForA[17]="";
+ //      $ForA[18]=1;
+  //     $ForA[19]=1;
+ //      $ForA[20]=1;
+ //      $ForA[21]=1;
+  //     $ForA[22]=1;
+ //      $ForA[23]=1;
+  //     $ForA[24]=1;
+  //     $ForA[25]=1;
+   //    $ForA[26]=1;
+  //     $ForA[27]=1;
+  //     $ForA[28]=1;
+  //     $ForA[29]="";
+  //     $ForA[30]=1;
+  //     $ForA[31]=1;
+  //     $ForA[32]=1;
+ //      $ForA[33]=1;
+  //     $ForA[34]=1;
+   //    $ForA[35]=1;
+  //     $ForA[36]=1;
+   //    $ForA[37]=1;
+   //    $ForA[38]="";
+    //   $ForA[39]="";
+  //     $ForA[40]="";
 
 
 
@@ -633,7 +755,7 @@ require_once('../includes/header.php');
         // set Fontcolor
         $FontColor=black;
         //Special formats
-       if ($form == 1)  //digital display
+       if ($form == 3)  //digital display
            {
 
            if ($value == 1)
@@ -667,21 +789,7 @@ require_once('../includes/header.php');
 
 
        }
-      function Systemlogic($G,$Y1,$Y2,$O,$W)
-               {
-                  $SState="Invalid State";
 
-                  if (!$O and !$W and !$Y2 and  !$Y1 and !$G) {$SState="System Off";}
-                  if (!$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only";}
-                  if (!$O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Heat";}
-                  if (!$O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Heat";}
-                  if (!$O and  $W and !$Y2 and  !$Y1 and  $G) {$SState="Emerg. Heat";}
-                  if (!$O and  $W and  $Y2 and   $Y1 and  $G) {$SState="Stage 3 Heat";}
-                  if ($O and !$W and !$Y2 and   $Y1 and  $G) {$SState="Stage 1 Cool";}
-                  if ($O and !$W and  $Y2 and   $Y1 and  $G) {$SState="Stage 2 Cool";}
-
-                  Return $SState;
-               }
 
        ?>
 
@@ -729,8 +837,8 @@ require_once('../includes/header.php');
            for ($i=0;$i<$Pageelem+1;$i++)
            {
 
-                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
-//echo $BackColor;
+              // DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
+                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$SizA[$i],$ShwA[$i],$ForA[$i]);
            }
 
 
@@ -745,7 +853,7 @@ require_once('../includes/header.php');
                       for($i=0;$i<$NumRSM+1;$i++){
                       if($SysZNum != $i){
                           if($i == 0) $Zname="Main";
-                          else $Zname = "RSM-" . $i;
+                          else $Zname = "RSM-" . (($i == 4) ? ($i + 1) : $i);
                           echo "<a href=\"./?id=";
                           if(isset($_GET['id'])) echo $_GET['id'];
                           else echo $sysStatus0['HeadID'];
