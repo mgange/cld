@@ -122,7 +122,7 @@ if($('.chart-container').length) {
                 title: {text: 'Temperature / Pressure'}
               },
               {
-                title: {text: 'Pressure (PSI)',
+                title: {text: 'Flow Rate (Gallons/Minute)',
                         style: {
                           color: '#aaa'
                         }
