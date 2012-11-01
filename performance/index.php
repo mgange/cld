@@ -121,7 +121,7 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
 }
 
 // array_reverse() because the most recent data belongs at the end of the graph
-$result = array_reverse( $db -> fetchAll($query, $bind) );
+$result = array_reverse( $db -> fetchAll($query) );
 
 // TODO(Geoff Young): divide only the sensors by 100
 foreach($result as $resultRow) {
