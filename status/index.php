@@ -559,9 +559,11 @@ require_once('../includes/header.php');
                       echo "<a href='";
                       echo $config['base_domain'] . $config['base_dir'];
                       echo "performance";
-                      $dt = strtotime($ValA[0]);
-                      echo '?date=' . date('Y-m-d', $dt);
-                      echo '&time=' . date('H:i:s', $dt);
+                      if(isset($_GET['id'])) {
+                        $dt = strtotime($ValA[0]);
+                        echo '?date=' . date('Y-m-d', $dt);
+                        echo '&time=' . date('H:i:s', $dt);
+                      }
                       echo "'>Performance</a>";
                       echo "<BR>";
                       for($i=0;$i<$NumRSM+1;$i++){
