@@ -403,13 +403,12 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                                     type="text"
                                     name="range"
                                     >
-                                    <option value=""></option>
 <?php
-
+if(isset($_GET['range'])) { $range = intval($_GET['range']);}else{$range = 4;}
 for ($i=1; $i <= 6; $i++) {
 ?>
                                     <option value="<?php echo $i; ?>"<?php
-if(isset($_GET['range']) && $_GET['range'] == $i) {
+if($range == $i) {
     echo ' selected';
 }
                                     ?>>
