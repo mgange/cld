@@ -18,9 +18,9 @@ if(count($_POST) > 0) {
      * If the date/time form is submitted it builds a url based on the values sent.
      */
     if(isset($_POST['date']) && $_POST['date'] != ''
-        && isset($_POST['time']) && $_POST['time'] != '' ) {
+    && isset($_POST['time']) && $_POST['time'] != '' ) {
         if(substr($_POST['time'], -2, 2) == "PM") {
-            $hour = intval(substr($_POST['time'], 0, 2))+12;
+            $hour = intval(substr($_POST['time'], 0, 2)) + 12;
         }else{
             $hour = intval(substr($_POST['time'], 0, 2));
         }
@@ -293,7 +293,12 @@ echo "
             var data = [
 <?php
 
-// Remove some undesirables
+/**
+ * Because all of the fields selected in the query are used in the graph
+ * anything that doesn't belong in that graph must be removed from the results
+ * set.
+ * e.g. record numbers and data labels
+ */
 for ($i=0; $i < count($result); $i++) {
     unset($result[$i]['Recnum']);
     unset($result[$i]['DateStamp']);
