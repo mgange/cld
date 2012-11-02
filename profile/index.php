@@ -65,7 +65,6 @@ $results = $db -> fetchRow($query, $bind);
                         type='text'
                         name='firstName'
                         value='<?php echo $results['firstName'] ?>'
-                        placeholder='First Name'
                     >
                 </label>
                 <label class='span3'>Last Name <br>
@@ -74,7 +73,6 @@ $results = $db -> fetchRow($query, $bind);
                         type='text'
                         name='lastName'
                         value='<?php echo $results['lastName'] ?>'
-                        placeholder='First Name'
                     >
                 </label>
             </div>
@@ -85,7 +83,6 @@ $results = $db -> fetchRow($query, $bind);
                         type='email'
                         name='email'
                         value='<?php echo $results['email'] ?>'
-                        placeholder='First Name'
                     >
                 </label>
             </div>
