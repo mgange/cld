@@ -147,13 +147,3 @@ if($_SESSION['authLevel'] == 3) {
 
 require_once('../includes/footer.php');
 ?>
-<?php
-if($_SESSION['authLevel'] == 3) {
-?>
-                    <a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success offset1">
-                        <i class="icon-plus icon-white"></i>
-                        Add User
-                    </a>
-<?php
-}
-?>
