@@ -542,7 +542,7 @@ require_once('../includes/header.php');
 
               // DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
                  DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$SizA[$i],$ShwA[$i],$ForA[$i]);
-                 // if($ShwA[$i] == 'HP Curr. A'){echo "<pre style='border:2px solid red;position:fixed;top:0 !important;left:0 !important;z-index:99999;'><br>".$ShwA[$i]."<br></pre>";}
+                 // if($i == 0){echo "<pre style='border:2px solid red;position:fixed;top:0 !important;left:0 !important;z-index:99999;'><br>".$ValA[$i]."<br></pre>";}
            }
 
 
@@ -552,11 +552,17 @@ require_once('../includes/header.php');
 
              <div class="link_RSM">
 
-                <p style="text-align:center">
+                <p class="align-center">
                     <?php
                       echo "<a href=''./?id=0>Current Status</a>";
                       echo "<BR>";
-                      echo "<a href='http://ecs.hvtdc.org/cld/performance'>Performance</a>";
+                      echo "<a href='";
+                      echo $config['base_domain'] . $config['base_dir'];
+                      echo "performance";
+                      $dt = strtotime($ValA[0]);
+                      echo '?date=' . date('Y-m-d', $dt);
+                      echo '&time=' . date('H:i:s', $dt);
+                      echo "'>Performance</a>";
                       echo "<BR>";
                       for($i=0;$i<$NumRSM+1;$i++){
                       if($SysZNum != $i){
