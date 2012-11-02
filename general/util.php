@@ -129,17 +129,26 @@ function checkSystemSet($config)
 }
 
 
-/**  COP Calculation based on Water delta , flow rate and power consumption
- *
+/**
+ * COP Calculation based on Water delta , flow rate and power consumption
+ * @param int    $WaterIn  Temp. of water coming in
+ * @param int    $WaterOut Temp of water going out
+ * @param int    $Flow     Flow rate in gallons/min
+ * @param int    $Power1   Power sensor value 1
+ * @param int    $Power2   Power sensor value 2
  */
-  function COPCalc($WaterIn,$WaterOut,$Flow,$Power1,$Power2)
+  function COPCalc($WaterIn, $WaterOut, $Flow, $Power1, $Power2)
  {
-      $COP=0;
-      $ABSBTU=($WaterIn-$WaterOut)*$Flow*60*8.35;
-      $ElecBTU=($Power1+$Power2)*3.412;
-    //  Echo ("ABS-".$ABSBTU."---ElecBTU".$ElecBTU."WI".$WaterIn." WO".$WaterOut." --Flow-".$Flow);
-      if ($ElecBTU == 0) {$COP="---";} else {$COP = number_format(($ABSBTU+$ElecBTU)/$ElecBTU,2);}
-      return $COP;
+    $COP = 0;
+    $ABSBTU = ($WaterIn - $WaterOut) * $Flow * 1 * 8.35;
+    $ElecBTU = ($Power1 + $Power2) * 3.412 * 1000;
+    // Echo ("ABS-".$ABSBTU."  ---ElecBTU=".$ElecBTU."    WI=".$WaterIn."   WO=".$WaterOut." --Flow=".$Flow);
+    if ($ElecBTU == 0) {
+        $COP="---";
+    }else{
+        $COP = number_format(($ABSBTU + $ElecBTU) / $ElecBTU, 2);
+    }
+    return $COP;
   }
 
 
@@ -153,7 +162,8 @@ function checkSystemSet($config)
  * @param bool   $T  sourceData4.ThermMode
  * @return string    Description of the system status
  */
-function Systemlogic($G,$Y1,$Y2,$O,$W,$T){
+function Systemlogic($G, $Y1, $Y2, $O, $W, $T)
+{
     $SState="Invalid State";
    // if ($TMode==5){$T=1;} else {$T=0;}  // inhibits stages when in emer heat mode
    // Echo($TMode."++".$T);
@@ -161,22 +171,28 @@ function Systemlogic($G,$Y1,$Y2,$O,$W,$T){
     if ( !$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only";}
     if ( !$O and !$W and !$Y2 and   $Y1 and  $G and !$T) {$SState="Stage 1 Heat";}
     if ( !$O and !$W and  $Y2 and   $Y1 and  $G and !$T) {$SState="Stage 2 Heat";}
-    if ((!$O and  $W and !$Y2 and  !$Y1 and  $G) or $T) {$SState="Emerg. Heat";}
+    if ((!$O and  $W and !$Y2 and  !$Y1 and  $G) or $T)  {$SState="Emerg. Heat"; }
     if ( !$O and  $W and  $Y2 and   $Y1 and  $G and !$T) {$SState="Stage 3 Heat";}
     if (  $O and !$W and !$Y2 and   $Y1 and  $G and !$T) {$SState="Stage 1 Cool";}
     if (  $O and !$W and  $Y2 and   $Y1 and  $G and !$T) {$SState="Stage 2 Cool";}
-
     Return $SState;
 }
 
 
-function Emerglogic($InVal,$EM)
+/**
+ * Test a system for emergency heat mode
+ * @param int    $InVal
+ * @param int    $EM
+ */
+function Emerglogic($InVal, $EM)
 {
-    $EmState= 0;
-    if ($InVal==true and $EM==false) {
-        $EmState=1;} else {$EmState=0;}
-
-  //  echo( "<BR>".$EM."--".$InVal."--".$EmState);
+    $EmState = 0;
+    if ($InVal == true && $EM == false) {
+        $EmState=1;
+    }else{
+        $EmState=0;
+    }
+   // echo( "<BR>".$EM."--".$InVal."--".$EmState);
    //       if ($EmState==0)   {Echo "S1";} else {echo "S2";}
     Return $EmState;
 }
