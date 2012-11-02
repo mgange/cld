@@ -206,7 +206,8 @@ $currStatus = Systemlogic(
     $result[0]['DigIn01'],
     $result[0]['DigIn02'],
     $result[0]['DigIn03'],
-    $result[0]['DigIn05']);
+    $result[0]['DigIn05'],
+    0);
 
 echo "
 {
@@ -218,7 +219,8 @@ foreach($result as $datapoint) {
         $datapoint['DigIn01'],
         $datapoint['DigIn02'],
         $datapoint['DigIn03'],
-        $datapoint['DigIn05']);
+        $datapoint['DigIn05'],
+        0);
 
     if($datapointStatus != $currStatus) {
         echo "
