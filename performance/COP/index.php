@@ -343,19 +343,9 @@ foreach($result[0] as $key => $val) {
         <div class="row">
             <h1 class="span8 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
             <div class="span2">
-                <span class="align-left">
 <?php
-$numRows = $db -> numRows($query)/2;
-if($numRows > 60) {
-    echo floor($numRows/60) . ' Hour';
-    if(floor($numRows/60) > 1) {echo 's';}
-}else{
-    echo $numRows . ' Minutes';
-}
 if(isset($_GET['date']) && isset($_GET['time'])) {
 ?>
-                </span>
-                <br>
                 <a href="./" class="btn btn-mini">
                     Current Data
                     <i class="icon-arrow-right"></i>
