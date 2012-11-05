@@ -341,6 +341,7 @@ foreach($result[0] as $key => $val) {
                     zIndex: 1,
 <?php }elseif($key == 'CalcResult4' || $key == 'CalcResult5'){ ?>
                     visible: false,
+                    yAxis: 1,
 <?php }else{ ?>
                     zIndex: 10,
 <?php } ?>
