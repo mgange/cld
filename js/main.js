@@ -117,20 +117,7 @@ if($('.chart-container').length) {
                   },
                   plotBands: xPlotBands
               },
-              yAxis: [
-              {
-                title: {text: 'Temperature / Pressure'}
-              },
-              {
-                title: {text: 'Flow Rate (Gallons/Minute)',
-                        style: {
-                          color: '#aaa'
-                        }
-                      },
-                max: 10,
-                opposite: true
-              }
-              ],
+              yAxis: yAxisData,
               series: data
           }); // End Highcharts.Chart
       }); // End $.ready()

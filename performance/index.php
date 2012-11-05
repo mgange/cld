@@ -215,6 +215,20 @@ $statusIndex['Invalid State'] = array(
 require_once('../includes/header.php');
 ?>
             <script type="text/javascript">
+            var yAxisData = [
+              {
+                title: {text: 'Temperature / Pressure'}
+              },
+              {
+                title: {text: 'Flow Rate (Gallons/Minute)',
+                        style: {
+                          color: '#aaa'
+                        }
+                      },
+                max: 10,
+                opposite: true
+              }
+              ];
             var recnums = [<?php echoJSarray($Recnum); ?>]
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
             xPlotBands = [
@@ -329,9 +343,9 @@ foreach($result[0] as $key => $val) {
             </script>
 
         <div class="row">
-            <h1 class="span8 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
+            <h1 class="span7 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
             <div class="span2">
-                <span class="align-left">
+                <span class="align-center span2">
 <?php
 $numRows = $db -> numRows($query)/2;
 if($numRows > 60) {
@@ -344,13 +358,15 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 ?>
                 </span>
                 <br>
-                <a href="./" class="btn btn-mini">
+                <a href="./" class="btn btn-mini span2">
+                    <i class="icon-time"></i>
                     Current Data
-                    <i class="icon-arrow-right"></i>
                 </a>
 <?php
 }
 ?>
+                <br>
+                <a href="COP" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
             </div>
         </div>
 
