@@ -371,7 +371,16 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 }
 ?>
                 <br>
-                <a href="COP" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
+                <a href="COP<?php
+                if(isset($_GET['date'])) {
+                    echo '?date=' . $_GET['date']
+                       . '&time=' . $_GET['time'];
+                }
+                if(isset($_GET['range'])) {
+                    echo (isset($_GET['date']))?'&':'?';
+                    echo 'range=' . intval($_GET['range']);
+                }
+                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
             </div>
         </div>
 
