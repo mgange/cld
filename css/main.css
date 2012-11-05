@@ -7089,6 +7089,9 @@ body {
   margin: 0;
   padding: 5px 0 0 0;
 }
+.js .js-warning {
+  display: none;
+}
 .validate .validationError {
   border: 1px solid #dc4e44;
 }
