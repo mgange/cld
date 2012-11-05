@@ -110,21 +110,27 @@ $buildingName = $buildingNames['SysName'];
     $query = "SELECT
      SourceHeader.Recnum,       SourceHeader.DateStamp,
      SourceHeader.TimeStamp,    SensorCalc.CalcResult4,
-     SensorCalc.CalcResult5
-    FROM SourceHeader, SensorCalc";
+     SensorCalc.CalcResult5,
+     SourceData0.DigIn01,       SourceData0.DigIn02,
+     SourceData0.DigIn03,       SourceData0.DigIn04,
+     SourceData0.DigIn05
+    FROM SourceHeader, SourceData0, SensorCalc";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     WHERE SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
+    AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
+    AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
     $query .= "
     WHERE SourceHeader.Recnum = SensorCalc.HeadID
+    AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
