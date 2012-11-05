@@ -111,21 +111,27 @@ $buildingName = $buildingNames['SysName'];
      SourceData0.FlowPress01,   SourceData0.FlowPress02,
      SourceData0.DigIn01,       SourceData0.DigIn02,
      SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05
-    FROM SourceHeader, SourceData0";
+     SourceData0.DigIn05,
+     SensorCalc.CalcResult4,    SensorCalc.CalcResult5
+    FROM SourceHeader, SourceData0, SensorCalc
+    WHERE SensorCalc.CalcResult5 != 'NULL'
+    AND SensorCalc.CalcResult4 != 'NULL'";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
-    WHERE SourceHeader.DateStamp =  '" . $date . "'
+    AND SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
     $query .= "
-    WHERE SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
@@ -173,7 +179,9 @@ $systemMap = array(
     'FlowPress01' => 'Flow',
     'FlowPress02' => 'Pressure',
     'FlowPress03' => 'Flow',
-    'FlowPress04' => 'Flow (RSM)'
+    'FlowPress04' => 'Flow (RSM)',
+    'CalcResult4' => 'Heat Pump COP',
+    'CalcResult5' => 'Total COP'
 );
 $statusIndex['System Off'] = array(
     'text' => 'System Off',
@@ -334,7 +342,13 @@ foreach($result[0] as $key => $val) {
 <?php }else{ ?>
                     zIndex: 10,
 <?php } ?>
-                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 100); ?>]
+                    data: [<?php
+                    if($key == 'CalcResult4' || $key == 'CalcResult5') {
+                        echoJSarray(eval('return $'. $key . ';'), null);
+                    }else{
+                        echoJSarray(eval('return $'. $key . ';'), null, 100);
+                    }
+                    ?>]
                 },
 <?php
 }
