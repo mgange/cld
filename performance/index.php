@@ -75,12 +75,18 @@ function printVarName($var) {
  * e.g. outputting strings.
  * @return null
  */
-function echoJSarray($array, $wrapper='', $divisor=1){
+function echoJSarray($array, $wrapper='', $divisor=1, $max = 0){
 
     $i=1;
     foreach($array as $val) {
         echo $wrapper;
-        if($divisor != 1){echo $val/$divisor;}else{echo $val;}
+        if($divisor != 1) {
+            $val = $val/$divisor;
+        }
+        if($max != 0 && $val > $max) {
+            $val = $max;
+        }
+        echo $val;
         echo $wrapper;
         if($i < count($array)) {echo ', ';}
         $i++;
@@ -347,9 +353,9 @@ foreach($result[0] as $key => $val) {
 <?php } ?>
                     data: [<?php
                     if($key == 'CalcResult4' || $key == 'CalcResult5') {
-                        echoJSarray(eval('return $'. $key . ';'), null);
+                        echoJSarray(eval('return $'. $key . ';'), null, 1, 10);
                     }else{
-                        echoJSarray(eval('return $'. $key . ';'), null, 100);
+                        echoJSarray(eval('return $'. $key . ';'), null, 100, 0);
                     }
                     ?>]
                 },
@@ -357,6 +363,7 @@ foreach($result[0] as $key => $val) {
 }
 ?>
             ];
+
             </script>
 
         <div class="row">
