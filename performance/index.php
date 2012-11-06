@@ -66,33 +66,6 @@ function printVarName($var) {
     return false;
 }
 
-/**
- * echoes out the values of an array seperated by commas, with no comma after
- * the last value
- * @param  array  $array Values to e outputted
- * @param  string $wrapper An element to put before and after the value, that
- * defaults to nothing. It could be a quote character if one is needed.
- * e.g. outputting strings.
- * @return null
- */
-function echoJSarray($array, $wrapper='', $divisor=1, $max = 0){
-
-    $i=1;
-    foreach($array as $val) {
-        echo $wrapper;
-        if($divisor != 1) {
-            $val = $val/$divisor;
-        }
-        if($max != 0 && $val > $max) {
-            $val = $max;
-        }
-        echo $val;
-        echo $wrapper;
-        if($i < count($array)) {echo ', ';}
-        $i++;
-    }
-}
-
 checkSystemSet($config);
 
 if(isset($_GET['date']) && isset($_GET['time'])) {
