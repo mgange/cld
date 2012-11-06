@@ -301,7 +301,7 @@ foreach($result[0] as $key => $val) {
             </script>
 
         <div class="row">
-            <h1 class="span8 offset2">COP - <span class="building-name"><?php echo $buildingName; ?></span></h1>
+            <h1 class="span7 offset2">COP - <span class="building-name"><?php echo $buildingName; ?></span></h1>
             <div class="span2">
 <?php
 if(isset($_GET['date']) && isset($_GET['time'])) {
@@ -313,6 +313,17 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 <?php
 }
 ?>
+                <br>
+                <a href="../full_graph<?php
+                if(isset($_GET['date'])) {
+                    echo '?date=' . $_GET['date']
+                       . '&time=' . $_GET['time'];
+                }
+                if(isset($_GET['range'])) {
+                    echo (isset($_GET['date']))?'&':'?';
+                    echo 'range=' . intval($_GET['range']);
+                }
+                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">Full Graph</a>
             </div>
         </div>
 

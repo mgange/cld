@@ -11,7 +11,7 @@
  *
  */
 
-require_once('../includes/pageStart.php');
+require_once('../../includes/pageStart.php');
 
 if(count($_POST) > 0) {
     /**
@@ -75,21 +75,27 @@ $buildingName = $buildingNames['SysName'];
      SourceData0.FlowPress01,   SourceData0.FlowPress02,
      SourceData0.DigIn01,       SourceData0.DigIn02,
      SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05
-    FROM SourceHeader, SourceData0";
+     SourceData0.DigIn05,
+     SensorCalc.CalcResult4,    SensorCalc.CalcResult5
+    FROM SourceHeader, SourceData0, SensorCalc
+    WHERE SensorCalc.CalcResult5 != 'NULL'
+    AND SensorCalc.CalcResult4 != 'NULL'";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
-    WHERE SourceHeader.DateStamp =  '" . $date . "'
+    AND SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
     $query .= "
-    WHERE SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SourceData0.HeadID
+    AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
@@ -178,7 +184,7 @@ $statusIndex['Invalid State'] = array(
     'color' => 'rgba(0, 0, 0, 0.5)'
 );
 
-require_once('../includes/header.php');
+require_once('../../includes/header.php');
 ?>
             <script type="text/javascript">
             var yAxisData = [
@@ -298,7 +304,7 @@ foreach($result[0] as $key => $val) {
                     yAxis: 1,
                     zIndex: 1,
 <?php }elseif($key == 'CalcResult4' || $key == 'CalcResult5'){ ?>
-                    visible: false,
+                    // visible: false,
                     yAxis: 1,
 <?php }else{ ?>
                     zIndex: 10,
@@ -319,7 +325,7 @@ foreach($result[0] as $key => $val) {
             </script>
 
         <div class="row">
-            <h1 class="span7 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
+            <h1 class="span7 offset2">Full Graph - <span class="building-name"><?php echo $buildingName; ?></span></h1>
             <div class="span2">
 <?php
 
@@ -333,7 +339,20 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 }
 ?>
                 <br>
-                <a href="COP<?php
+                <a href="../<?php
+                if(isset($_GET['date'])) {
+                    echo '?date=' . $_GET['date']
+                       . '&time=' . $_GET['time'];
+                }
+                if(isset($_GET['range'])) {
+                    echo (isset($_GET['date']))?'&':'?';
+                    echo 'range=' . intval($_GET['range']);
+                }
+                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">
+                    <i class="icon-arrow-left"></i>
+                    Performance</a>
+                <br>
+                <a href="../COP<?php
                 if(isset($_GET['date'])) {
                     echo '?date=' . $_GET['date']
                        . '&time=' . $_GET['time'];
@@ -343,21 +362,11 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                     echo 'range=' . intval($_GET['range']);
                 }
                     ?>" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
-
-                <br>
-
-                <a href="full_graph<?php
-                if(isset($_GET['date'])) {
-                    echo '?date=' . $_GET['date']
-                       . '&time=' . $_GET['time'];
-                }
-                if(isset($_GET['range'])) {
-                    echo (isset($_GET['date']))?'&':'?';
-                    echo 'range=' . intval($_GET['range']);
-                }
-                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">Full Graph</a>
             </div>
         </div>
+
+<p>Rows selected: <?php echo count($result); ?></p>
+<p>Rows graphed:  <script>document.write(data[0].data.length)</script></p>
 
             <div
                 id="chart"
@@ -437,5 +446,5 @@ if($range == $i) {
             </div>
 
 <?php
-require_once('../includes/footer.php');
+require_once('../../includes/footer.php');
 ?>
