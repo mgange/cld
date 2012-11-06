@@ -42,11 +42,11 @@
         $crumbs = arrayRemoveEmpty(preg_replace('/_/', ' ', $crumbs));
         if(count($crumbs) > 0) {
             if($config['path_in_title'] == 1) {
-                echo ucfirst(end($crumbs)) . ' | ';
+                echo ucwords(end($crumbs)) . ' | ';
             }else{
                 foreach(array_reverse($crumbs) as $crumb){
                     if($crumb != '') {
-                       echo ucfirst(str_replace(array(".php","_"),array(""," "),$crumb) . ' ') . ' | ';
+                       echo ucwords(str_replace(array(".php","_"),array(""," "),$crumb) . ' ') . ' | ';
                     }
                 }
             }
@@ -126,11 +126,11 @@ if($config['breadcrumbs']) {
                 }
 
 ?>
-            <li><a href="<?php echo $path; ?>"><?php echo ucfirst($crumb); ?></a> <span class="divider">/</span></li>
+            <li><a href="<?php echo $path; ?>"><?php echo ucwords($crumb); ?></a> <span class="divider">/</span></li>
 <?php
             }else{
 ?>
-            <li class="active"><?php echo ucfirst($crumb); ?></li>
+            <li class="active"><?php echo ucwords($crumb); ?></li>
 <?php
             }
             $i++;
