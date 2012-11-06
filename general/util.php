@@ -267,6 +267,22 @@ function echoJSarray($array, $wrapper='', $divisor=1, $max = 0){
 
 
 /**
+ * Returns the name of a variable as a string.
+ * e.g. printVarName($foo); returns "foo"
+ * @param  any    $var Any variable
+ * @return string      The name of the variable passed
+ */
+function printVarName($var) {
+    foreach($GLOBALS as $var_name => $value) {
+        if ($value === $var) {
+            return $var_name;
+        }
+    }
+    return false;
+}
+
+
+/**
  * Pretty Print
  * For development it's convenient to print and array. This will output and array
  * wrapped in <pre> tags to maintain formatting. This is not intended for
