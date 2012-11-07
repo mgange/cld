@@ -79,7 +79,8 @@ $buildingName = $buildingNames['SysName'];
      SensorCalc.CalcResult4,    SensorCalc.CalcResult5
     FROM SourceHeader, SourceData0, SensorCalc
     WHERE SensorCalc.CalcResult5 != 'NULL'
-    AND SensorCalc.CalcResult4 != 'NULL'";
+    AND SensorCalc.CalcResult4 != 'NULL'
+    AND SensorCalc.CalcGroup = 1";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
@@ -108,13 +109,56 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
 }
 
 /**
+ * Second query to get the COP group 2 stuff
+ */
+    $calcGroup2query = "SELECT
+     SourceHeader.Recnum,
+     SensorCalc.CalcResult4 AS CalcResult4Group2,
+     SensorCalc.CalcResult5 AS CalcResult5Group2
+    FROM SourceHeader, SensorCalc
+    WHERE SensorCalc.CalcResult5 != 'NULL'
+    AND SensorCalc.CalcResult4 != 'NULL'
+    AND SensorCalc.CalcGroup = 2";
+if(isset($_GET['date']) && isset($_GET['time'])) {
+    $calcGroup2query .= "
+    AND SourceHeader.DateStamp =  '" . $date . "'
+    AND SourceHeader.TimeStamp <=  '" . $time . "'
+    AND SourceHeader.Recnum = SensorCalc.HeadID
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
+    OR SourceHeader.DateStamp <  '" . $date . "'
+    AND SourceHeader.Recnum = SensorCalc.HeadID
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
+    ";
+}else{
+    $calcGroup2query .= "
+    AND SourceHeader.Recnum = SensorCalc.HeadID
+    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
+    ";
+}
+$calcGroup2query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
+    LIMIT 0 , ";
+if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
+    $calcGroup2query .= intval($_GET['range'])*120;
+}else{
+    $calcGroup2query .= '480';
+}
+
+
+/**
  * The query orders by date and time descending so that it will get date going
  * backwards from the specified time. Now that it's selected array_reverse() is
  * used to correct the order for the graph.
  */
-$result = array_reverse( $db -> fetchAll($query) );
+$result           = array_reverse( $db -> fetchAll($query) );
+$calcGroup2result = array_reverse( $db -> fetchAll($calcGroup2query) );
 
 // TODO(Geoff Young): divide only the sensors by 100
+foreach($calcGroup2result as $resultRow) {
+    foreach($resultRow as $key => $val) {
+        $vals[$key][$resultRow['Recnum']] = $val;
+    }
+}
+extract($vals);
 foreach($result as $resultRow) {
     foreach($resultRow as $key => $val) {
         $vals[$key][$resultRow['Recnum']] = $val;
@@ -144,8 +188,10 @@ $systemMap = array(
     'FlowPress02' => 'Pressure',
     'FlowPress03' => 'Flow',
     'FlowPress04' => 'Flow (RSM)',
-    'CalcResult4' => 'Heat Pump COP',
-    'CalcResult5' => 'Total COP'
+    'CalcResult4' => 'Heat Pump COP (Instant)',
+    'CalcResult5' => 'Total COP (Instant)',
+    'CalcResult4Group2' => 'Heat Pump COP',
+    'CalcResult5Group2' => 'Total COP'
 );
 $statusIndex['System Off'] = array(
     'text' => 'System Off',
@@ -294,7 +340,9 @@ for ($i=0; $i < count($result); $i++) {
     unset($result[$i]['DigIn03']);
     unset($result[$i]['DigIn04']);
     unset($result[$i]['DigIn05']);
+    unset($calcGroup2result[$i]['Recnum']);
 }
+
 foreach($result[0] as $key => $val) {
 ?>
                 {
@@ -315,6 +363,18 @@ foreach($result[0] as $key => $val) {
                     }else{
                         echoJSarray(eval('return $'. $key . ';'), null, 100, 0);
                     }
+                    ?>]
+                },
+<?php
+}
+
+foreach($calcGroup2result[0] as $key => $val) {
+?>
+                {
+                    name: "<?php echo $systemMap[$key]; ?>",
+                    yIndex:1,
+                    data: [<?php
+                        echoJSarray(eval('return $'. $key . ';'), null, 1, 10);
                     ?>]
                 },
 <?php
