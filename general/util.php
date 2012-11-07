@@ -258,6 +258,9 @@ function echoJSarray($array, $wrapper='', $divisor=1, $max = 0){
         if($max != 0 && $val > $max) {
             $val = $max;
         }
+        if($val == null) {
+            $val = 0;
+        }
         echo $val;
         echo $wrapper;
         if($i < count($array)) {echo ', ';}
