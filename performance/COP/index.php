@@ -312,13 +312,26 @@ foreach($result[0] as $key => $val) {
 <?php
 if(isset($_GET['date']) && isset($_GET['time'])) {
 ?>
-                <a href="./" class="btn btn-mini">
+                <a href="./" class="btn btn-mini span2">
+                    <i class="icon-time"></i>
                     Current Data
-                    <i class="icon-arrow-right"></i>
                 </a>
+                <br>
 <?php
 }
 ?>
+                <a href="../<?php
+                if(isset($_GET['date'])) {
+                    echo '?date=' . $_GET['date']
+                       . '&time=' . $_GET['time'];
+                }
+                if(isset($_GET['range'])) {
+                    echo (isset($_GET['date']))?'&':'?';
+                    echo 'range=' . intval($_GET['range']);
+                }
+                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">
+                    <i class="icon-arrow-left"></i>
+                    Performance</a>
                 <br>
                 <a href="../full_graph<?php
                 if(isset($_GET['date'])) {
