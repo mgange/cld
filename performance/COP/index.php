@@ -65,15 +65,19 @@ $buildingName = $buildingNames['SysName'];
 
 // TODO(Geoff Young): use prepared statement
     $query = "SELECT
-     SourceHeader.Recnum,       SourceHeader.DateStamp,
-     SourceHeader.TimeStamp,    SensorCalc.CalcResult4,
-     SensorCalc.CalcResult5,
-     SourceData0.DigIn01,       SourceData0.DigIn02,
-     SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05
+    SourceHeader.Recnum,       SensorCalc.DateStamp,
+    SensorCalc.TimeStamp,    SensorCalc.CalcResult4,
+    SensorCalc.CalcResult5,    SensorCalc.CalcResult6,
+    SensorCalc.CalcResult7,
+    SourceData0.DigIn01,       SourceData0.DigIn02,
+    SourceData0.DigIn03,       SourceData0.DigIn04,
+    SourceData0.DigIn05
     FROM SourceHeader, SourceData0, SensorCalc
     WHERE SensorCalc.CalcResult5 != 'NULL'
-    AND SensorCalc.CalcResult4 != 'NULL'";
+    AND SensorCalc.CalcResult4 != 'NULL'
+    AND SourceHeader.SourceID = 0
+    AND SensorCalc.CalcGroup = ";
+    if(isset($_GET['group'])){$query .= $_GET['group'];}else{$query .= '2';}
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
@@ -139,8 +143,10 @@ $systemMap = array(
     'FlowPress02' => 'Pressure',
     'FlowPress03' => 'Flow',
     'FlowPress04' => 'Flow (RSM)',
-    'CalcResult4' => 'Heat Pump COP',
-    'CalcResult5' => 'Total COP'
+    'CalcResult4' => 'COP HP',
+    'CalcResult5' => 'COP total',
+    'CalcResult6' => 'COP Rolling Avg. HP',
+    'CalcResult7' => 'COP Rolling Avg total'
 );
 $statusIndex['System Off'] = array(
     'text' => 'System Off',
