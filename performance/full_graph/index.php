@@ -81,7 +81,8 @@ $buildingName = $buildingNames['SysName'];
     FROM SourceHeader, SourceData0, SensorCalc
     WHERE SensorCalc.CalcResult5 != 'NULL'
     AND SensorCalc.CalcResult4 != 'NULL'
-    AND SensorCalc.CalcGroup = 2";
+    AND SensorCalc.CalcGroup = ";
+    if(isset($_GET['group'])){$query .= $_GET['group'];}else{$query .= '1';}
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
