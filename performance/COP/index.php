@@ -298,7 +298,7 @@ foreach($result[0] as $key => $val) {
 <?php }else{ ?>
                     zIndex: 10,
 <?php } ?>
-                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null); ?>]
+                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 1, 0); ?>]
                 },
 <?php
 }
