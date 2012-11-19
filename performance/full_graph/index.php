@@ -78,14 +78,10 @@ $buildingName = $buildingNames['SysName'];
      SourceData0.DigIn05,
      SensorCalc.CalcResult4,    SensorCalc.CalcResult5,
      SensorCalc.CalcResult6,    SensorCalc.CalcResult7
-    FROM SourceHeader, SourceData0, SensorCalc
-    WHERE SensorCalc.CalcResult5 != 'NULL'
-    AND SensorCalc.CalcResult4 != 'NULL'
-    AND SensorCalc.CalcGroup = ";
-    if(isset($_GET['group'])){$query .= $_GET['group'];}else{$query .= '1';}
+    FROM SourceHeader, SourceData0, SensorCalc";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
-    AND SourceHeader.DateStamp =  '" . $date . "'
+    WHERE SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
@@ -97,7 +93,7 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     ";
 }else{
     $query .= "
-    AND SourceHeader.Recnum = SourceData0.HeadID
+    WHERE SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
@@ -203,8 +199,7 @@ require_once('../../includes/header.php');
                         style: {
                           color: '#aaa'
                         }
-                      },
-                max: 12,
+                      }
                 opposite: true
               }
               ];
@@ -319,7 +314,7 @@ foreach($result[0] as $key => $val) {
 <?php } ?>
                     data: [<?php
                     if(preg_match('/CalcResult/', $key)) {
-                        echoJSarray(eval('return $'. $key . ';'), null, 1, 0);
+                        echoJSarray(eval('return $'. $key . ';'), null, 1, 10);
                     }else{
                         echoJSarray(eval('return $'. $key . ';'), null, 100, 0);
                     }
@@ -372,9 +367,6 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                     ?>" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
             </div>
         </div>
-
-<p>Rows selected: <?php echo count($result); ?></p>
-<p>Rows graphed:  <script>document.write(data[0].data.length)</script></p>
 
             <div
                 id="chart"
