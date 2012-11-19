@@ -95,14 +95,20 @@ if(isset($_SESSION['userID'])) {
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>performance">Performance</a>
                             </li>
+<?php if(isset($_SESSION['authLevel']) && (intval($_SESSION['authLevel']) == 3  or intval($_SESSION['authLevel']) == 2)){ ?>
+                             <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>datadownload">Data Download</a>
+                            </li>
+<?php } ?>
                             <li class="divider"></li>
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>maintenance">Maintenance</a>
                             </li>
-<?php if(isset($_SESSION['authLevel']) && intval($_SESSION['authLevel']) === 3) { ?>
+<?php if(isset($_SESSION['authLevel']) && (intval($_SESSION['authLevel']) == 3  or intval($_SESSION['authLevel']) == 2)){ ?>
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>setup">Setup</a>
                             </li>
+
 <?php } ?>
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>systems">Choose System</a>
