@@ -59,6 +59,8 @@ require_once('../includes/header.php');
           break;
       }
     }
+      else {$zone=0;
+    }
 
     if(isset($_GET['id'])){
       //Get date and time for passed header id
@@ -82,25 +84,32 @@ require_once('../includes/header.php');
       //query4 limited to 5 groups of records based on max 4 RSMs and 1 DAM
       $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData0.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
       $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData4.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 5";
-      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.HeadID AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
       // Query for RSMs 1, 2, 3, or 5
-      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceData1.SourceID = " . $zone . " AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
     }else{
-      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.SourceID = 0 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID AND SourceHeader.SourceID = 4  ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 5";
-      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.RecNum ORDER BY DateStamp Desc,TimeStamp Desc limit 1";
-      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceHeader.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
+      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
+      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 5";
+      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.HeadID ORDER BY SourceHeader.DateStamp Desc,SourceHeader.TimeStamp Desc limit 1";
+      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceData1.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
       }
 //SourceData4.SysGroup=2 and
       $NumGrpsin4 = $db -> numRows($query4);
       $sysStatus4 = $db -> fetchAll($query4);
+      $NumGrpscalc = $db -> numRows($queryCalc);
+    //   echo("E".$NumGrpscalc." ".$queryCalc);
+      // get first row only which contains instantantious COP
+      $sysCalc = $db -> fetchRow($queryCalc);
   //   echo("E".$NumGrpsin4."<BR>"."GRP-".$sysStatus4[SysGroup]."<BR>");
 
 
      $sysStatus0 = $db -> fetchRow($query0);
-     if (isset($zone)) {$sysStatus1 = $db -> fetchRow($query1);}
-
- //    $sysStatus4 = $db -> fetchRow($query4);
+     if (isset($zone)) {
+         $sysStatus1 = $db -> fetchRow($query1);
+         $Row = $db -> numRows($query1);
+    
+          }
+ //    sStatus4 = $db -> fetchRow($query4);
 
 
      // Not using Calculations for now
@@ -138,7 +147,7 @@ require_once('../includes/header.php');
        $LolmtA = array($Pageelem);
        $UplmtA = array($Pageelem);
        $ValB= array($Pageelem);
-
+       $Title= array($Pageelem);
 
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
@@ -156,34 +165,12 @@ require_once('../includes/header.php');
           $ForA[$i] =$resultRow['Format'];
 
      }
-
-     // then get unique positions for RSM pages if any
-     if ($zone >= 1) {
-
-     }
-
-
-     // Field to Data mappings
-     // first get default values for Main Page
-     $DeftMapquery="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and (sourceID=0 or SourceID=4 )order by WebPagePosNo";
-
-    $UnqiMapquery="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDbFactor,SenAdjFactor,Format,Inhibit,SensorStatus from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." order by WebPagePosNo";
-
-     $MapMainDeft = $db -> fetchAll($DeftMapquery);
-     $MapMainUniq = $db -> fetchAll($UnqiMapquery);
-    // $UniqMain = $db -> fetchAll($UniqMapquery);
-     // loop to define value maps
-     // loop to define labels and unit, lo and up limits
-     // Fixed Labels
-
-     $lf="<br>";
-   // fixed fields
+    // constants for label formatting
+     $lf="<br>";  
+     $cr=chr(13);  // line feed for alternate titles
+     
+   // fixed fields and labels for this page
+    
      $systemInfo=$SysName." - ". $SysLocation;
      $systemDesc=$sysDAMID[SystemDescription].$lf.$sysDAMID[HeatExchangeUnit].$lf.
                  "Location-".$sysDAMID[LocationMainSystem].$lf."Main DAMID-".$sysDAMID[DAMID].$lf.
@@ -202,229 +189,202 @@ require_once('../includes/header.php');
      $ShwA[13]=true;
      $ValA[13]=$systemDesc;
      $LblA[29]="ThermStat Mode";
-
      $LblA[38]="System Status";
-     $LblA[40]="System COP";
-     $LblA[46]="Heat Pump COP";
+  //   $LblA[40]="System COP";
+   //  $LblA[46]="Heat Pump COP";
 
      $ShwA[29]=true;
      $ShwA[38]=true;
-     $ShwA[40]=true;
-     $ShwA[46]=true;
-
-   $i=0;
-   // default value loop for main
-   for ($i=0;$i<2;$i++)
+  //  $ShwA[40]=true;
+ //  $ShwA[46]=true;
+  // end of fixed fields for this page
+   //     $i=0;
+    // seven separate loop parms to get default and unique data with a maximum of 4 loopa congruently
+    // loops 1 and 2 only for main page
+    // Loop 0 - default data from main also covers Main and common values from main for RSM display
+    // Loop 1 - unique data from Main for a given system
+    // Loop 2 - RSM Defaults   field with RSM reference from source 1 and  source 0,4 in default system (ie Flow)
+    // Loop 3 - RSM Uniques  fields for a given system 
+    
+    // first calc number of required loops   2 passes only for main 4 for all RSMs
+   if ($zone>=1) {$imax=2;} else {$imax=2;}
+ 
+   for ($i=0;$i<$imax;$i++)
    {
-      if($i==0)  {$Forvar=$MapMainDeft;} else {$Forvar=$MapMainUniq;}
-     foreach($Forvar as $resultRow)
-         {
+        $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
+        $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and  (SourceID= 0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId";
+   
+      $UnqiMapqueryZ0="Select WebPagePosNo, DAMID,SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=5) order by WebPagePosNo";
+      $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and WebSubPageName='RSM' order by WebPagePosNo";
 
+  
+      switch ($i)
+      {
+          case 0 : $Forvar= $db -> fetchAll($DeftMapqueryZ0);
+              $rec0 = $db -> numRows($DeftMapqueryZ0);
+                 
+              break;
+          case 1 : $Forvar= $db -> fetchAll($UnqiMapqueryZ0);
+              $rec1 = $db -> numRows($UnqiMapqueryZ0);
+        
+              break;
+          case 2 : $Forvar= $db -> fetchAll($DeftMapqueryZ1);
+              $rec2 = $db -> numRows($DeftMapqueryZ1);
+     
+              break;
+          case 3 : $Forvar= $db -> fetchAll($UnqiMapqueryZ1);
+              $rec3 = $db -> numRows($UnqiMapqueryZ1);
+       
+              break;
+      }
+ 
+     
+     foreach($Forvar as $resultRow)
+         { 
+         $SID=$resultRow[SourceID];
+  
+   //     if (($i<=1  and  ($SID==0 or $SID==4 or $SID==5))) 
+      //  {
+            $GetValue="";
+           
             $SUnit=UnitLabel($resultRow[SensorUnits]);
             $SPos= $resultRow[WebPagePosNo];
             $LblA[$SPos]=$resultRow[SensorLabel]." ".$SUnit."<BR> ";
             $LolmtA[$SPos]=$resultRow[AlarmLoLimit];
             $UplmtA[$SPos]=$resultRow[AlarmUpLimit];
-            $ShwA[$SPos]=(!$resultRow[Inhibit]  and $resultRow[SensorStatus]);
-            echo(" B=".$i." -|".$ShwA[$SPos]."|".$resultRow[SensorLabel]."-".$resultRow[SensorStatus]."-- ");
+ 
+           $ShwA[$SPos]=((!$resultRow[Inhibit])  and ($resultRow[SensorStatus]==1));
+           
+
             $ForA[$SPos]=$resultRow[Format];
             // get value and process
-            $DBCol=   $resultRow[SensorColName];
+            $DBCol= $resultRow[DAMID]. "--". $resultRow[SensorColName]. "--".$resultRow[SensorActive];
+           
+            if ($LolmtA[$SPos]!=NULL) {$TLlim="Lo Limit: ".$LolmtA[$SPos];} else {$TLlim="";}
+            if ($UplmtA[$SPos]!=NULL) {$TUlim="Up Limit: ".$UplmtA[$SPos].$cr;} else {$TUlim="";}
+            if ($resultRow[SourceID] == 5) {$DataTable="SensorCalc";} else {$DataTable="SourceData".$resultRow[SourceID];}
+            if ($resultRow[SourceID]== 4) {$Address="ModBus Addr:".$resultRow[SensorAddress].$cr;} else {$Address="";}
+            
+            $Title[$SPos]="Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim;
+           
             switch ($resultRow[SourceID])
-            {
+            {   
                 case 0: $GetValue=$sysStatus0[$DBCol];
 
                     break;
                 case 1: $GetValue=$sysStatus1[$DBCol];
-
+ 
                     break;
                 case 4:
                       foreach ($sysStatus4 as $modrow)
                 {
                       if (($resultRow[SensorAddress]==$modrow[PwrSubAddress]) or  ($resultRow[SensorAddress]== $modrow[ThermSubAddress]))
                            {$GetValue=$modrow[$DBCol];}
+
                 }
+                    break;
+                case 5: $GetValue=$sysCalc[$DBCol];
+                    
                     break;
             }
              // format calls here
              if ($ForA[$SPos]==0 )
-                 {$ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}
-                 else {$ValA[$SPos]=$GetValue;}
-       }
+             {
 
-      // page and system unigue calls value loop
+                 $ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}
+                 else {$ValA[$SPos]=$GetValue;}
+           }         
+       //  }
    }
 
-  // Calculations
+  // Special Calculations
        //status logic
-
+   // determine if in emgerency heat mode
    if ($ValA[41]==5) {$EM=1;} else {$EM=0;}
 
 
    $ValA[22]=Emerglogic($ValA[22],$EM);
    $ValA[23]=Emerglogic($ValA[23],$EM);
-
-
    $ValA[24]=Emerglogic($ValA[24],$EM);
 
    if ($EM==1) {$ValA[25]=1;}
-   $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);
+   if ($ShwA[21] and $ShwA[22]and $ShwA[23] and $ShwA[24] and $ShwA[25] ) 
+        { 
+         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);           
+        } 
+        else 
+        {
+         $ValA[29]="No Thermostat on RSM";
+        }
+   
    $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34],false);
    $ValA[39]="";
-    //COP replace with DB calls when ready
-   $ValA[40]=COPCalc($ValA[15],$ValA[14],$ValA[17],$ValA[4],$ValA[43]);
-   $ValA[46]=COPCalc($ValA[15],$ValA[14],$ValA[17],$ValA[4],0);
+ // cop reformat if null
+ if ($ValA[40]=="") {$ValA[40]="--";} 
+ if ($ValA[46]=="") {$ValA[46]="--";} 
 
 
-
-
-
-
-
-
+    
 
 // code for system image selection here?
        $exchangermode = 0;
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
 
 
-
-       // quick set up for query0  user else for query1 until mapping is complete
-
-       if ($SysZNum == 0)  {
-  // replaced by general mapping code above  replace else when completed
-       }
-       else{
-       $SDateTime=$sysStatus0[DateStamp]." ".$sysStatus0[TimeStamp];
-       $SDateTime = date_create($SDateTime);
-       $ValA[0]=date_format($SDateTime, 'm/d/Y g:i:s A');
-       $ValA[1]=number_format($sysStatus1[Senchan07]/100,2);
-       $ValA[2]=number_format($sysStatus1[Senchan05]/100,2);
-    // $ValA[3]=number_format($sysStatus4[Power02]/100,2);
-    // $ValA[4]=number_format($sysStatus4[Power01]/100,2);
-    // $ValA[5]=number_format($sysStatus4[Power03]/100,2);
-    // $ValA[6]=number_format($sysStatus4[Power04]/100,2);
-       $ValA[7]=number_format($sysStatus1[Senchan06]/100,2);
-       $ValA[8]=number_format($sysStatus1[Senchan08]/100,2);
-       $ValA[9]=number_format($sysStatus4[LCDTemp],2);
-       $ValA[10]=number_format($sysStatus4[HeatingSetPoint],2);
-       $ValA[11]=number_format($sysStatus4[CoolingTemp],2);
-       $ValA[12]=$systemInfo;
-       $ValA[13]=$systemDesc;
-       $ValA[14]=number_format($sysStatus1[Senchan03]/100,2);
-       $ValA[15]=number_format($sysStatus1[Senchan01]/100,2);
-       $ValA[16]=number_format($sysStatus0[FlowPress02]/100,2);
-       $ValA[17]=number_format($sysStatus0[FlowPress04]/100,2);
-       $ValA[18]=$sysStatus0[DigIn06];
-       $ValA[19]=$sysStatus0[DigIn07];
-       $ValA[20]=$sysStatus0[DigIn08];
-
-       $ValA[21]=$sysStatus4[BS01];
-       $ValA[22]=$sysStatus4[BS04];
-       $ValA[23]=$sysStatus4[BS02];
-       $ValA[24]=$sysStatus4[BS03];
-       $ValA[25]=$sysStatus4[BS05];
-       $ValA[26]=$sysStatus4[BS06];
-       $ValA[27]=$sysStatus4[BS07];
-       $ValA[28]=$sysStatus4[BS08];
-       $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25]);
-
-       $ValA[30]=$sysStatus0[DigIn04];
-       $ValA[31]=$sysStatus0[DigIn01];
-       $ValA[32]=$sysStatus0[DigIn02];
-       $ValA[33]=$sysStatus0[DigIn03];
-       $ValA[34]=$sysStatus0[DigIn05];
-       $ValA[35]=$sysStatus0[DigIn06];
-       $ValA[36]=$sysStatus0[DigIn07];
-       $ValA[37]=$sysStatus0[DigIn08];
-       $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34]);
-       $ValA[39]="";
-       $ValA[40]="";
-
-  //     $ShwA[0]=true;
- //      $ShwA[1]=true;
-  //     $ShwA[2]=true;
-   //    $ShwA[3]=false;
-   //    $ShwA[4]=false;
-   //    $ShwA[5]=false;
-   //    $ShwA[6]=false;
-  //     $ShwA[7]=true;
-  //     $ShwA[8]=true;
-  //     $ShwA[9]=true;
- //      $ShwA[10]=true;
- //      $ShwA[11]=true;
- //      $ShwA[12]=true;
- //      $ShwA[13]=true;
- //      $ShwA[14]=true;
-  //     $ShwA[15]=true;
-  //     $ShwA[16]=true;
-  //     $ShwA[17]=true;
- //      $ShwA[18]=true;
-  //     $ShwA[19]=true;
-  //     $ShwA[20]=true;
-   //    $ShwA[21]=false;
-  //     $ShwA[22]=false;
-  //     $ShwA[23]=false;
-  //     $ShwA[24]=false;
-  //     $ShwA[25]=false;
- //      $ShwA[26]=false;
-  //     $ShwA[27]=false;
- //      $ShwA[28]=false;
- //      $ShwA[29]=false;
- //      $ShwA[30]=true;
-  //     $ShwA[31]=true;
- //      $ShwA[32]=true;
-  //     $ShwA[33]=true;
-  //     $ShwA[34]=true;
-  //     $ShwA[35]=true;
- //    $ShwA[36]=false;
-  //     $ShwA[37]=false;
-  //     $ShwA[38]=false;
-  //     $ShwA[39]=false;
-   //    $ShwA[40]=false;
-
-
-
-
-       }
-
-
-
-
        $SizA[0]=1.2;
      //  $SizA[25]=2.0;
      //  $SizA[27]=0.5;
-
-
 
        if ($exchangermode==1)
        {// open loop
             $exchnimage="../status/image/WebBackGroundHeatingMode.png";
        }
 
-       function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$size,$show,$form)
+       function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$size,$show,$form,$title,$colorovride)
        {
           $alertfactor=.15;   // alerts at 15% of limit
           $alertdelta=($uplimit-$lolimit)*$alertfactor;
          // Hide display
         if ($show != true or $show ==0) {$EngHide="hidden";} else {$EngHide="";}
+     //echo($label."  ".$EngHide."<BR>");
+               
          // set background color based on limits
         $BackColor=lightgreen;
 
 //echo("H-".$seqno." ".$label."--".$EngHide."||");
-        if (($lolimit=="")  and ($hilimit=="")) {$BackColor=lightblue;}
-        // yellow alert
-        if (($value < ($lolimit+$alertdelta)) or ($value > ($uplimit-$alertdelta)))
+    //    if (($lolimit=="")  and ($uplimit=="")) {$BackColor=lightblue;}
+        // yellow alert lo limit
+        if ( $lolimit!="" and ($value < ($lolimit+$alertdelta)))
            { $BackColor=yellow; }
-        // red alert
-         if (($value < $lolimit) or ($value > $uplimit))
+           
+        // yellow alert up limit
+        // 
+         if ($uplimit!="" and ($value > ($uplimit-$alertdelta)))
+           { $BackColor=yellow; }
+           
+        // red alert lo limit
+         if ($lolimit==""  and ($value < $lolimit)) 
            { $BackColor=red;}
+          // red alert up limit 
+         if ($uplimit!="" and ($value > $uplimit))
+           { $BackColor=red;}  
 
          // no alerts
-        if (($lolimit=="")  and ($hilimit=="")) {$BackColor=lightblue;}
-// need limit code here
-
-
+        
+        if (($lolimit=="")  and ($uplimit=="")) {$BackColor=lightblue;}
+        if ($colorovride!="") {$BackColor=$colorovride;}
 
 
         // set Fontcolor
@@ -458,7 +418,7 @@ require_once('../includes/header.php');
        $labxpos=$xpos+5;
        $label=str_pad($label,1," ",STR_PAD_LEFT);
        echo "<p class='label-status ".$EngHide."' style='top: ".$labypos."px; left: ".$xpos."px;'>".$label."</p>";
-       echo "<p class='value-status ".$EngHide."' style='top: ".$ypos."px; left: ".$labxpos."px;
+       echo "<p class='value-status ".$EngHide."' title='".$title."' style='top: ".$ypos."px; left: ".$labxpos."px;
                  background-color: ".$BackColor."; line-height: ".$size."em; '>".$value."</p>";
 
 
@@ -527,22 +487,51 @@ require_once('../includes/header.php');
                     <img src="../status/image/WebClosedLoop.png" alt="Closed Loop">
                 </div>
                 <?php
-                // display energy
-          //     if ($EngStatRead != true) {$EngHide="hidden";} else {$EndHide="";}
-          //     if ($EngStatColor == 0) {$EngColorDsp=LightGreen;} elseif ($EngStatColor == 1)  {$EngColorDsp=Yellow;} else {$EngColorDsp=LightRed;}
-            //    pprint($EngColorDsp);
-            //   pprint($EngStatColor);
-          //     $EngColorDsp=red;
-//               pprint($EngColor);
+              
 
-
+           function ColorOver($Stage)
+                { 
+                   $Color="#FF8888";
+                   switch ($Stage)
+                   {   case "System Off": $Color="#FFFFFF";
+                          break;
+                       case "Fan Only": $Color="#89FF5D";
+                           break;
+                       case "Stage 1 Heat": $Color="#E8C106";
+                           break;
+                       case "Stage 2 Heat": $Color="#FF8307";
+                           break;
+                       case "Emerg. Heat": $Color="#FF1111";
+                           break;
+                       case "Stage 3 Heat": $Color="#E85823";
+                           break;
+                       case "Stage 1 Cool": $Color="#1E9BFF";
+                           break;
+                       case "Stage 2 Cool": $Color="#0F48E8";
+                           break;
+                       case "Invalid State": $Color="#FF5555";
+                           break;
+                   }
+             return $Color;
+                }
+                 
+                
 
            for ($i=0;$i<$Pageelem+1;$i++)
            {
-
-              // DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LmtA[$i]['lolim'],$LmtA[$i]['hilim'],$SizA[$i],$ShwA[$i],$ForA[$i]);
-                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$SizA[$i],$ShwA[$i],$ForA[$i]);
-                 // if($i == 0){echo "<pre style='border:2px solid red;position:fixed;top:0 !important;left:0 !important;z-index:99999;'><br>".$ValA[$i]."<br></pre>";}
+               // system status color override
+          
+               if ($LblA[$i]=="ThermStat Mode" or $LblA[$i]=="System Status")
+                     {
+                         $colorovride= ColorOver($ValA[$i]);
+                        
+                     }
+                     else
+                     { 
+                         $colorovride="";
+                     }  
+                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$SizA[$i],$ShwA[$i],$ForA[$i],$Title[$i],$colorovride);
+                
            }
 
 
