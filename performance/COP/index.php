@@ -72,7 +72,7 @@ $buildingName = $buildingNames['SysName'];
     SourceData0.DigIn03,       SourceData0.DigIn04,
     SourceData0.DigIn05
     FROM SourceHeader, SourceData0, SensorCalc
-    WHERE SourceHeader.SourceID = 0";
+    WHERE 1";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
