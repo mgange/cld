@@ -63,21 +63,16 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-// TODO(Geoff Young): use prepared statement
-    $query = "SELECT
+    $query = "SELECT DISTINCT
     SourceHeader.Recnum,       SensorCalc.DateStamp,
-    SensorCalc.TimeStamp,    SensorCalc.CalcResult4,
+    SensorCalc.TimeStamp,      SensorCalc.CalcResult4,
     SensorCalc.CalcResult5,    SensorCalc.CalcResult6,
     SensorCalc.CalcResult7,
     SourceData0.DigIn01,       SourceData0.DigIn02,
     SourceData0.DigIn03,       SourceData0.DigIn04,
     SourceData0.DigIn05
     FROM SourceHeader, SourceData0, SensorCalc
-    WHERE SensorCalc.CalcResult5 != 'NULL'
-    AND SensorCalc.CalcResult4 != 'NULL'
-    AND SourceHeader.SourceID = 0
-    AND SensorCalc.CalcGroup = ";
-    if(isset($_GET['group'])){$query .= $_GET['group'];}else{$query .= '1';}
+    WHERE SourceHeader.SourceID = 0";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
@@ -113,7 +108,6 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
  */
 $result = array_reverse( $db -> fetchAll($query) );
 
-// TODO(Geoff Young): divide only the sensors by 100
 foreach($result as $resultRow) {
     foreach($resultRow as $key => $val) {
         $vals[$key][$resultRow['Recnum']] = $val;
@@ -129,7 +123,6 @@ foreach($result as $val) {
     $Stamp[$val['Recnum']] .= date('M. j, Y', $dateTime);
 }
 
-// TODO(Geoff Young): Get this from the database instead
 $systemMap = array(
     'Senchan01' => 'Water In',
     'Senchan02' => 'Water In 2',
@@ -298,7 +291,7 @@ foreach($result[0] as $key => $val) {
 <?php }else{ ?>
                     zIndex: 10,
 <?php } ?>
-                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 1, 0); ?>]
+                    data: [<?php echoJSarray(eval('return $'. $key . ';'), null, 1, 10); ?>]
                 },
 <?php
 }
@@ -345,7 +338,6 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                     ?>" class="btn btn-mini span2" style="margin-top: 6px;">Full Graph</a>
             </div>
         </div>
-
 
             <div
                 id="chart"
