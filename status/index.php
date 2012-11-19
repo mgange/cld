@@ -95,6 +95,7 @@ require_once('../includes/header.php');
       }
 //SourceData4.SysGroup=2 and
       $NumGrpsin4 = $db -> numRows($query4);
+    //  echo("ROW".$NumGrpsin4);
       $sysStatus4 = $db -> fetchAll($query4);
       $NumGrpscalc = $db -> numRows($queryCalc);
     //   echo("E".$NumGrpscalc." ".$queryCalc);
@@ -104,6 +105,7 @@ require_once('../includes/header.php');
 
 
      $sysStatus0 = $db -> fetchRow($query0);
+    // pprint($sysStatus0);
      if (isset($zone)) {
          $sysStatus1 = $db -> fetchRow($query1);
          $Row = $db -> numRows($query1);
@@ -207,7 +209,7 @@ require_once('../includes/header.php');
     // Loop 3 - RSM Uniques  fields for a given system 
     
     // first calc number of required loops   2 passes only for main 4 for all RSMs
-   if ($zone>=1) {$imax=2;} else {$imax=2;}
+   if ($zone>=1) {$imax=4;} else {$imax=2;}
  
    for ($i=0;$i<$imax;$i++)
    {
@@ -220,10 +222,10 @@ require_once('../includes/header.php');
                        where SysMap.SensorRefName = WebRefTable.SensorName and
                         WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and  (SourceID= 0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId";
    
-      $UnqiMapqueryZ0="Select WebPagePosNo, DAMID,SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
+      $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=5) order by WebPagePosNo";
+                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo";
       $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
@@ -270,9 +272,9 @@ require_once('../includes/header.php');
 
             $ForA[$SPos]=$resultRow[Format];
             // get value and process
-            $DBCol= $resultRow[DAMID]. "--". $resultRow[SensorColName]. "--".$resultRow[SensorActive];
-           
-            if ($LolmtA[$SPos]!=NULL) {$TLlim="Lo Limit: ".$LolmtA[$SPos];} else {$TLlim="";}
+            $DBCol= $resultRow[SensorColName];
+          // if ($i==1) {echo($DBCol)."-".$ShwA[$SPos]."-".$resultRow[Inhibit]."-".$resultRow[SensorStatus]."<BR>";}
+           if ($LolmtA[$SPos]!=NULL) {$TLlim="Lo Limit: ".$LolmtA[$SPos];} else {$TLlim="";}
             if ($UplmtA[$SPos]!=NULL) {$TUlim="Up Limit: ".$UplmtA[$SPos].$cr;} else {$TUlim="";}
             if ($resultRow[SourceID] == 5) {$DataTable="SensorCalc";} else {$DataTable="SourceData".$resultRow[SourceID];}
             if ($resultRow[SourceID]== 4) {$Address="ModBus Addr:".$resultRow[SensorAddress].$cr;} else {$Address="";}
@@ -292,7 +294,7 @@ require_once('../includes/header.php');
                 {
                       if (($resultRow[SensorAddress]==$modrow[PwrSubAddress]) or  ($resultRow[SensorAddress]== $modrow[ThermSubAddress]))
                            {$GetValue=$modrow[$DBCol];}
-
+ //echo("||||".$resultRow[SensorAddress]."=".$modrow[PwrSubAddress]."/".$modrow[ThermSubAddress]."/".$GetValue."<BR>");}
                 }
                     break;
                 case 5: $GetValue=$sysCalc[$DBCol];
