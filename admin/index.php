@@ -18,7 +18,6 @@
  *
  */
 require_once('../includes/pageStart.php');
-require_once('../includes/header.php');
 
 $db = new db($config);
 
@@ -35,10 +34,6 @@ switch($_SESSION['authLevel']) {
 }
 ?>
 
-        <div class="row">
-            <h1 class="span8 offset2">Site Administration</h1>
-        </div>
-
 <?php
 $query = 'SELECT * FROM customers ' . $where;
 $customers = $db -> fetchAll($query);
@@ -46,7 +41,19 @@ $customers = $db -> fetchAll($query);
 $query = 'SELECT * FROM users ' . $where . ' AND active = 1';
 $users = $db -> fetchAll($query);
 
+$query = 'SELECT * FROM buildings ' . $where;
+$buildings = $db -> fetchAll($query);
 
+
+require_once('../includes/header.php');
+?>
+
+
+        <div class="row">
+            <h1 class="span8 offset2">Site Administration</h1>
+        </div>
+
+<?php
 foreach($customers as $cust) {
 ?>
         <div class="accordion-group">
@@ -79,11 +86,63 @@ foreach($customers as $cust) {
                     <br><br>
 
                     <div class="row">
-                        <h4 class="span5">User Accounts</h4>
+                        <div class="span5">
+                            <h4>Buildings</h4>
+<?php
+foreach($buildings as $building) {
+    if($building['CustomerID'] == $cust['customerID']) {
+?>
+                            <span class="span5"><p><?php echo $building['buildingName']; ?></p></span>
+<?php
+    }
+}
+if($_SESSION['authLevel'] == 3) {
+?>
+                        <div class="span5">
+                            <br>
+                            <a href="new/building?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success">
+                                <i class="icon-plus icon-white"></i>
+                                Add Building
+                            </a>
+                        </div>
+<?php
+}
+?>
+                        </div>
+
+                        <div class="span5">
+                        <h4>User</h4>
+<?php
+            foreach($users as $user) {
+                if($user['customerID'] == $cust['customerID']) {
+?>
+                            <span class="span5">
+                                <a href="user?id=<?php echo $user['userID']; ?>">
+                                    <?php
+                                echo $user['firstName'].' '.$user['lastName'];
+                                ?>
+
+                                </a>
+<?php
+if($user['authLevel'] == 2) {
+?>
+                               <span class="label label-info">Manager</span><?php
+}
+if($user['authLevel'] == 3) {
+?>
+                                <span class="label label-important">Site Admin</span><?php
+}
+?>
+                            </span>
+<?php
+                }
+            }
+            ?>
 <?php
 if($_SESSION['authLevel'] == 3) {
 ?>
                         <div class="span5">
+                            <br>
                             <a href="new/user?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success">
                                 <i class="icon-plus icon-white"></i>
                                 Add User
@@ -92,38 +151,8 @@ if($_SESSION['authLevel'] == 3) {
 <?php
 }
 ?>
-                    </div>
-<?php
-            foreach($users as $user) {
-                if($user['customerID'] == $cust['customerID']) {
-                    if($user['customerID'] == $cust['customerID']) {
-?>
-                    <div class="row">
-                        <div class="span12">
-                            <a href="user?id=<?php echo $user['userID']; ?>">
-                                <?php
-                            echo $user['firstName'].' '.$user['lastName'];
-                            ?>
-
-                            </a>
-<?php
-if($user['authLevel'] == 2) {
-?>
-                            <span class="label label-info">Manager</span><?php
-}
-if($user['authLevel'] == 3) {
-?>
-                            <span class="label label-important">Site Admin</span><?php
-}
-?>
-
                         </div>
                     </div>
-<?php
-                    }
-                }
-            }
-            ?>
                 </div>
             </div>
         </div>
