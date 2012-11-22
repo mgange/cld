@@ -29,17 +29,55 @@ require_once('../../includes/header.php');
       default: $BldColor="accordion-nocolor";
   }
  // initializes Database
-   $db = new db($config);
+    $db = new db($config);
 
+    if(isset($_POST['building'])){
+      if($_POST['building'] != "new") $_SESSION['buildingID'] = $_POST['building'];
+    }
+
+    $query = "SELECT buildingID, buildingName FROM buildings";
+    if($_SESSION['authLevel'] != 3) {
+        $query .= " WHERE customerID = " . $_SESSION['customerID'];
+    }
+
+   $buildingList = $db -> fetchAll($query);
 
    { ?>
-         <div class="row">
-               <h2 class="span8 offset3">New System Setup</h2>
 
-         </div>
+        <div class="row">
+          <h2 class="span8 offset3">New System Setup</h2>
+
+        </div>
+<!-- SELECT BUILDING -->
+          <div class="row">
+          <form method="post" action="./">
+            <div class="span7" style="text-align:right">
+              <h4>Select Building:&nbsp;&nbsp;<select name="building"><?php
+              foreach ($buildingList as $value) {
+                if( (isset($_POST['building']))
+                  & ($_POST['building'] != "new")
+                  & ($_SESSION['buildingID'] == $value['buildingID'])){
+                  echo "<option selected='selected' value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
+                }else echo "<option value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
+              }?>
+                <option value="new" <?=($_POST['building'] == "new") ? "selected='selected'" : ""?>>+ Add New Building</option>
+              </select></h4>
+            </div>
+            <div class="span5">
+              <button type="submit" class="btn btn-success">
+                <i class="icon-ok icon-white"></i>
+                Select
+              </button>
+            </div>
+          </form>
+        </div>
+  <!-- NEW BUILDING -->
+        <div>
+          <?php if($_POST['building'] == "new") include('../new_building/index.php'); ?>
+        </div>
   <!-- SYSTEM INFORMATION  -->
-         <div class="accordion-group">
-             <div class="accordion-heading">
+         <div class="accordion-group" style="border:0px">
+            <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse"
                     <?php
                     // if($_SESSION['SystemStart']==false or $_SESSION['SystemComp']==true) {echo("data-toggle='collapse'");}
@@ -52,7 +90,7 @@ require_once('../../includes/header.php');
                             </div>
                 </a>
             </div>
-            <div id="collapse1" class="accordion-body collapse<?php if(count($_POST)>0 and  $_SESSION['SystemStart']){echo ' in';} ?>">
+            <div id="collapse1" class="accordion-body collapse<?php if(count($_POST)>1 and  $_SESSION['SystemStart']){echo ' in';} ?>">
                 <div class="accordion-inner accordion-highlight">
 
                     <?php
@@ -67,7 +105,7 @@ require_once('../../includes/header.php');
 
          </div>
 <!-- SENSOR MAPPING INFORMATION  -->
-  <?php   if ($buildingFlag == true) {    ?>
+  <?php   if ($_SESSION['SystemComp'] == true) {    ?>
          <div class="accordion-group">
              <div class="accordion-heading">
                 <a class="accordion-toggle"
