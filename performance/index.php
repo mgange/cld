@@ -427,8 +427,8 @@ if($range == $i) {
 <?php
 }
 ?>
-                                    <option value="12">12 Hours</option>
-                                    <option value="24">24 Hours</option>
+                                    <option value="12"<?=($range == 12) ? ' selected' : ''?>>12 Hours</option>
+                                    <option value="24"<?=($range == 24) ? ' selected' : ''?>>24 Hours</option>
                                 </select>
                             </label>
                         </div>

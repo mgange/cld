@@ -100,7 +100,7 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 }
 $query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
     LIMIT 0 , ";
-if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
+if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
     $query .= intval($_GET['range'])*120;
 }else{
     $query .= '480';
@@ -113,7 +113,6 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 7)) {
  */
 $result           = array_reverse( $db -> fetchAll($query) );
 // $calcGroup2result = array_reverse( $db -> fetchAll($calcGroup2query) );
-
 
 // TODO(Geoff Young): divide only the sensors by 100
 foreach($result as $resultRow) {
@@ -199,7 +198,7 @@ require_once('../../includes/header.php');
                         style: {
                           color: '#aaa'
                         }
-                      }
+                      },
                 opposite: true
               }
               ];
@@ -207,7 +206,6 @@ require_once('../../includes/header.php');
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
             xPlotBands = [
 <?php
-
 
 $i = 0;
 
@@ -436,6 +434,8 @@ if($range == $i) {
 <?php
 }
 ?>
+                                    <option value="12"<?=($range == 12) ? ' selected' : ''?>>12 Hours</option>
+                                    <option value="24"<?=($range == 24) ? ' selected' : ''?>>24 Hours</option>
                                 </select>
                             </label>
                         </div>
