@@ -49,6 +49,11 @@ $('.timepick').timepicker({
   timeFormat: 'h:i A'
 });
 
+// Submit a form when a select option is chosen
+$('.selectSubmit').change(function(){
+    this.form.submit();
+});
+
 // Auto Refresh
 if($('.refresh').length) {
   window.setTimeout("window.location=window.location", 300000);
