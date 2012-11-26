@@ -84,7 +84,7 @@ $customer = $db -> fetchRow($query, $bind);
                 <input type="text" id="addr2" class="span6" name="addr2" value="<?php echo $customer['addr2']; ?>">
             </label>
             <label for="city">City
-                <input type="text" id="city" class="span6" name="text city" value="<?php echo $customer['city']; ?>">
+                <input type="text" id="city" class="span6" name="city" value="<?php echo $customer['city']; ?>">
             </label>
             <div class="row">
                 <div class="span3">
