@@ -116,7 +116,7 @@ if($config['breadcrumbs']) {
     <div class="container">
         <ul class="breadcrumb">
             <li><a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>">Home</a> <span class="divider">/</span></li>
-<?
+<?php
         $i = 1;
         foreach(preg_replace('/_/',' ',$crumbs) as $crumb) {
             if($i != count($crumbs)) {
