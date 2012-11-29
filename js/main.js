@@ -15,7 +15,7 @@ $('.confirm').click(function(){
 });
 
 function loadStatus(id) {
-  window.location='http://ecs.hvtdc.org/cld/status?id='+id;
+  window.location='../status?id='+id;
 }
 
 function stripTrailingSlash(str) {
