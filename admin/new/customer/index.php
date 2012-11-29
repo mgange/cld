@@ -29,7 +29,7 @@ if(count($_POST) > 0) {
     if($db -> execute($query, $bind)) {
         header('Location: ../../?a=s');
     }else{
-        header('Location: ../../a=e');
+        header('Location: ../../?a=e');
     }
 }
 
