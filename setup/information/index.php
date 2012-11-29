@@ -52,9 +52,10 @@ if($_SESSION['authLevel'] < 3 && $NewSystem==false) {
 
 //parameter feedback and error checker
  $DBUpdateok=true;
-for ($i=0;$i<14;$i++){
+for ($i=0;$i<15;$i++){
       $errflag[$i]=false;
 }
+
  $SysNameSel=$_POST['SysName'];
  if ($SysNameSel=="")          {$errflag[0]=true;} 
 
@@ -124,13 +125,34 @@ $NumofPowerSel=$_POST['NumofPower'];
        if (($NumofPowerSel>=8) or ($NumofPowerSel<=-1)) {$errflag[13]=true;}
      }
  
-
+ $AngMuxEnSel=$_POST['AngMuxEn'];
+ if (AngMuxEnSel=="") {$errflag[14]=true;}
+     
  
  // set post flag
- if (count($_POST)==0) {$PostFlag=false;} else {$PostFlag=true;} 
+  /*   
+     if (isset($_SESSION['SETSUBMIT']))
+         {   echo("SET") ;
+            if ($_SESSION['SETSUBMIT']==true)
+               {        
+                    $_SESSION['SETSUBMIT']=false;  
+                    $PostFlag=true;
+                     echo("TRUE") ;
+
+               } else {$PostFlag=false;    echo("F1") ;            }
+     
+         } else
+         {         
+          $_SESSION['SETSUBMIT']=false;
+          $PostFlag=false;
+                          echo("F2") ;   
+         }
+   * */
+  
+ if(!isset($_POST['submitInfo'])) {$PostFlag=false;} else {$PostFlag=true;} 
 // set cumulative error flag
  $CumErr=false;
- for ($i=0;$i<14;$i++)
+ for ($i=0;$i<15;$i++)
  {
    $CumErr=$CumErr || $errflag[$i];   
    
@@ -181,6 +203,7 @@ $NumofPowerSel=$_POST['NumofPower'];
             echo  " Error = ",0,$e;
          }
         }
+        $_SESSION['SystemComp'] = true;
     }
 
 else  // new system set up before a post only
@@ -190,15 +213,18 @@ else  // new system set up before a post only
     $SysIDQuery ="Select SysID from SystemConfig order by SysID desc limit 1";
     $NextID = $db -> fetchRow($SysIDQuery);
     $NewID=$NextID['SysID']+1;
-    $SysName="New SysID= ".$NewID;
+   // if ($_SESSION['buildingID']=="") {$BuildName="<font color=red> Building Not Selected</font>";} else {$BuildName=" in Building - ".$_SESSION['buildingID'];}
+   // $SysName="New SysID= ".$NewID." ".$BuildName;
     $_SESSION['NewID']=$NewID;
 }
 
- 
+ if ($_SESSION['buildingID']=="") {$BuildName="<font color=red> Building Not Selected</font>";} else {$BuildName=" in Building - ".$_SESSION['buildingName'];}
+    $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
+  //  $_SESSION['NewID']=$NewID;
 ?>
 
 <div class="row">
-    <h2 class="span8 offset2"> System Information for <?php echo $SysName; ?></h2>
+    <h3 class="span10 "> System Information for <?php echo $SysName; ?></h3>
 </div>
 
 
@@ -307,6 +333,14 @@ else  // new system set up before a post only
                <?php    if ($errflag[13]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter Num. of Power Meters between 0 and 8</b></font>");} ?>
                 <input  name="NumofPower" type="text" class="span5" value="<?php echo $NumofPowerSel; ?>">
             </label>
+             
+              <label for="AngMuxEn">Enable AnalogMux 
+               <?php    if ($errflag[14]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select Enable/Disable</b></font>");} 
+                    $query="Select DefaultValue,ItemName from SysConfigDefaults where ConfigGroup='AngMuxEnable' order by DefaultValue";
+                    MySQL_Pull_Down($config,$query,"AngMuxEn","ItemName","DefaultValue",$AngMuxEnSel,false,"span5","");
+               ?>
+            </label>
+            <input type="hidden" name="submitInfo" value="true">
         </div>
        </div>
 
@@ -326,6 +360,7 @@ else  // new system set up before a post only
                          $_SESSION['SetupRSM']=$NumofRSMSSel;
                          $_SESSION['SetupPwr']=$NumofPowerSel;
                          $_SESSION['SetupTherm']=$NumofThermsSel;
+                         $_SESSION['SETSUBMIT']=true;
                     }
                     else
                     {
