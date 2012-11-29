@@ -66,8 +66,7 @@ $buildingName = $buildingNames['SysName'];
     $query = "SELECT DISTINCT
     SourceHeader.Recnum,       SensorCalc.DateStamp,
     SensorCalc.TimeStamp,      SensorCalc.CalcResult4,
-    SensorCalc.CalcResult5,    SensorCalc.CalcResult6,
-    SensorCalc.CalcResult7,
+    SensorCalc.CalcResult5,
     SourceData0.DigIn01,       SourceData0.DigIn02,
     SourceData0.DigIn03,       SourceData0.DigIn04,
     SourceData0.DigIn05
@@ -137,9 +136,7 @@ $systemMap = array(
     'FlowPress03' => 'Flow',
     'FlowPress04' => 'Flow (RSM)',
     'CalcResult4' => 'COP HP',
-    'CalcResult5' => 'COP total',
-    'CalcResult6' => 'COP Rolling Avg. HP',
-    'CalcResult7' => 'COP Rolling Avg total'
+    'CalcResult5' => 'COP total'
 );
 $statusIndex['System Off'] = array(
     'text' => 'System Off',

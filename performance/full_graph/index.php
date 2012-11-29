@@ -76,8 +76,7 @@ $buildingName = $buildingNames['SysName'];
      SourceData0.DigIn01,       SourceData0.DigIn02,
      SourceData0.DigIn03,       SourceData0.DigIn04,
      SourceData0.DigIn05,
-     SensorCalc.CalcResult4,    SensorCalc.CalcResult5,
-     SensorCalc.CalcResult6,    SensorCalc.CalcResult7
+     SensorCalc.CalcResult4,    SensorCalc.CalcResult5
     FROM SourceHeader, SourceData0, SensorCalc";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
@@ -145,9 +144,7 @@ $systemMap = array(
     'FlowPress03' => 'Flow',
     'FlowPress04' => 'Flow (RSM)',
     'CalcResult4' => 'COP HP',
-    'CalcResult5' => 'COPTotal',
-    'CalcResult6' => 'COP Rolling Avg. HP',
-    'CalcResult7' => 'COP Rolling Avg. Total'
+    'CalcResult5' => 'COPTotal'
 );
 $statusIndex['System Off'] = array(
     'text' => 'System Off',
