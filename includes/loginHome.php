@@ -16,9 +16,9 @@ if(!isset($_SESSION['userID'])) {
 }
 ?>
         <div class="hero-unit" >
-            <h2>CLD is a Industry Leader in Alternative Energy Systems. Their
-                GeoThermal Monitoring System provides home owners and building
-                managers with real system status and system efficiency monitors
+            <h2>Continuous Live Data (CLD) is a Industry Leader in Alternative Energy Systems. Their
+                Geothermal Monitoring System provides home owners and building
+                managers with real time system status, system efficiency monitors
                 and long term insight into their energy savings realizations.
             </h2>
         </div>
@@ -27,7 +27,7 @@ if(!isset($_SESSION['userID'])) {
 <?php
 if( isset($_SESSION['userID'])){
 ?>
-                <a href="systems" >GeoThermal System Monitor</a>
+                <a href="systems" >Geothermal System Monitor</a>
 <?php
 }else{
 ?>
@@ -40,7 +40,7 @@ if( isset($_SESSION['userID'])){
 
         <div class="row">
             <div class="span6">
-                <h3>Learn More about GeoThermal Systems</h3>
+                <h3>Learn More about Geothermal Systems</h3>
 
 <?php
 /**
