@@ -67,7 +67,7 @@ $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID =
 $buildingName = $buildingNames['SysName'];
 
 // TODO(Geoff Young): use prepared statement
-    $query = "SELECT
+    $query = "SELECT DISTINCT
      SourceHeader.Recnum,       SourceHeader.DateStamp,
      SourceHeader.TimeStamp,    SourceData0.Senchan01,
      SourceData0.Senchan03,     SourceData0.Senchan05,
