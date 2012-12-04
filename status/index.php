@@ -15,7 +15,8 @@ require_once('../includes/header.php');
 
     $db = new db($config);
     $SysID=$_SESSION["SysID"];
-
+    // set currflag if displaying most current status
+    if (isset($_GET['id'])) {$CurrFlag=false;} else {$CurrFlag=true;}
 
     // first get DAMID for this System from SysMap
     $query = "Select * from SystemConfig, buildings where
@@ -148,8 +149,10 @@ require_once('../includes/header.php');
        $MapA =array($Pageelem);
        $LolmtA = array($Pageelem);
        $UplmtA = array($Pageelem);
+       $AlertFactor=array($Pageelem);
        $ValB= array($Pageelem);
        $Title= array($Pageelem);
+       $SStatus= array($Pageelem);
 
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
@@ -184,19 +187,26 @@ require_once('../includes/header.php');
      $SDateTime = date_create($SDateTime);
      $ValA[0]=date_format($SDateTime, 'm/d/Y g:i:s A');
      $ShwA[0] =true;
+     $SStatus[0]=1;
      $LblA[12]="System Information";
      $ValA[12]=$systemInfo;
      $ShwA[12]=true;
+     $SStatus[12]=1;
      $LblA[13]="System Description";
      $ShwA[13]=true;
+     $SStatus[13]=1;
      $ValA[13]=$systemDesc;
      $LblA[29]="ThermStat Mode";
+     
      $LblA[38]="System Status";
+     
   //   $LblA[40]="System COP";
    //  $LblA[46]="Heat Pump COP";
 
      $ShwA[29]=true;
+     $SStatus[29]=1;
      $ShwA[38]=true;
+     $SStatus[38]=1;
   //  $ShwA[40]=true;
  //  $ShwA[46]=true;
   // end of fixed fields for this page
@@ -213,21 +223,21 @@ require_once('../includes/header.php');
  
    for ($i=0;$i<$imax;$i++)
    {
-        $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+        $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
-        $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
+        $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorStatus=1 and  (SourceID= 0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId";
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID= 0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId";
    
-      $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+      $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo";
-      $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,
-                       SensorUnits,AlarmLoLimit,AlarmUpLimit,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
+      $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
+                       SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and WebSubPageName='RSM' order by WebPagePosNo";
 
@@ -266,10 +276,12 @@ require_once('../includes/header.php');
             $LblA[$SPos]=$resultRow[SensorLabel]." ".$SUnit."<BR> ";
             $LolmtA[$SPos]=$resultRow[AlarmLoLimit];
             $UplmtA[$SPos]=$resultRow[AlarmUpLimit];
- 
-           $ShwA[$SPos]=((!$resultRow[Inhibit])  and ($resultRow[SensorStatus]==1));
+            $AlertFactor[$SPos]=$resultRow[AlertPercent];
+            $SStatus[$SPos]=$resultRow[SensorStatus];
+            $ShwA[$SPos]=((!$resultRow[Inhibit]) and ($resultRow[SensorActive]==1));
            
-
+           
+       //   echo($SPos."--".$resultRow[SensorStatus]."--".$ShwA[$SPos]."|");
             $ForA[$SPos]=$resultRow[Format];
             // get value and process
             $DBCol= $resultRow[SensorColName];
@@ -279,7 +291,25 @@ require_once('../includes/header.php');
             if ($resultRow[SourceID] == 5) {$DataTable="SensorCalc";} else {$DataTable="SourceData".$resultRow[SourceID];}
             if ($resultRow[SourceID]== 4) {$Address="ModBus Addr:".$resultRow[SensorAddress].$cr;} else {$Address="";}
             
-            $Title[$SPos]="Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim;
+            
+          switch ($resultRow[SensorStatus])
+            {
+                case 0: $SStat="Status: Inhibited";
+                        break;
+                case 1: $SStat="Status: Active Alarmed";
+                        break;
+                case 2: $SStat="Status: Active Not Alarmed";  
+                        break;
+                case 3: $SStat="Status: Active Alarm Off";  
+                        break;    
+                case 4: $SStat="Status: Inhibited For Maintenance";   
+                        break;
+                default : $SStat="Status: Undefined";
+            }
+            
+       
+            
+            $Title[$SPos]=" Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim.$cr.$SStat;
            
             switch ($resultRow[SourceID])
             {   
@@ -354,10 +384,11 @@ require_once('../includes/header.php');
             $exchnimage="../status/image/WebBackGroundHeatingMode.png";
        }
 
-       function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$size,$show,$form,$title,$colorovride)
+       function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$alertfactor,$size,$show,$form,$title,$colorovride,$mainalert)
        {
-          $alertfactor=.15;   // alerts at 15% of limit
-          $alertdelta=($uplimit-$lolimit)*$alertfactor;
+        //  $alertfactorc=$alertfactor*0.01;   // alerts at 15% of limit
+          $alertdelta=($uplimit-$lolimit)*$alertfactor*0.01;
+         // pprint($seqno."-".$alertdelta."--");
          // Hide display
         if ($show != true or $show ==0) {$EngHide="hidden";} else {$EngHide="";}
      //echo($label."  ".$EngHide."<BR>");
@@ -414,7 +445,7 @@ require_once('../includes/header.php');
 
          if ($size == "") {$size=1.2;}
 
-
+   
 
        $labypos=$ypos-20;  // set label position above value
        $labxpos=$xpos+5;
@@ -422,10 +453,17 @@ require_once('../includes/header.php');
        echo "<p class='label-status ".$EngHide."' style='top: ".$labypos."px; left: ".$xpos."px;'>".$label."</p>";
        echo "<p class='value-status ".$EngHide."' title='".$title."' style='top: ".$ypos."px; left: ".$labxpos."px;
                  background-color: ".$BackColor."; line-height: ".$size."em; '>".$value."</p>";
-
-
-
+       if ($mainalert==true)
+       {
+          $altposx=$xpos+20;
+          $altposy=$ypos+3;
+          $altvalue="x";
+          $altsize=0.5;
+          $altBackColor="#FFA500";
+          echo "<p class='value-status ".$EngHide."'  style='top: ".$altposy."px; left: ".$altposx."px;
+                 background-color: ".$altBackColor."; line-height: ".$altsize."em; '>".$altvalue."</p>";
        }
+ }
 
 
 
@@ -532,7 +570,16 @@ require_once('../includes/header.php');
                      { 
                          $colorovride="";
                      }  
-                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$SizA[$i],$ShwA[$i],$ForA[$i],$Title[$i],$colorovride);
+                     
+ // determine current status of sensors display only when status page is on current status
+                $alerttemp=false;
+                if (($SStatus[$i]%3)==0 and $CurrFlag==true)  // display x on mode 0 and 3
+                {
+                    $alerttemp=true;
+                }
+                     
+                
+                 DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$AlertFactor[$i],$SizA[$i],$ShwA[$i],$ForA[$i],$Title[$i],$colorovride,$alerttemp);
                 
            }
 
@@ -545,7 +592,7 @@ require_once('../includes/header.php');
 
                 <p class="align-center">
                     <?php
-                      echo "<a href=''./?id=0>Current Status</a>";
+                      if ($CurrFlag!=true) {echo "<a href=''./?id=0>Current Status</a>";}
                       echo "<BR>";
                       echo "<a href='";
                       echo $config['base_domain'] . $config['base_dir'];
