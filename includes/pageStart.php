@@ -39,6 +39,11 @@ if(! require_once(__DIR__ . '/../general/util.php')) {
     die('The site\'s utilities could not be loaded.');
 }
 
+/* Override default timezone if one is specified in config.php */
+if(isset($config['time_zone']) && $vongig['time_zone'] != '') {
+    date_default_timezone_set($config['time_zone']);
+}
+
 /* Get rid of the index.php in the url */
 if(preg_match('/index.php$/', $_SERVER['REQUEST_URI'])) {
     header('Location: ./');

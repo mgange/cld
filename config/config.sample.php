@@ -103,6 +103,7 @@ $config['admin_email'] = '';
  *------------------------------------------------------------------------------
  *
  * This determines the timezone used in any data calculations done by PHP.
+ * e.g. 'America/New_York'
  * Supported Timezones: http://php.net/manual/en/timezones.php
  *
  */
