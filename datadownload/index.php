@@ -46,9 +46,9 @@ if(isset($_POST['date'])) {
         ";
         $bind[':SysID'] = $_SESSION['SysID'];
         $bind[':date'] = $_POST['date'];
-try{
+
         $result = $db->fetchAll($query, $bind);
-}catch(Exception $e){echo $e->getMessage();}
+
         header("Content-type: text/csv");
         header("Cache-Control: no-store, no-cache");
         header('Content-Disposition: attachment; filename="Download.csv"');
