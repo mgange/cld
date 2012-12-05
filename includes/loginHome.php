@@ -16,7 +16,7 @@ if(!isset($_SESSION['userID'])) {
 }
 ?>
         <div class="hero-unit" >
-            <h2>Continuous Live Data (CLD) is a Industry Leader in Alternative Energy Systems. Their
+            <h2>Continuous Live Data (CLD) is an Industry Leader in Alternative Energy Systems. Their
                 Geothermal Monitoring System provides home owners and building
                 managers with real time system status, system efficiency monitors
                 and long term insight into their energy savings realizations.
@@ -57,7 +57,7 @@ foreach(get_object_vars($obj) as $title => $link) {
 ?>
                 <p>
                     <a href="<?php
-                    
+
                     if ($link !="#")  {echo $link; }?>" target="_blank">
                     <?php if ($link !="#") {echo $title;} ?></a>
                 </p>

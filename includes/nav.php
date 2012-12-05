@@ -104,12 +104,7 @@ if(isset($_SESSION['userID'])) {
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>maintenance">Maintenance</a>
                             </li>
-<?php if(isset($_SESSION['authLevel']) && (intval($_SESSION['authLevel']) == 3  or intval($_SESSION['authLevel']) == 2)){ ?>
-                            <li>
-                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>setup">Setup</a>
-                            </li>
 
-<?php } ?>
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>systems">Choose System</a>
                             </li>
@@ -118,5 +113,41 @@ if(isset($_SESSION['userID'])) {
 <?php
 }
 ?>
-                </ul>
-            </div>
+
+<?php
+if(isset($_SESSION['userID']) and isset($_SESSION['authLevel']) && (intval($_SESSION['authLevel']) == 3  or intval($_SESSION['authLevel']) == 2)) {
+?>
+                    <li class="dropdown">
+                        <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>Setup"
+                            role="button"
+                            class="dropdown-toggle"
+                            data-toggle="dropdown">
+                            Setup <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>setup">System Setup</a>
+                            </li>
+
+<?php } ?>
+
+ <?php
+if (intval($_SESSION['authLevel']) == 3)  {
+?>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>config_setup">Setup Parameters</a>
+                            </li>
+                        </ul>
+                    </li>
+<?php
+}
+?>
+
+
+
+
+
+
+           </ul>
+        </div>
