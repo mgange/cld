@@ -27,12 +27,41 @@ require_once('../includes/pageStart.php');
 
 checkSystemSet($config);
 
+$dataTables = array("SourceData0", "SourceData1", "SourceData4", "SensorCalc");
+
 $db = new db($config);
 
-if(isset($_POST['date']) && isset($_POST['fileType'])) {
-    if($_POST['fileType'] == 'csv') {
-        /* export data to .csv file */
-    }elseif ($_POST['fileType'] == 'xls') {
+if(isset($_POST['date'])) {
+    if(isset($_POST['source']) && withinRange(intval($_POST['source']), -1, 4)) {
+        $source = $dataTables[intval($_POST['source'])];
+        $query = "SELECT
+        SourceHeader.Recnum AS ID,
+        SourceHeader.DateStamp AS Date,
+        SourceHeader.TimeStamp AS Time,
+        " . $source . ".*
+        FROM SourceHeader, " . $source . "
+        WHERE SourceHeader.SysID = :SysID
+        AND SourceHeader.Recnum = " . $source . ".HeadID
+        AND SourceHeader.DateStamp = :date
+        ";
+        $bind[':SysID'] = $_SESSION['SysID'];
+        $bind[':date'] = $_POST['date'];
+try{
+        $result = $db->fetchAll($query, $bind);
+}catch(Exception $e){echo $e->getMessage();}
+        header("Content-type: text/csv");
+        header("Cache-Control: no-store, no-cache");
+        header('Content-Disposition: attachment; filename="Download.csv"');
+
+        $outstream = fopen("php://output",'w');
+
+        foreach($result as $row) {
+            fputcsv($outstream, $row, ',', '"');
+        }
+
+        fclose($outstream);
+        die();
+    }elseif (isset($_POST['fileType']) && $_POST['fileType'] == 'xls') {
 
         require_once('class.excelXML.php');
 
@@ -192,20 +221,9 @@ $date = date("Y-m-d", time() - 60 * 60 * 24);
 
         <form class="validate" action="./" method="POST">
             <div class="row">
-                <div class="span3 offset3">
+                <div class="span4 offset4">
                     <label for="date"><h4 class="pull-left">Date</h4>
-                        <input class="datepick text span3 offset1" id="date" type="text" name="date" value="<?php echo $date; ?>">
-                    </label>
-                </div>
-                <div class="span3">
-                    <h4>File Type</h4>
-                    <label class="radio span1">
-                        <input type="radio" name="fileType" value="csv" checked>
-                        CSV
-                    </label>
-                    <label class="radio span1">
-                        <input type="radio" name="fileType" value="xls">
-                        XLS
+                        <input class="datepick text span4 offset1" id="date" type="text" name="date" value="<?php echo $date; ?>">
                     </label>
                 </div>
             </div>
@@ -213,12 +231,30 @@ $date = date("Y-m-d", time() - 60 * 60 * 24);
             <br><br>
 
             <div class="row">
-                <div class="span4 offset4">
-                    <button class="btn btn-info btn-large btn-block"  type="submit">
-                        <i class="icon-download-alt icon-white"></i>
-                        Begin Download
+                <div class="dropdown span2 offset4">
+                    <button class="btn btn-info btn-large btn-block dropdown-toggle" data-toggle="dropdown">
+                        .CSV &nbsp;&nbsp;
+                        <b class="caret"></b>
                     </button>
+                    <ul class="dropdown-menu span2" role="menu" aria-labelledby="dLabel">
+                        <li>
+                            <button class="btn btn-block" type="submit" name="source" value="0">Main</button>
+                        </li>
+                        <li>
+                            <button class="btn btn-block" type="submit" name="source" value="1">RSM</button>
+                        </li>
+                        <li>
+                            <button class="btn btn-block" type="submit" name="source" value="2">Modbus</button>
+                        </li>
+                        <li>
+                            <button class="btn btn-block" type="submit" name="source" value="3">Calculations</button>
+                        </li>
+                    </ul>
                 </div>
+
+                <button class="btn btn-info btn-large span2"  type="submit" name="fileType" value="xls">
+                    .XLS
+                </button>
             </div>
 
 
