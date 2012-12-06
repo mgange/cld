@@ -46,24 +46,38 @@ $sysMap = $db -> fetchAll($query);
 ?>
 
 <script type="text/javascript">
-    function isNumeric(formName,idName,sourceID){
-        var element = document.forms[formName][idName];
-        var elementSpan = document.getElementsByName(idName + "Span")[0];
+    function isNumeric(Name,sourceID,Recnum){
+        //flag change to check on submit
+        var mydiv = document.getElementsByName("sensorMapping" + sourceID + "onChange")[0];
+        var newcontent = document.createElement('div');
+        newcontent.innerHTML = "<input type=\"hidden\" name=\"Change" + Recnum + "\" value=\"true\">";
+        while (newcontent.firstChild) {
+            mydiv.appendChild(newcontent.firstChild);
+        }
+
+        var element = document.forms["sensorMapping" + sourceID][Name + Recnum];
+        var elementSpan = document.getElementsByName(Name + Recnum + "Span")[0];
         var valid = (!isNaN(element.value) && parseInt(element.value)) || ((element.value.length == 1) && (element.value != " "));
         if(!valid){
             element.style.border = "red solid 2px";
-            elementSpan.style.marginLeft = "20px";
             elementSpan.style.visibility = "visible";
             elementSpan.style.fontSize = "14px";
         }else{
             element.style.border = "";
-            elementSpan.style.marginLeft = "0px";
             elementSpan.style.visibility = "hidden";
             elementSpan.style.fontSize = "0px";
         }
     }
-    function duplicateCheck(formName,sourceID){
-        var all = document.forms[formName].getElementsByTagName("select");
+    function duplicateCheck(sourceID,Recnum){
+        //flag change to check on submit
+        var mydiv = document.getElementsByName("sensorMapping" + sourceID + "onChange")[0];
+        var newcontent = document.createElement('div');
+        newcontent.innerHTML = "<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">";
+        while (newcontent.firstChild) {
+            mydiv.appendChild(newcontent.firstChild);
+        }
+
+        var all = document.forms["sensorMapping" + sourceID].getElementsByTagName("select");
         var allSpan = document.getElementsByName("selectSpan" + sourceID);
         var duplicate = 0;
         for(var i=0;i<all.length;i++){
@@ -83,10 +97,27 @@ $sysMap = $db -> fetchAll($query);
             }
         }
     }
+    function noErrors(formName){
+        var all = document.forms[formName];
+        for(var i=0;i<all.length;i++){
+            if(all[i].style.border != ""){
+                alert("Please fix errors before submitting");
+                return false;
+            }
+        }
+    }
+    function checkboxChange(sourceID,Recnum){
+        //flag change to check on submit
+        var mydiv = document.getElementsByName("sensorMapping" + sourceID + "onChange")[0];
+        var newcontent = document.createElement('div');
+        newcontent.innerHTML = "<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">";
+        while (newcontent.firstChild) {
+            mydiv.appendChild(newcontent.firstChild);
+        }
+    }
 </script>
 
-
-<form name="sensorMapping<?=$sourceID?>" action="./" method="post">
+<form name="sensorMapping<?=$sourceID?>" action="./" method="post" onsubmit="return noErrors('sensorMapping<?=$sourceID?>')">
 	<div class="row">
 		<h4 class="span2" style="width:130px">Sensor</h4>
         <h4 class="span1">Model</h4>
@@ -100,6 +131,7 @@ $sysMap = $db -> fetchAll($query);
     <hr>
 <?php
     $sysGroup = 0;
+    //pprint($_SESSION);
 	foreach ($sysMap as $resultRow) {
        if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){
             if($sysGroup != $resultRow['SysGroup']){
@@ -141,7 +173,7 @@ $sysMap = $db -> fetchAll($query);
         <p class="span2" style="margin-top:10px"><?php
             //Sensor Channel
             if(!strncasecmp($resultRow['SensorColName'],"senchan",7)){
-                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\"," . $sourceID . ")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'senchan%' USING latin1) COLLATE latin1_swedish_ci";
                 $sensorChan = $db -> fetchAll($query);
                 foreach ($sensorChan as $result){
@@ -153,7 +185,7 @@ $sysMap = $db -> fetchAll($query);
                 echo "</select><span name='selectSpan" . $sourceID . "' style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Duplicated</span>";
             //Digital Input
             }else if(!strncasecmp($resultRow['SensorColName'],"digin",5)){
-                echo "<select name='" . $resultRow['SensorName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'digin%' USING latin1) COLLATE latin1_swedish_ci";
                 $sensorChan = $db -> fetchAll($query);
                 foreach ($sensorChan as $result){
@@ -165,7 +197,7 @@ $sysMap = $db -> fetchAll($query);
                 echo "</select><span name='selectSpan" . $sourceID . "' style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Duplicated</span>";
             //Digital Output
             }else if(!strncasecmp($resultRow['SensorColName'],"digout",6)){
-                echo "<select name='" . $resultRow['SensorName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'digout%' USING latin1) COLLATE latin1_swedish_ci";
                 $sensorChan = $db -> fetchAll($query);
                 foreach ($sensorChan as $result){
@@ -177,7 +209,7 @@ $sysMap = $db -> fetchAll($query);
                 echo "</select><span name='selectSpan" . $sourceID . "' style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Duplicated</span>";
             //Flow/Pressure
             }else if(!strncasecmp($resultRow['SensorColName'],"flowpress",9)){
-                echo "<select name='" . $resultRow['SensorName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'flowpress%' USING latin1) COLLATE latin1_swedish_ci";
                 $sensorChan = $db -> fetchAll($query);
                 foreach ($sensorChan as $result){
@@ -189,7 +221,7 @@ $sysMap = $db -> fetchAll($query);
                 echo "</select><span name='selectSpan" . $sourceID . "' style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Duplicated</span>";
             //Analog MUX
             }else if(!strncasecmp($resultRow['SensorColName'],"angmux",6)){
-                echo "<select name='" . $resultRow['SensorName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'angmux%' USING latin1) COLLATE latin1_swedish_ci";
                 $sensorChan = $db -> fetchAll($query);
                 foreach ($sensorChan as $result){
@@ -203,7 +235,7 @@ $sysMap = $db -> fetchAll($query);
             }else if(!strncasecmp($resultRow['SensorColName'],"power",5)){
                 $query = "SELECT SensorName,SensorColName,SysGroup FROM SysMap WHERE SourceID = " . $sourceID . " AND SysID = 0 AND SensorColName LIKE CONVERT(_utf8 'power%' USING latin1) COLLATE latin1_swedish_ci AND SysGroup = " . $sysGroup;
                 $sensorChan = $db -> fetchAll($query);
-                echo "<select name='" . $resultRow['SensorName'] . "' style='max-width:90%' onchange='duplicateCheck(\"sensorMapping" . $sourceID . "\")'>";
+                echo "<select name='" . $resultRow['SensorColName'] . "' style='max-width:90%' onchange='duplicateCheck(" . $sourceID . "," . $resultRow['Recnum'] . ")'>";
                 foreach ($sensorChan as $result){
                     $value = substr($result['SensorColName'],5);
                     if($value < 10) $value = substr($value,1);
@@ -223,23 +255,20 @@ $sysMap = $db -> fetchAll($query);
                 $resultRow['AlarmUpLimit'] = $result['AlarmUpLimit'];
                 $resultRow['AlertPercent'] = $result['AlertPercent'];
             }
-            $loFlag = "LoChange" . $resultRow['Recnum'];
             $loValue = "Lo" . $resultRow['Recnum'];
-            $hiFlag = "HiChange" . $resultRow['Recnum'];
             $hiValue = "Hi" . $resultRow['Recnum'];
-            $percentFlag = "PercentChange" . $resultRow['Recnum'];
             $percentValue = "Percent" . $resultRow['Recnum'];
         ?>
-        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('sensorMapping<?=$sourceID?>','Lo<?=$resultRow['Recnum']?>',<?=$sourceID?>)" style="max-width:60%;text-align:right;<?=(isset($loErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$loValue])) ? $_POST[$loValue] : $resultRow['AlarmLoLimit']?>"> <?php echo $unit; } ?>
+        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Lo',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($loErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$loValue])) ? $_POST[$loValue] : $resultRow['AlarmLoLimit']?>"> <?php echo $unit; } ?>
             <span name="Lo<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('sensorMapping<?=$sourceID?>','Hi<?=$resultRow['Recnum']?>',<?=$sourceID?>)" style="max-width:60%;text-align:right;<?=(isset($hiErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$hiValue])) ? $_POST[$hiValue] : $resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?>
+        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Hi',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($hiErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$hiValue])) ? $_POST[$hiValue] : $resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?>
             <span name="Hi<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span1" style="width:70px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('sensorMapping<?=$sourceID?>','Percent<?=$resultRow['Recnum']?>',<?=$sourceID?>)" style="max-width:50%;text-align:right;<?=(isset($percentErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$percentValue])) ? $_POST[$percentValue] : $resultRow['AlertPercent']?>"> %<?php } ?>
+        <p class="span1" style="width:70px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Percent',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($percentErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$percentValue])) ? $_POST[$percentValue] : $resultRow['AlertPercent']?>"> %<?php } ?>
             <span name="Percent<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span1" style="margin-top:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? "checked='checked'" : "" ?>></p>
+        <p class="span1" style="margin-top:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
 	</div>
 <?php
         }
@@ -259,6 +288,7 @@ $sysMap = $db -> fetchAll($query);
             </a>
         </div>
     </div>
+    <div name="sensorMapping<?=$sourceID?>onChange"></div>
 	<input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
     <input type="hidden" name="sourceID" value="<?=$sourceID?>">
 </form>

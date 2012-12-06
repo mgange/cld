@@ -8,7 +8,7 @@
  *
  *
 **/
-
+/*
 function SelectPD($DBValue,$SelValue)
 {
     if ($DBValue==$SelValue) { return "selected";} else {return "";}
@@ -20,7 +20,7 @@ function MySQL_Pull_Down($config,$query,$InputName,$DisplayField,$SelField,$SelV
   $pdrows= $dbpd -> numRows($query);
   $PDList = $dbpd -> fetchAll($query);
   $dropdown = "<select name='".$InputName."' class='".$Class."'>";
- 
+
   if($DefMess==true) {$dropdown .= "\r\n<option value='-'>Select a ".$InputName."</option>";}
 foreach ($PDList as $row) {
   //  echo($row[$SelField]."||".$SelValue);
@@ -34,7 +34,7 @@ foreach ($PDList as $row) {
    echo $dropdown;
 
 }
-
+*/
 // check to see if this is a new system setup
  if (isset($_SESSION['SetUpNew'])) { $NewSystem=$_SESSION['SetUpNew'];} else {$NewSystem=false;}
  // if not a new system set up check to see if a system has been selected if not refers to choose system option
@@ -57,116 +57,113 @@ for ($i=0;$i<15;$i++){
 }
 
  $SysNameSel=$_POST['SysName'];
- if ($SysNameSel=="")          {$errflag[0]=true;} 
+ if ($SysNameSel=="")          {$errflag[0]=true;}
 
  $ConfigSel=$_POST['Configuration'];
  if ($ConfigSel=="-")       {$errflag[1]=true;}
- 
- $SysDescrpSel=$_POST['SysDescription']; 
+
+ $SysDescrpSel=$_POST['SysDescription'];
  if ($SysDescrpSel=="")    {$errflag[2]=true;}
- 
+
  $InstallDateSel=$_POST['InstallDate'];
  //if ($InstallDateSel=="")   {$errflag[3]=true;} //else  {if (IsDate($mydate)==false)  {$errflag[3]=true;}}
- 
- 
- if ($InstallDateSel=="") 
-     {$errflag[3]=true;} 
- else 
-     { 
+
+
+ if ($InstallDateSel=="")
+     {$errflag[3]=true;}
+ else
+     {
        $ValidDate=date($InstallDateSel);
-     
+
        if ($ValidDate==false) {$errflag[3]=true;}
      }
-  
- 
+
+
  $MaintainerSel=$_POST['Maintainer'];
- if ($MaintainerSel=="-")    {$errflag[4]=true;} 
-  
+ if ($MaintainerSel=="-")    {$errflag[4]=true;}
+
  $DAMIDSel=$_POST['DAMID'];
- if ($DAMIDSel=="" or strlen($DAMIDSel)!=12)  {$errflag[5]=true;} 
-  
+ if ($DAMIDSel=="" or strlen($DAMIDSel)!=12)  {$errflag[5]=true;}
+
  $NumofThermsSel=$_POST['NumofTherms'];
- if ($NumofThermsSel=="") 
-     {$errflag[6]=true;} 
- else 
+ if ($NumofThermsSel=="")
+     {$errflag[6]=true;}
+ else
      { $NumofThermsSel = (int)($NumofThermsSel);
        if (($NumofThermsSel>=6) or ($NumofThermsSel<=-1)) {$errflag[6]=true;}
      }
-  
+
  $SysTypeSel=$_POST['SysType'];
  if ($SysTypeSel=="-")       {$errflag[7]=true;}
- 
+
  $PlatformIDSel=$_POST['PlatformID'];
  if ($PlatformIDSel=="-")    {$errflag[8]=true;}
- 
+
  $HeatExchangerSel=$_POST['HeatExchanger'];
- if ($HeatExchangerSel=="-") {$errflag[9]=true;}  
- 
+ if ($HeatExchangerSel=="-") {$errflag[9]=true;}
+
  $InstallerSel=$_POST['Installer'];
  if ($InstallerSel=="-")     {$errflag[10]=true;}
- 
+
  $LocofMainSel=$_POST['LocofMain'];
  if ($LocofMainSel=="")      {$errflag[11]=true;}
- 
- 
+
+
  $NumofRSMSSel=$_POST['NumofRSMS'];
- if ($NumofRSMSSel=="") 
-     {$errflag[12]=true;} 
- else 
+ if ($NumofRSMSSel=="")
+     {$errflag[12]=true;}
+ else
      { $NumofRSMSSel = (int)($NumofRSMSSel);
        if (($NumofRSMSSel>=5) or ($NumofRSMSSel<=-1)) {$errflag[12]=true;}
-     }  
- 
+     }
+
 $NumofPowerSel=$_POST['NumofPower'];
- if ($NumofPowerSel=="") 
-     {$errflag[13]=true;} 
- else 
+ if ($NumofPowerSel=="")
+     {$errflag[13]=true;}
+ else
      { $NumofPowerSel = (int)($NumofPowerSel);
        if (($NumofPowerSel>=8) or ($NumofPowerSel<=-1)) {$errflag[13]=true;}
      }
- 
- $AngMuxEnSel=$_POST['AngMuxEn'];
- if (AngMuxEnSel=="") {$errflag[14]=true;}
-     
- 
+
+
  // set post flag
-  /*   
+  /*
      if (isset($_SESSION['SETSUBMIT']))
          {   echo("SET") ;
             if ($_SESSION['SETSUBMIT']==true)
-               {        
-                    $_SESSION['SETSUBMIT']=false;  
+               {
+                    $_SESSION['SETSUBMIT']=false;
                     $PostFlag=true;
                      echo("TRUE") ;
 
                } else {$PostFlag=false;    echo("F1") ;            }
-     
+
          } else
-         {         
+         {
           $_SESSION['SETSUBMIT']=false;
           $PostFlag=false;
-                          echo("F2") ;   
+                          echo("F2") ;
          }
    * */
-  
- if(!isset($_POST['submitInfo'])) {$PostFlag=false;} else {$PostFlag=true;} 
+
+ if(!isset($_POST['submitInfo'])) {$PostFlag=false;} else {$PostFlag=true;}
 // set cumulative error flag
  $CumErr=false;
  for ($i=0;$i<15;$i++)
  {
-   $CumErr=$CumErr || $errflag[$i];   
-   
- }  
+   $CumErr=$CumErr || $errflag[$i];
+
+ }
 
 
    if(count($_POST) > 0 and $CumErr==false) {
        //first look for existing record
         $query="Select SysID from SystemConfig where SysID=".$_SESSION['NewID'];
-       
-     
+
+
         //Exists
         if($db -> numRows($query) > 0) {
-           
+
         $Upquery = "UPDATE SystemConfig SET
         SysName ='".$SysNameSel."',SystemDescription='".SysDescrpSel."',BuildingID=".$_SESSION['buildingID'].",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
         Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger=".$HeatExchangerSel.",InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
@@ -175,9 +172,9 @@ $NumofPowerSel=$_POST['NumofPower'];
       // echo($Upquery) ;
      try {
          $response = $db -> execute($Upquery);
-          $DBUpdateok=$response;    
-            
-         } 
+          $DBUpdateok=$response;
+
+         }
           catch (Exception $e)
          {
           throw new Exception;
@@ -194,9 +191,9 @@ $NumofPowerSel=$_POST['NumofPower'];
 
     try {
           $response = $db -> execute($Inquery);
-          $DBUpdateok=$response;    
-          
-         } 
+          $DBUpdateok=$response;
+
+         }
           catch (Exception $e)
          {
           throw new Exception;
@@ -232,15 +229,15 @@ else  // new system set up before a post only
 
     <div class="row" >
         <div class="span5">
-            <label for="name" >System Name             
+            <label for="name" >System Name
                   <?php   if ($errflag[0]==true && $PostFlag==true)  {echo("<font color=red><b>Error - Enter a System Name</b></font>");}  ?>
                   <input name="SysName" type="text" class="span5" value="<?php echo $SysNameSel; ?>" maxlength="45">
             </label>
               <label for="Configuration">Configuration
                   <?php
-                    if ($errflag[1]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Configuration</b></font>");}    
-                    $query="Select DefaultValue,ItemName from SysConfigDefaults where ConfigGroup='Configuration' order by DefaultValue";
-                    MySQL_Pull_Down($config,$query,"Configuration","ItemName","DefaultValue",$ConfigSel,true,"span5","");
+                    if ($errflag[1]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Configuration</b></font>");}
+                    $query="Select AssignedValue,ItemName from SysConfigDefaults where ConfigSubGroup='Configuration' order by AssignedValue";
+                    MySQL_Pull_Down($config,$query,"Configuration","ItemName","AssignedValue",$ConfigSel,true,"span5","");
                   ?>
             </label>
             <label for="SysDescription">System Description
@@ -257,7 +254,7 @@ else  // new system set up before a post only
 
             <label for="Maintainer">Maintainer
                <?php
-                    if ($errflag[4]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Maintainer</b></font>");}  
+                    if ($errflag[4]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Maintainer</b></font>");}
                     $query="Select Company from MaintainResource where Category='Maintainer'";
                     MySQL_Pull_Down($config,$query,"Maintainer","Company","Company",$MaintainerSel,true,"span5","");
                  ?>
@@ -279,28 +276,28 @@ else  // new system set up before a post only
            <div class="span5">
             <label for="SystemType">System Type
                 <?php
-                  if ($errflag[7]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a System Type</b></font>");} 
-                  $query="Select ItemName,DefaultValue from SysConfigDefaults where ConfigGroup='Systemtype' order by DefaultValue";
-                    MySQL_Pull_Down($config,$query,"SysType","ItemName","DefaultValue",$SysTypeSel,true,"span5","");
+                  if ($errflag[7]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a System Type</b></font>");}
+                  $query="Select ItemName,AssignedValue from SysConfigDefaults where ConfigSubGroup='Systemtype' order by AssignedValue";
+                    MySQL_Pull_Down($config,$query,"SysType","ItemName","AssignedValue",$SysTypeSel,true,"span5","");
                  ?>
             </label>
             <label for="PlatformID">Platform ID
                <?php
-                 if ($errflag[8]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Platform ID</b></font>");} 
-                  $query="Select ItemName,DefaultValue from SysConfigDefaults where ConfigGroup='PlatformID' order by DefaultValue";
-                    MySQL_Pull_Down($config,$query,"PlatformID","ItemName","DefaultValue",$PlatformIDSel,true,"span5","");
+                 if ($errflag[8]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a Platform ID</b></font>");}
+                  $query="Select ItemName,AssignedValue from SysConfigDefaults where ConfigSubGroup='PlatformID' order by AssignedValue";
+                    MySQL_Pull_Down($config,$query,"PlatformID","ItemName","AssignedValue",$PlatformIDSel,true,"span5","");
                  ?>
             </label>
              <label for="HeatExchanger">Heat Exchange Unit
                  <?php
-                  if ($errflag[9]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a HeatExchanger</b></font>");} 
-                  $query="Select ItemName,DefaultValue from SysConfigDefaults where ConfigGroup='HeatExchanger' order by DefaultValue";
-                   MySQL_Pull_Down($config,$query,"HeatExchanger","ItemName","DefaultValue",$HeatExchangerSel,true,"span5","");
+                  if ($errflag[9]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a HeatExchanger</b></font>");}
+                  $query="Select ItemName,AssignedValue from SysConfigDefaults where ConfigSubGroup='HeatExchanger' order by AssignedValue";
+                   MySQL_Pull_Down($config,$query,"HeatExchanger","ItemName","AssignedValue",$HeatExchangerSel,true,"span5","");
                  ?>
             </label>
              <label for="Installer">Installer
                 <?php
-                  if ($errflag[10]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select an Installer</b></font>");} 
+                  if ($errflag[10]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select an Installer</b></font>");}
                   $query="Select Company from MaintainResource where Category='Installer' ";
                   MySQL_Pull_Down($config,$query,"Installer","Company","Company",$InstallerSel,true,"span5","");
                  ?>
@@ -314,7 +311,7 @@ else  // new system set up before a post only
 
              <hr>
 
-            <label for="NumofRSMS">Number of RSMs            
+            <label for="NumofRSMS">Number of RSMs
                <?php    if ($errflag[12]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter Num. of RSMs between 0 and 4 </b></font>");} ?>
                 <input name="NumofRSMS" type="text" class="span5" value="<?php echo $NumofRSMSSel; ?>">
             </label>
@@ -333,11 +330,11 @@ else  // new system set up before a post only
                <?php    if ($errflag[13]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter Num. of Power Meters between 0 and 8</b></font>");} ?>
                 <input  name="NumofPower" type="text" class="span5" value="<?php echo $NumofPowerSel; ?>">
             </label>
-             
-              <label for="AngMuxEn">Enable AnalogMux 
-               <?php    if ($errflag[14]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select Enable/Disable</b></font>");} 
-                    $query="Select DefaultValue,ItemName from SysConfigDefaults where ConfigGroup='AngMuxEnable' order by DefaultValue";
-                    MySQL_Pull_Down($config,$query,"AngMuxEn","ItemName","DefaultValue",$AngMuxEnSel,false,"span5","");
+
+              <label for="AngMuxEn">Enable AnalogMux
+               <?php    if ($errflag[14]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select Enable/Disable</b></font>");}
+                    $query="Select AssignedValue,ItemName from SysConfigDefaults where ConfigSubGroup='AngMuxEnable' order by AssignedValue";
+                    MySQL_Pull_Down($config,$query,"AngMuxEn","ItemName","AssignedValue",$AngMuxEnSel,false,"span5","");
                ?>
             </label>
             <input type="hidden" name="submitInfo" value="true">
@@ -353,9 +350,9 @@ else  // new system set up before a post only
             </button>
             <div class="offset3">
                 <?php  if ($PostFlag==true)
-                
-                    if($DBUpdateok==true and $CumErr==false)   {                     
-                        echo("<font color='blue'><b> Update Successful <BR> Close and Proceed to Sensor Mapping</b></font>");
+
+                    if($DBUpdateok==true and $CumErr==false)   {
+                        //echo("<font color='blue'><b> Update Successful <BR> Close and Proceed to Sensor Mapping</b></font>");
                          $_SESSION['SystemComp']=true;
                          $_SESSION['SetupRSM']=$NumofRSMSSel;
                          $_SESSION['SetupPwr']=$NumofPowerSel;
@@ -364,15 +361,15 @@ else  // new system set up before a post only
                     }
                     else
                     {
-                         echo("<font color='red'><b> Update Failed - Correct Errors and Resubmit</b></font>");
+                         //echo("<font color='red'><b> Update Failed - Correct Errors and Resubmit</b></font>");
                          $_SESSION['SystemComp']=false;
                          $_SESSION['SetupRSM']=0;
                          $_SESSION['SetupPwr']=0;
                          $_SESSION['SetupTherm']=0;
                     }
-                // }  
+                // }
                 ?>
-            
+
             <a href="../" class="btn pull-right">
                 <i class="icon-remove"></i>
                 Cancel

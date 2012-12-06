@@ -6,10 +6,28 @@
  *
  *
 **/
+if(isset($_POST['submitNewBuilding'])){
+  if($_POST['address2'] != ""){
+    $query = "INSERT INTO buildings 
+    (buildingName,address1,address2,city,state,zip,CustomerID) 
+    VALUES(:buildingName, :addr1, :addr2, :city, :state, :zip, :customerID)";
+  }else $query = "INSERT INTO buildings 
+    (buildingName,address1,city,state,zip,CustomerID) 
+    VALUES(:buildingName, :addr1, :city, :state, :zip, :customerID)";
 
+  $bind[':buildingName'] = $_POST['name'];
+  $bind[':addr1']  = $_POST['address1'];
+  $bind[':addr2'] = $_POST['address2'];
+  $bind[':city']   = $_POST['city'];
+  $bind[':state']  = $_POST['state'];
+  $bind[':zip']    = $_POST['zip'];
+  $bind[':customerID'] = $_SESSION['customerID'];
 
-
-
+  if($db -> execute($query, $bind)){
+    $buildingID = $db -> lastInsertId();
+    $_SESSION['buildingID'] = $buildingID;
+  }
+}
 ?>
 
 <script type="text/javascript">
@@ -24,7 +42,7 @@ function validate(){
 	for(var i=0;i<input.length;i++){
 		document.forms["new_building"][input[i][1]].style.border = "";
 		if((input[i][0] == null) || (input[i][0] == "")){
-			document.forms["new_building"][input[i][1]].style.border = "red solid 1px";
+			document.forms["new_building"][input[i][1]].style.border = "red solid 2px";
 			error = true;
 		}
 	}
@@ -32,7 +50,7 @@ function validate(){
 	var zip = document.forms["new_building"]["zip"].value;
 	document.forms["new_building"]["zip"].style.border = "";
 	if((isNaN(zip)) || (zip == null) || (zip == "") || (zip.length != 5)){
-		document.forms["new_building"]["zip"].style.border = "red solid 1px";
+		document.forms["new_building"]["zip"].style.border = "red solid 2px";
 		error = true;
 	}
 
@@ -43,7 +61,7 @@ function validate(){
 }
 </script>
 
-<form name="new_building" onsubmit="return validate()">
+<form name="new_building" action="./" method="post" onsubmit="return validate()">
     <div class="row">
     	<span style="color:red">*</span> Required Fields<br><br>
         <div class="span12">
@@ -71,6 +89,7 @@ function validate(){
             <label for="zip"><span style="color:red">*</span> Zip<br>
                 <input type="text" class="span3" name="zip">
             </label>
+            <input type="hidden" name="submitNewBuilding" value="true">
         </div>
     </div>
     <div class="row">
