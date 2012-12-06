@@ -51,11 +51,11 @@ $_SESSION['S3']=false;
                     data-parent="#accordionContainer"
                     href="#collapse1">
                         <div class="row">
-                            <h2 class="span8 offset3">System Hardware Listings1</h2>
+                            <h2 class="span8 offset3">System Hardware Listings</h2>
                         </div>
                     </a>
                 </div>
-                <div id="collapse1" class="accordion-body collapse">
+                <div id="collapse1" class="accordion-body collapse <?php echo $_SESSION['S1']?'in':'';  ?>">
                     <div class="accordion-inner">
                         <div class="row">
                             <div class="span12">
@@ -92,7 +92,7 @@ $_SESSION['S3']=false;
                         </div>
                     </a>
                 </div>
-                <div id="collapse2" class="accordion-body collapse">
+                <div id="collapse2" class="accordion-body collapse <?php echo $_SESSION['S2']?'in':'';  ?>">
                     <div class="accordion-inner">
                         <div class="row">
                             <div class="span12">
@@ -132,7 +132,7 @@ $_SESSION['S3']=false;
                         </div>
                     </a>
                 </div>
-                <div id="collapse3" class="accordion-body collapse">
+                <div id="collapse3" class="accordion-body collapse <?php echo $_SESSION['S3']?'in':'';  ?>">
                     <div class="accordion-inner">
                         <div class="row">
                             <div class="span12">
