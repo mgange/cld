@@ -36,10 +36,16 @@ $result = $db -> fetchRow($query);
 $AnalogMuxEnabled = $result['AnalogMuxEnabled'];
 
 $query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent
-        FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 ) 
-        AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 ) 
+        FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
+        AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
         AND SysID = 0 AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
 $sysMap = $db -> fetchAll($query);
+
+$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent
+        FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
+        AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
+        AND SysID = " . $SysId . " AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+$sysMapUnique = $db -> fetchAll($query);
 
 //require_once('../../includes/header.php');
 
@@ -131,9 +137,16 @@ $sysMap = $db -> fetchAll($query);
     <hr>
 <?php
     $sysGroup = 0;
-    //pprint($_SESSION);
-	foreach ($sysMap as $resultRow) {
-       if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){
+
+	foreach ($sysMap as $resultRow){
+        //check for uniques and use if necessary
+        foreach($sysMapUnique as $uniqueResult){
+                if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))
+                    && (!strcasecmp($uniqueResult['SysGroup'],$resultRow['SysGroup']))){
+                    $resultRow = $uniqueResult;
+                }
+        }
+        if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){
             if($sysGroup != $resultRow['SysGroup']){
                 if($sysGroup != 0) echo "<hr>";
                 $sysGroup = $resultRow['SysGroup'];
