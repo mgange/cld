@@ -118,8 +118,7 @@ if(isset($_POST['submitSensorMap'])){
       for($i=1;$i<count($result);$i++) $query .= (isset($result[$i]) ? "'" . $result[$i] . "', " : "NULL, ");
       //remove last , with )
       $query = substr_replace($query,")",strlen($query) - 2);
-    echo $query;
-      //if($db -> execute($query, $bind)) $lastinsert = $db -> lastInsertId();
+      if($db -> execute($query, $bind)) $lastinsert = $db -> lastInsertId();
       //grab system info
       $query = "SELECT DAMID,PlatformID,Configuration FROM SystemConfig WHERE SysID = " . $_SESSION['SysID'];
       $result = $db -> fetchRow($query);
@@ -129,14 +128,13 @@ if(isset($_POST['submitSensorMap'])){
       $bind[':DAMID'] = $result['DAMID'];
       $bind[':platformID'] = $result['PlatformID'];
       $bind[':config'] = $result['Configuration'];
-      die($query);
       $bind[':hiValue'] = $_POST[$hiValue];
       $bind[':loValue'] = $_POST[$loValue];
       $bind[':percent'] = $_POST[$percentValue];
-      $bind[':active'] = $_POST[$activeValue];
+      $bind[':active'] = (($_POST[$activeValue] == true) ? "1" : "0");
       $bind[':address'] = $_POST[$addressValue];
       $bind[':model'] = $_POST[$modelValue];
-      //$db -> execute($query, $bind);
+      $db -> execute($query, $bind);
     }
   }
 }
@@ -240,7 +238,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
          
      <?php } ?>
 <!-- SENSOR MAPPING INFORMATION  -->
-  <?php //if ($_SESSION['SystemComp'] == true) {    ?>
+  <?php if ($_SESSION['SystemComp'] == true) {    ?>
          <div class="accordion-group" style="border:0px">
              <div class="accordion-heading">
                 <a class="accordion-toggle"
@@ -299,14 +297,14 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 </div>
              </div>
           </div>
-     <?php //  } else {?>
+     <?php   } else {?>
 
             <div class="row"><font color="grey">
                 <h2 class="span8 offset3">&nbsp;&nbsp;Sensor Mapping</h2>
                </font>
             </div>
 
-     <?php //} ?>
+     <?php } ?>
 <!-- STATUS DASHBOARD MAPPING  -->
 
   <?php   if ($buildingFlag == true && $sensorFlag== true) {    ?>

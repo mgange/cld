@@ -12,20 +12,17 @@ checkSystemSet($config);
 require_once('../includes/header.php');
 
 $db = new db($config);
-$SysID=$_SESSION["SysID"];
-// first get DAMID for this System from SysMap
-$query = "SELECT * FROM SystemConfig, buildings WHERE
-buildings.buildingID=SystemConfig.BuildingID AND SystemConfig.SysID=".$SysID;
-$sysDAMID = $db -> fetchRow($query);
 
-$SysName=$sysDAMID[SysName];
+$SysID = $_SESSION['SysID'];
+$query = "SELECT SysName FROM SystemConfig WHERE SysID = " . $SysID;
+$sysConfig = $db -> fetchRow($query);
 
-$query = "UPDATE System_Alarms_Status SET Alarm_Duration = TIMEDIFF( NOW() , TimeStamp_Start ) WHERE Alarm_Active = 1";
+$query = "UPDATE Alarms_Active SET Alarm_Duration = TIMEDIFF( NOW() , TimeStamp_Start )";
 $db -> execute($query);
 ?>
 
         <div class="row">
-            <h1 class="span10 offset2">Alarms - <span class="building-name">   System - <?php  echo $SysName; ?></span></h1>
+            <h1 class="span10 offset2">Alarms - <span class="building-name">   System - <?=$sysConfig['SysName']?></span></h1>
         </div>
         <?php
             if(!isset($_GET['id'])){
@@ -33,18 +30,18 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "datetime":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND SysID = " . $SysID;
+                }else $query = "SELECT * FROM Alarms_Active WHERE Alarm_Duration > '00:05:00' AND SysID = " . $SysID;
                 $results = $db -> fetchAll($query);
                 if(!empty($results)){
         ?>
@@ -74,7 +71,7 @@ $db -> execute($query);
                 <tr>
                     <td><?=$date?></td>
                     <td><?=$time?></td>
-                    <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><a href="../status/?id=<?=$value['HeadID']?>"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></a></span></td>
+                    <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><a href="../status/?id=<?=$value['HeadID_Last']?>"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></a></span></td>
                     <td><?php
                         switch($value['SourceID']){
                             case 0:
@@ -119,26 +116,29 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "started":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "ended":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID . " group BY TimeStamp_End " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY TimeStamp_End " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 0 AND SysID = " . $SysID;
+                }else $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID;
+                //ini_set('memory_limit','120M');
                 $results = $db -> fetchAll($query);
-                if(!empty($results)){
         ?>
         <div class="row">
             <h3 class="span12">Archive (<?=$db -> numRows($query)?> Total)<span style="font-size:75%;float:right"><a href="./">Active</a></span></h3>
+            <?php
+                if(!empty($results)){
+            ?>
             <table class="table span12">
                 <tr class="alarm-header">
                     <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=started&by=asc" : "?id=a&group=started&by=desc"?>">Started</a> <?=($_GET['group'] == "started") ? $arrow : ''?></th>
@@ -166,7 +166,7 @@ $db -> execute($query);
                 <tr>
                     <td><?=$dateStart . "<br>" . $timeStart?></td>
                     <td><?=$dateEnd . "<br>" . $timeEnd?></td>
-                    <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><a href="../status/?id=<?=$value['HeadID']?>"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></a></span></td>
+                    <td><?=$alarm['Description']?><span style="float:right;padding-right:20px"><a href="../status/?id=<?=$value['HeadID_Last']?>"><?=($value['Alarm_Level']==1) ? "<img src=\"../img/alarm_Red.png\" />" : "<img src=\"../img/alarm_Yellow.png\" />"?></a></span></td>
                     <td><?php
                         switch($value['SourceID']){
                             case 0:
@@ -197,11 +197,11 @@ $db -> execute($query);
                     }//end of foreach
                 ?>
             </table>
-        </div>
-        <?php
+                    <?php
                 }//end of if(!empty($results))
-            }
+            }//end of elseif(isset($_GET['id']) && ($_GET['id'] == 'a'))
         ?>
+        </div>
 
 <?php
 require_once('../includes/footer.php');
