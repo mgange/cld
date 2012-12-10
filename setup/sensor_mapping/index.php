@@ -121,6 +121,11 @@ $sysMapUnique = $db -> fetchAll($query);
             mydiv.appendChild(newcontent.firstChild);
         }
     }
+    function toggleCheckbox(Recnum){
+        var element = document.getElementsByName("Active" + Recnum)[0];
+        if(element.checked == true) element.checked = false;
+        else element.checked = true;
+    }
 </script>
 
 <form name="sensorMapping<?=$sourceID?>" action="./" method="post" onsubmit="return noErrors('sensorMapping<?=$sourceID?>')">
@@ -137,7 +142,6 @@ $sysMapUnique = $db -> fetchAll($query);
     <hr>
 <?php
     $sysGroup = 0;
-
 	foreach ($sysMap as $resultRow){
         //check for uniques and use if necessary
         foreach($sysMapUnique as $uniqueResult){
@@ -179,10 +183,26 @@ $sysMapUnique = $db -> fetchAll($query);
                     break;
             }
 ?>
-	<div class="row over">
+	<div class="row over" onclick="toggleCheckbox(<?=$resultRow['Recnum']?>)">
 		<p class="span2" style="width:130px;margin-top:10px"><strong><?=(!strncasecmp($resultRow['SensorColName'],"power",5)) ? substr($resultRow['SensorName'],2) : $resultRow['SensorName']?></strong></p>
-        <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorModel']) && (strncasecmp($resultRow['SensorColName'],"power",5)) && ($resultRow['SensorType'] != 7)){ ?><input type="text" style="max-width:50%" name="Model<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorModel']?>"><?php } ?></p>
-        <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorAddress']) && (strncasecmp($resultRow['SensorColName'],"power",5)) && ($resultRow['SensorType'] != 7)){ ?><input type="text" style="max-width:50%" name="Address<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorAddress']?>"><?php } ?></p>
+        <p class="span1" style="margin-top:10px;text-align:absolute">
+        <?php
+            if(isset($resultRow['SensorModel'])){
+                if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
+                else $inputType = "hidden";
+                echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Model" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorModel'] . "\">";
+            }
+        ?>
+        </p>
+        <p class="span1" style="margin-top:10px;text-align:absolute">
+        <?php
+            if(isset($resultRow['SensorAddress'])){
+                if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
+                else $inputType = "hidden";
+                echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Address" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorAddress'] . "\">";
+            }
+        ?>
+        </p>
         <p class="span2" style="margin-top:10px"><?php
             //Sensor Channel
             if(!strncasecmp($resultRow['SensorColName'],"senchan",7)){
@@ -259,15 +279,6 @@ $sysMapUnique = $db -> fetchAll($query);
             }
         ?></p>
         <?php
-            $query = "SELECT Recnum,AlarmUpLimit,AlarmLoLimit,AlertPercent FROM SysMap WHERE SysID = " . $SysId . " AND SourceID = " . $sourceID . " AND SensorColName = '" . $resultRow['SensorColName'] . "'";
-            $exists = $db -> numRows($query);
-            if($exists){
-                $result = $db -> fetchRow($query);
-                $resultRow['Recnum'] = $result['Recnum'];
-                $resultRow['AlarmLoLimit'] = $result['AlarmLoLimit'];
-                $resultRow['AlarmUpLimit'] = $result['AlarmUpLimit'];
-                $resultRow['AlertPercent'] = $result['AlertPercent'];
-            }
             $loValue = "Lo" . $resultRow['Recnum'];
             $hiValue = "Hi" . $resultRow['Recnum'];
             $percentValue = "Percent" . $resultRow['Recnum'];
@@ -287,7 +298,6 @@ $sysMapUnique = $db -> fetchAll($query);
         }
 	}
 ?>
-    <input type="hidden" name="submitSensorMap" value="true">
     <div class="row">
         <br>
         <div class="span10 offset1">
@@ -304,4 +314,5 @@ $sysMapUnique = $db -> fetchAll($query);
     <div name="sensorMapping<?=$sourceID?>onChange"></div>
 	<input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
     <input type="hidden" name="sourceID" value="<?=$sourceID?>">
+    <input type="hidden" name="submitSensorMap" value="true">
 </form>

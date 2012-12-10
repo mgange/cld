@@ -145,22 +145,19 @@ if(!$update){
     $NumofPowerSel = $sysConfig['NumofPowers'];
 }
 
-
 if(isset($_POST['submitInfo']) and $CumErr==false) {
-  //first look for existing record
-  $query="Select SysID from SystemConfig where SysID=".$_SESSION['NewID'];
-
   //Exists
-  if($db -> numRows($query) > 0) {
+  if(isset($_POST['systemID'])){
     $Upquery = "UPDATE SystemConfig SET
     SysName ='".$SysNameSel."',SystemDescription='".SysDescrpSel."',BuildingID=".$_SESSION['buildingID'].",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
     Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger=".$HeatExchangerSel.",InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
     Maintainer='".$MaintainerSel."',NumofTherms =".$NumofThermsSel.",NumofPowers =". $NumofPowerSel.",NumofRSM =". $NumofRSMSSel .
-    " WHERE SysID =". $_SESSION['NewID'];
-    // echo($Upquery) ;
+    " WHERE SysID =". $_SESSION['SysID'];
+
     try {
       $response = $db -> execute($Upquery);
       $DBUpdateok=$response;
+      echo "<script type=\"text/javascript\">window.location.reload()</script>";
     }catch (Exception $e){
       throw new Exception;
       echo  "Error = ",0,$e;
@@ -355,6 +352,7 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
     </div>
  </div>
     <input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
+    <?php if($update){ ?><input type="hidden" name="systemID" value="<?=$_SESSION['SysID']?>"><?php } ?>
 </form>
 
 <?php

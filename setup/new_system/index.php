@@ -341,14 +341,15 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
 
             </div>
 -->
-  <?php //  } else {?>
-
+  <?php   //} else {?>
+<!--
               <div class="row"><font color="grey">
                                 <h2 class="span8 offset3">&nbsp;&nbsp;Status Dashboard</h2>
                                </font>
                             </div>
+-->
+     <?php //} ?>
 
-     <?php// } ?>
 <?php
   require_once('../../includes/footer.php');
 ?>

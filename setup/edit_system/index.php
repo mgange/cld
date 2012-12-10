@@ -37,9 +37,18 @@ if(isset($_POST['submitInfo'])){
 
 //Sensor Mapping
 if(isset($_POST['submitSensorMap'])){
-  $query = "SELECT Recnum,SensorColName,SensorName,SysGroup FROM SysMap WHERE SourceID = " . $_POST['sourceID'];
+  $query = "SELECT Recnum,SysID,SensorColName,SensorName,SysGroup FROM SysMap WHERE SysID = 0 AND SourceID = " . $_POST['sourceID'];
   $sysMap = $db -> fetchAll($query);
+  $query = "SELECT Recnum,SysID,SensorColName,SensorName,SysGroup FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SourceID = " . $_POST['sourceID'];
+  $sysMapUnique = $db -> fetchAll($query);
   foreach ($sysMap as $resultRow){       //check to see values are valied
+    //check for uniques and use if necessary
+    foreach($sysMapUnique as $uniqueResult){
+            if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))
+                && (!strcasecmp($uniqueResult['SysGroup'],$resultRow['SysGroup']))){
+                $resultRow = $uniqueResult;
+            }
+    }
     $loValue = "Lo" . $resultRow['Recnum'];
     $hiValue = "Hi" . $resultRow['Recnum'];
     $percentValue = "Percent" . $resultRow['Recnum'];
@@ -61,29 +70,33 @@ if(isset($_POST['submitSensorMap'])){
   }
   if(!isset($mappingErr)){
     foreach ($sysMap as $resultRow){
-      $loValue = "Lo" . $resultRow['Recnum'];
-      $hiValue = "Hi" . $resultRow['Recnum'];
-      $percentValue = "Percent" . $resultRow['Recnum'];
-      $activeValue = "Active" . $resultRow['Recnum'];
-      $addressValue = "Address" . $resultRow['Recnum'];
-      $modelValue = "Model" . $resultRow['Recnum'];
-      $changeFlag = "Change" . $resultRow['Recnum'];
-      if(!$_POST[$changeFlag]) continue;
-      //check if entry already exists by changing it back
-      $query = "SELECT Recnum FROM SysMap WHERE SysID = 0 AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorModel " . (isset($_POST[$modelValue]) ? "= " . $_POST[$modelValue] : "IS NULL") .
+        //check for uniques and use if necessary
+        foreach($sysMapUnique as $uniqueResult){
+                if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))
+                    && (!strcasecmp($uniqueResult['SysGroup'],$resultRow['SysGroup']))){
+                    $resultRow = $uniqueResult;
+                }
+        }
+        $loValue = "Lo" . $resultRow['Recnum'];
+        $hiValue = "Hi" . $resultRow['Recnum'];
+        $percentValue = "Percent" . $resultRow['Recnum'];
+        $activeValue = "Active" . $resultRow['Recnum'];
+        $addressValue = "Address" . $resultRow['Recnum'];
+        $modelValue = "Model" . $resultRow['Recnum'];
+        $changeFlag = "Change" . $resultRow['Recnum'];
+        if(!$_POST[$changeFlag]) continue;
+        //check if entry already exists by changing it back
+        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $resultRow['SysID' ] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorModel " . (isset($_POST[$modelValue]) ? "= " . $_POST[$modelValue] : "IS NULL") .
               " AND SensorAddress " . (isset($_POST[$addressValue]) ? "= " . $_POST[$addressValue] : "IS NULL") . " AND SensorActive = " . ($_POST[$activeValue] == on ? "1" : "0") .
               " AND AlarmUpLimit " . (isset($_POST[$hiValue]) ? "= " . $_POST[$hiValue] : "IS NULL") . " AND AlarmLoLimit " . (isset($_POST[$loValue]) ? "= " . $_POST[$loValue] : "IS NULL") .
               " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL") . " AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
-      $exists = $db ->numRows($query);
-      if($exists) continue;
-      //check if unique value exists to determine update or insert
-      $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
-      $exists = $db -> numRows($query);
-      if($exists){
-        continue;
-        $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
-        //*** TODO: unique updates do not work, check that recnum is correct
-      }else{
+        $exists = $db ->numRows($query);
+        if($exists) continue;
+        //check if unique value exists to determine update or insert
+        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        $exists = $db -> numRows($query);
+        if($exists) $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        else{
           //duplicate row first then update
           $query = "SELECT * FROM SysMap WHERE Recnum = " . $resultRow['Recnum'];
           $sth = $db -> prepare($query);
@@ -103,14 +116,14 @@ if(isset($_POST['submitSensorMap'])){
           $bind[':DAMID'] = $result['DAMID'];
           $bind[':platformID'] = $result['PlatformID'];
           $bind[':config'] = $result['Configuration'];
-      }
-      $bind[':hiValue'] = $_POST[$hiValue];
-      $bind[':loValue'] = $_POST[$loValue];
-      $bind[':percent'] = $_POST[$percentValue];
-      $bind[':active'] = (($_POST[$activeValue] == true) ? "1" : "0");
-      $bind[':address'] = $_POST[$addressValue];
-      $bind[':model'] = $_POST[$modelValue];
-      $db -> execute($query, $bind);
+        }
+        $bind[':hiValue'] = $_POST[$hiValue];
+        $bind[':loValue'] = $_POST[$loValue];
+        $bind[':percent'] = $_POST[$percentValue];
+        $bind[':active'] = (isset($_POST[$activeValue]) ? "1" : "0");
+        $bind[':address'] = $_POST[$addressValue];
+        $bind[':model'] = $_POST[$modelValue];
+        $db -> execute($query, $bind);
     }
   }
 }
@@ -140,9 +153,9 @@ if(isset($buildingID)){
 
 //set system id
 if(isset($_POST['systemID'])){
-  $systemID = $_POST['systemID'];
-  $_SESSION['SysID'] = $systemID;
-}else if(isset($_SESSION['SysID'])) $systemID = $_SESSION['SysID'];
+    $systemID = $_POST['systemID'];
+    $_SESSION['SysID'] = $systemID;
+}elseif(isset($_SESSION['SysID'])) $systemID = $_SESSION['SysID'];
 
 require_once('../../includes/header.php');
 
@@ -292,7 +305,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
     <?php }else{ ?>
         <div class="row">
             <font color="grey">
-                <h2 class="span8 offset3">&nbsp;&nbsp;System Information</h2>
+                <h2 class="span8 offset3">&nbsp;&nbsp;Sensor Mapping</h2>
             </font>
         </div>
     <?php } ?>
@@ -322,12 +335,13 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 </div>
             </div>
         </div>
--->
+
         <div class="row">
             <font color="grey">
                 <h2 class="span8 offset3">&nbsp;&nbsp;Status Dashboard</h2>
             </font>
         </div>
+    -->
 <?php
   require_once('../../includes/footer.php');
 ?>

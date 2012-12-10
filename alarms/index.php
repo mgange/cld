@@ -50,11 +50,11 @@ $db -> execute($query);
             <table class="table span12">
                 <tr class="alarm-header">
                     <th>Date</th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=datetime&by=asc" : "?group=datetime&by=desc"?>">Time</a> <?=($_GET['group'] == "datetime") ? $arrow : ''?></th>
+                    <th><a title="Sort By Time" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=datetime&by=asc" : "?group=datetime&by=desc"?>">Time</a> <?=($_GET['group'] == "datetime") ? $arrow : ''?></th>
                     <th>Description</th>
                     <th>Zone</th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=sensor&by=asc" : "?group=sensor&by=desc"?>">Sensor</a> <?=($_GET['group'] == "sensor") ? $arrow : ''?></th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=duration&by=asc" : "?group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=($_GET['group'] == "duration") ? $arrow : ''?></th>
+                    <th><a title="Sort By Sensor" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=sensor&by=asc" : "?group=sensor&by=desc"?>">Sensor</a> <?=($_GET['group'] == "sensor") ? $arrow : ''?></th>
+                    <th><a title="Sort By Duration" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=duration&by=asc" : "?group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=($_GET['group'] == "duration") ? $arrow : ''?></th>
                     <th>Resolution</th>
                     <th>Notes</th>
                     <th>Email Sent</th>
@@ -141,12 +141,12 @@ $db -> execute($query);
             ?>
             <table class="table span12">
                 <tr class="alarm-header">
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=started&by=asc" : "?id=a&group=started&by=desc"?>">Started</a> <?=($_GET['group'] == "started") ? $arrow : ''?></th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=ended&by=asc" : "?id=a&group=ended&by=desc"?>">Ended</a> <?=($_GET['group'] == "ended") ? $arrow : ''?></th>
+                    <th><a title="Sort By Time Started" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=started&by=asc" : "?id=a&group=started&by=desc"?>">Started</a> <?=($_GET['group'] == "started") ? $arrow : ''?></th>
+                    <th><a title="Sort By Time Ended" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=ended&by=asc" : "?id=a&group=ended&by=desc"?>">Ended</a> <?=($_GET['group'] == "ended") ? $arrow : ''?></th>
                     <th>Description</th>
                     <th>Zone</th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=sensor&by=asc" : "?id=a&group=sensor&by=desc"?>">Sensor</a> <?=($_GET['group'] == "sensor") ? $arrow : ''?></th>
-                    <th><a href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=duration&by=asc" : "?id=a&group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=($_GET['group'] == "duration") ? $arrow : ''?></th>
+                    <th><a title="Sort By Sensor" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=sensor&by=asc" : "?id=a&group=sensor&by=desc"?>">Sensor</a> <?=($_GET['group'] == "sensor") ? $arrow : ''?></th>
+                    <th><a title="Sort By Duration" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?id=a&group=duration&by=asc" : "?id=a&group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=($_GET['group'] == "duration") ? $arrow : ''?></th>
                     <th>Resolution</th>
                     <th>Notes</th>
                     <th>Email Sent</th>
