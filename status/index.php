@@ -110,7 +110,7 @@ require_once('../includes/header.php');
      if (isset($zone)) {
          $sysStatus1 = $db -> fetchRow($query1);
          $Row = $db -> numRows($query1);
-    
+
           }
  //    sStatus4 = $db -> fetchRow($query4);
 
@@ -171,11 +171,11 @@ require_once('../includes/header.php');
 
      }
     // constants for label formatting
-     $lf="<br>";  
+     $lf="<br>";
      $cr=chr(13);  // line feed for alternate titles
-     
+
    // fixed fields and labels for this page
-    
+
      $systemInfo=$SysName." - ". $SysLocation;
      $systemDesc=$sysDAMID[SystemDescription].$lf.$sysDAMID[HeatExchangeUnit].$lf.
                  "Location-".$sysDAMID[LocationMainSystem].$lf."Main DAMID-".$sysDAMID[DAMID].$lf.
@@ -197,9 +197,9 @@ require_once('../includes/header.php');
      $SStatus[13]=1;
      $ValA[13]=$systemDesc;
      $LblA[29]="ThermStat Mode";
-     
+
      $LblA[38]="System Status";
-     
+
   //   $LblA[40]="System COP";
    //  $LblA[46]="Heat Pump COP";
 
@@ -216,11 +216,11 @@ require_once('../includes/header.php');
     // Loop 0 - default data from main also covers Main and common values from main for RSM display
     // Loop 1 - unique data from Main for a given system
     // Loop 2 - RSM Defaults   field with RSM reference from source 1 and  source 0,4 in default system (ie Flow)
-    // Loop 3 - RSM Uniques  fields for a given system 
-    
+    // Loop 3 - RSM Uniques  fields for a given system
+
     // first calc number of required loops   2 passes only for main 4 for all RSMs
    if ($zone>=1) {$imax=4;} else {$imax=2;}
- 
+
    for ($i=0;$i<$imax;$i++)
    {
         $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
@@ -231,7 +231,7 @@ require_once('../includes/header.php');
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
                         WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID= 0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId";
-   
+
       $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
@@ -241,36 +241,36 @@ require_once('../includes/header.php');
                        where SysMap.SensorRefName = WebRefTable.SensorName and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and WebSubPageName='RSM' order by WebPagePosNo";
 
-  
+
       switch ($i)
       {
           case 0 : $Forvar= $db -> fetchAll($DeftMapqueryZ0);
               $rec0 = $db -> numRows($DeftMapqueryZ0);
-                 
+
               break;
           case 1 : $Forvar= $db -> fetchAll($UnqiMapqueryZ0);
               $rec1 = $db -> numRows($UnqiMapqueryZ0);
-        
+
               break;
           case 2 : $Forvar= $db -> fetchAll($DeftMapqueryZ1);
               $rec2 = $db -> numRows($DeftMapqueryZ1);
-     
+
               break;
           case 3 : $Forvar= $db -> fetchAll($UnqiMapqueryZ1);
               $rec3 = $db -> numRows($UnqiMapqueryZ1);
-       
+
               break;
       }
- 
-     
+
+
      foreach($Forvar as $resultRow)
-         { 
+         {
          $SID=$resultRow[SourceID];
-  
-   //     if (($i<=1  and  ($SID==0 or $SID==4 or $SID==5))) 
+
+   //     if (($i<=1  and  ($SID==0 or $SID==4 or $SID==5)))
       //  {
             $GetValue="";
-           
+
             $SUnit=UnitLabel($resultRow[SensorUnits]);
             $SPos= $resultRow[WebPagePosNo];
             $LblA[$SPos]=$resultRow[SensorLabel]." ".$SUnit."<BR> ";
@@ -279,8 +279,8 @@ require_once('../includes/header.php');
             $AlertFactor[$SPos]=$resultRow[AlertPercent];
             $SStatus[$SPos]=$resultRow[SensorStatus];
             $ShwA[$SPos]=((!$resultRow[Inhibit]) and ($resultRow[SensorActive]==1));
-           
-           
+
+
        //   echo($SPos."--".$resultRow[SensorStatus]."--".$ShwA[$SPos]."|");
             $ForA[$SPos]=$resultRow[Format];
             // get value and process
@@ -290,34 +290,34 @@ require_once('../includes/header.php');
             if ($UplmtA[$SPos]!=NULL) {$TUlim="Up Limit: ".$UplmtA[$SPos].$cr;} else {$TUlim="";}
             if ($resultRow[SourceID] == 5) {$DataTable="SensorCalc";} else {$DataTable="SourceData".$resultRow[SourceID];}
             if ($resultRow[SourceID]== 4) {$Address="ModBus Addr:".$resultRow[SensorAddress].$cr;} else {$Address="";}
-            
-            
+
+
           switch ($resultRow[SensorStatus])
             {
                 case 0: $SStat="Status: Inhibited";
                         break;
                 case 1: $SStat="Status: Active Alarmed";
                         break;
-                case 2: $SStat="Status: Active Not Alarmed";  
+                case 2: $SStat="Status: Active Not Alarmed";
                         break;
-                case 3: $SStat="Status: Active Alarm Off";  
-                        break;    
-                case 4: $SStat="Status: Inhibited For Maintenance";   
+                case 3: $SStat="Status: Active Alarm Off";
+                        break;
+                case 4: $SStat="Status: Inhibited For Maintenance";
                         break;
                 default : $SStat="Status: Undefined";
             }
-            
-       
-            
+
+
+
             $Title[$SPos]=" Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim.$cr.$SStat;
-           
+
             switch ($resultRow[SourceID])
-            {   
+            {
                 case 0: $GetValue=$sysStatus0[$DBCol];
 
                     break;
                 case 1: $GetValue=$sysStatus1[$DBCol];
- 
+
                     break;
                 case 4:
                       foreach ($sysStatus4 as $modrow)
@@ -328,16 +328,22 @@ require_once('../includes/header.php');
                 }
                     break;
                 case 5: $GetValue=$sysCalc[$DBCol];
-                    
+                    break;
+                case 99: $GetValue=$sysCalc[$DBCol];
+                    break;
+                //default covers all RSMS
+                default : $GetValue=$sysStatus1[$DBCol];
                     break;
             }
              // format calls here
              if ($ForA[$SPos]==0 )
              {
 
-                 $ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}
+              // $ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}  senadjfactor added to parser therefore not required here 12/8/12
+               $ValA[$SPos]=number_format($GetValue/$resultRow[SenDBFactor],2);
+             }
                  else {$ValA[$SPos]=$GetValue;}
-           }         
+           }
        //  }
    }
 
@@ -352,23 +358,23 @@ require_once('../includes/header.php');
    $ValA[24]=Emerglogic($ValA[24],$EM);
 
    if ($EM==1) {$ValA[25]=1;}
-   if ($ShwA[21] and $ShwA[22]and $ShwA[23] and $ShwA[24] and $ShwA[25] ) 
-        { 
-         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);           
-        } 
-        else 
+   if ($ShwA[21] and $ShwA[22]and $ShwA[23] and $ShwA[24] and $ShwA[25] )
+        {
+         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);
+        }
+        else
         {
          $ValA[29]="No Thermostat on RSM";
         }
-   
+
    $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34],false);
    $ValA[39]="";
  // cop reformat if null
- if ($ValA[40]=="") {$ValA[40]="--";} 
- if ($ValA[46]=="") {$ValA[46]="--";} 
+ if ($ValA[40]=="") {$ValA[40]="--";}
+ if ($ValA[46]=="") {$ValA[46]="--";}
 
 
-    
+
 
 // code for system image selection here?
        $exchangermode = 0;
@@ -392,7 +398,7 @@ require_once('../includes/header.php');
          // Hide display
         if ($show != true or $show ==0) {$EngHide="hidden";} else {$EngHide="";}
      //echo($label."  ".$EngHide."<BR>");
-               
+
          // set background color based on limits
         $BackColor=lightgreen;
 
@@ -401,21 +407,21 @@ require_once('../includes/header.php');
         // yellow alert lo limit
         if ( $lolimit!="" and ($value < ($lolimit+$alertdelta)))
            { $BackColor=yellow; }
-           
+
         // yellow alert up limit
-        // 
+        //
          if ($uplimit!="" and ($value > ($uplimit-$alertdelta)))
            { $BackColor=yellow; }
-           
+
         // red alert lo limit
-         if ($lolimit==""  and ($value < $lolimit)) 
+         if ($lolimit==""  and ($value < $lolimit))
            { $BackColor=red;}
-          // red alert up limit 
+          // red alert up limit
          if ($uplimit!="" and ($value > $uplimit))
-           { $BackColor=red;}  
+           { $BackColor=red;}
 
          // no alerts
-        
+
         if (($lolimit=="")  and ($uplimit=="")) {$BackColor=lightblue;}
         if ($colorovride!="") {$BackColor=$colorovride;}
 
@@ -445,7 +451,7 @@ require_once('../includes/header.php');
 
          if ($size == "") {$size=1.2;}
 
-   
+
 
        $labypos=$ypos-20;  // set label position above value
        $labxpos=$xpos+5;
@@ -527,10 +533,10 @@ require_once('../includes/header.php');
                     <img src="../status/image/WebClosedLoop.png" alt="Closed Loop">
                 </div>
                 <?php
-              
+
 
            function ColorOver($Stage)
-                { 
+                {
                    $Color="#FF8888";
                    switch ($Stage)
                    {   case "System Off": $Color="#FFFFFF";
@@ -554,33 +560,33 @@ require_once('../includes/header.php');
                    }
              return $Color;
                 }
-                 
-                
+
+
 
            for ($i=0;$i<$Pageelem+1;$i++)
            {
                // system status color override
-          
+
                if ($LblA[$i]=="ThermStat Mode" or $LblA[$i]=="System Status")
                      {
                          $colorovride= ColorOver($ValA[$i]);
-                        
+
                      }
                      else
-                     { 
+                     {
                          $colorovride="";
-                     }  
-                     
+                     }
+
  // determine current status of sensors display only when status page is on current status
                 $alerttemp=false;
                 if (($SStatus[$i]%3)==0 and $CurrFlag==true)  // display x on mode 0 and 3
                 {
                     $alerttemp=true;
                 }
-                     
-                
+
+
                  DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$AlertFactor[$i],$SizA[$i],$ShwA[$i],$ForA[$i],$Title[$i],$colorovride,$alerttemp);
-                
+
            }
 
 
