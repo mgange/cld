@@ -66,21 +66,95 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
+if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
+    $zone = 'RSM';
+}else{
+    $zone = 'Main';
+}
+
+/* Get the default table.column values for the values to be graphed */
+$query = "SELECT
+            SysMap.SourceID,            SysMap.SensorColName,
+            SysMap.SensorName,          SysMap.SensorRefName,
+            WebRefTable.SensorLabel
+          FROM SysMap, WebRefTable
+          WHERE (
+                (SysMap.SensorRefName = 'WaterIn'    AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'WaterOut'   AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'AirIn'      AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'AirOut'     AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'SysCOP'     AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'HPCOP'      AND WebRefTable.WebSubPageName = '$zone')
+               )
+            AND SysMap.SensorRefName = WebRefTable.SensorName
+        ";
+if($zone == 'Main') {
+$query .= "
+            AND SysMap.SourceID != 1
+            AND SysMap.SourceID != 2
+            AND SysMap.SourceID != 3
+    ";
+}
+
+$defaultSensors = $db->fetchAll($query . "AND DAMID = '000000000000'");
+
+/* Put all the defaults in an associative array */
+$sensors = array();
+foreach($defaultSensors as $sensor) {
+    $sensors[$sensor['SensorRefName']] = $sensor;
+}
+
+foreach($sensors as $key => $val) {
+    if($val['SourceID'] == 99) {
+        $sensors[$key]['Table'] = 'SensorCalc';
+    }else{
+        $sensors[$key]['Table'] = 'SourceData' . $sensors[$key]['SourceID'];
+    }
+}
+
+/* Get the custom table.column values specific to the current SysID */
+$systemSensors = $db->fetchAll($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
+/* Override the default table.column value if there is a custom value to replace it */
+foreach($sensors as $key=>$value) {
+    foreach($systemSensors as $custom) {
+        if($key == $custom['SensorRefName']) {
+            $sensors[$key] = $custom;
+        }
+    }
+}
+
+$tablesUsed = array('SourceData0'); // Start out with SourceData0 since I'll need it for DigIn* anyway
+foreach($sensors as $sensor) {
+    if(!in_array($sensor['Table'], $tablesUsed)) {
+        array_push($tablesUsed, $sensor['Table']);
+    }
+}
+
 // TODO(Geoff Young): use prepared statement
     $query = "SELECT DISTINCT
-     SourceHeader.Recnum,       SourceHeader.DateStamp,
-     SourceHeader.TimeStamp,    SourceData0.Senchan01,
-     SourceData0.Senchan03,     SourceData0.Senchan05,
-     SourceData0.Senchan06,     SourceData0.Senchan07,
-     SourceData0.FlowPress01,   SourceData0.FlowPress02,
-     SourceData0.DigIn01,       SourceData0.DigIn02,
-     SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05,
-     SensorCalc.CalcResult4,    SensorCalc.CalcResult5
-    FROM SourceHeader, SourceData0, SensorCalc";
+    SourceHeader.Recnum,       SensorCalc.DateStamp,
+    SensorCalc.TimeStamp,
+     ";
+foreach($sensors as $sensor) {
+     $query .= $sensor['Table'] . "." . $sensor['SensorColName'] . ",
+     ";
+}
+$query .="
+    SourceData0.DigIn01,       SourceData0.DigIn02,
+    SourceData0.DigIn03,       SourceData0.DigIn04,
+    SourceData0.DigIn05
+    FROM SourceHeader";
+foreach($tablesUsed as $table) {
+    $query .= ", " . $table;
+}
+$query .= "
+    WHERE 1";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
-    WHERE SourceHeader.DateStamp =  '" . $date . "'
+    AND SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
@@ -92,12 +166,13 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     ";
 }else{
     $query .= "
-    WHERE SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.Recnum = SensorCalc.HeadID
+    AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
-$query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
+$query .= "
+    ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
     LIMIT 0 , ";
 if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
     $query .= intval($_GET['range'])*120;
@@ -110,7 +185,7 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
  * backwards from the specified time. Now that it's selected array_reverse() is
  * used to correct the order for the graph.
  */
-$result           = array_reverse( $db -> fetchAll($query) );
+$result = array_reverse( $db -> fetchAll($query) );
 // $calcGroup2result = array_reverse( $db -> fetchAll($calcGroup2query) );
 
 // TODO(Geoff Young): divide only the sensors by 100
@@ -129,23 +204,11 @@ foreach($result as $val) {
     $Stamp[$val['Recnum']] .= date('M. j, Y', $dateTime);
 }
 
-// TODO(Geoff Young): Get this from the database instead
-$systemMap = array(
-    'Senchan01' => 'Water In',
-    'Senchan02' => 'Water In 2',
-    'Senchan03' => 'Water Out',
-    'Senchan04' => 'Water out 2',
-    'Senchan05' => 'Air In',
-    'Senchan06' => 'Air Out',
-    'Senchan07' => 'Outside',
-    'Senchan08' => 'Mech RT(Aux 1)',
-    'FlowPress01' => 'Flow',
-    'FlowPress02' => 'Pressure',
-    'FlowPress03' => 'Flow',
-    'FlowPress04' => 'Flow (RSM)',
-    'CalcResult4' => 'COP HP',
-    'CalcResult5' => 'COPTotal'
-);
+
+foreach($sensors as $sensor) {
+    $systemMap[$sensor['SensorColName']] = $sensor['SensorLabel'];
+}
+
 $statusIndex['System Off'] = array(
     'text' => 'System Off',
     'color' => 'rgba(255, 255, 255, 0)'
