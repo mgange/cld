@@ -35,17 +35,13 @@ foreach ($PDList as $row) {
 
 }
 */
-// check to see if this is a new system setup
- if (isset($_SESSION['SetUpNew'])) { $NewSystem=$_SESSION['SetUpNew'];} else {$NewSystem=false;}
- // if not a new system set up check to see if a system has been selected if not refers to choose system option
-if  ($NewSystem==false) {checkSystemSet($config);}
-// goes to home page if trying to set up new system without proper authorization
-if($_SESSION['authLevel'] < 3 && $NewSystem==false) {
-    gtfo($config);
-}
 
+checkSystemSet($config);
+// goes to home page if trying to set up new system without proper authorization
+//if($_SESSION['authLevel'] < 3 && $NewSystem==false) { //already in parent page
+    //gtfo($config);
+//}
 if(!$update){
-  //$_SESSION['BuildStart']=true;
   //clear session valuables for RSM etc
   $_SESSION['SetupRSM']=0;
   $_SESSION['SetupPwr']=0;
@@ -145,11 +141,11 @@ if(!$update){
     $NumofPowerSel = $sysConfig['NumofPowers'];
 }
 
-if(isset($_POST['submitInfo']) and $CumErr==false) {
+if(isset($_POST['submitInfo'])){// and $CumErr==false) {
   //Exists
   if(isset($_POST['systemID'])){
     $Upquery = "UPDATE SystemConfig SET
-    SysName ='".$SysNameSel."',SystemDescription='".SysDescrpSel."',BuildingID=".$_SESSION['buildingID'].",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
+    SysName ='".$SysNameSel."',SystemDescription='".SysDescrpSel."',BuildingID=".$buildingID.",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
     Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger=".$HeatExchangerSel.",InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
     Maintainer='".$MaintainerSel."',NumofTherms =".$NumofThermsSel.",NumofPowers =". $NumofPowerSel.",NumofRSM =". $NumofRSMSSel .
     " WHERE SysID =". $_SESSION['SysID'];
@@ -165,19 +161,19 @@ if(isset($_POST['submitInfo']) and $CumErr==false) {
   }else{ //New
     $Inquery = "Insert into SystemConfig (SysID,SysName,SystemDescription,BuildingID,PlatformID,DAMID,Systype,Configuration,HeatExchanger,LocationMainSystem,InstallDate,Installer,
     Maintainer,NumofTherms,NumofPowers,NumofRSM)
-    Values (".$_SESSION['NewID'].",'".$SysNameSel."','".$SysDescrpSel."',".$_SESSION['buildingID'].",".$PlatformIDSel.",'".$DAMIDSel."','".$SysTypeSel."',"
+    Values (".$_SESSION['NewID'].",'".$SysNameSel."','".$SysDescrpSel."',".$buildingID.",".$PlatformIDSel.",'".$DAMIDSel."','".$SysTypeSel."',"
     .$ConfigSel.",'".$HeatExchangerSel."','".$LocofMainSel."','".$InstallDateSel."','".$InstallerSel."','".$MaintainerSel."',"
     .$NumofThermsSel.",".$NumofPowerSel.",".$NumofRSMSSel.")";
 
     try {
       $response = $db -> execute($Inquery);
       $DBUpdateok=$response;
+    $_SESSION['SetupStep'] = 2;
     }catch (Exception $e){
       throw new Exception;
       echo  " Error = ",0,$e;
     }
   }
-  $_SESSION['SystemComp'] = true;
 }else{  // new system set up before a post only
     $Readonly=false;
     // first determine next available SYSID
@@ -221,9 +217,9 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
 
 
 
-            <label for="InstallDate">Install Date
+            <label for="InstallDate">Install Date<br>
                  <?php  if ($errflag[3]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter a valid Install Date</b></font>");} ?>
-                <input  name="InstallDate" type="text" class="span5" value="<?=$InstallDateSel?>" maxlength="10">
+                <input  name="InstallDate" type="text" class="span5 datepick" value="<?=$InstallDateSel?>" maxlength="10">
             </label>
 
             <label for="Maintainer">Maintainer
@@ -327,16 +323,13 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
 
                     if($DBUpdateok==true and $CumErr==false)   {
                         //echo("<font color='blue'><b> Update Successful <BR> Close and Proceed to Sensor Mapping</b></font>");
-                         $_SESSION['SystemComp']=true;
                          $_SESSION['SetupRSM']=$NumofRSMSSel;
                          $_SESSION['SetupPwr']=$NumofPowerSel;
                          $_SESSION['SetupTherm']=$NumofThermsSel;
-                         $_SESSION['SETSUBMIT']=true;
                     }
                     else
                     {
                          //echo("<font color='red'><b> Update Failed - Correct Errors and Resubmit</b></font>");
-                         $_SESSION['SystemComp']=false;
                          $_SESSION['SetupRSM']=0;
                          $_SESSION['SetupPwr']=0;
                          $_SESSION['SetupTherm']=0;
@@ -352,6 +345,7 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
     </div>
  </div>
     <input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
+    <input type="hidden" name="buildingID" value="<?=$buildingID?>">
     <?php if($update){ ?><input type="hidden" name="systemID" value="<?=$_SESSION['SysID']?>"><?php } ?>
 </form>
 

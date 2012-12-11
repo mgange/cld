@@ -41,29 +41,11 @@ if(isset($_POST['submitInfo'])){
     || ($_POST['LocofMain'] == "")
     || ($_POST['NumofRSMS'] == "") || ($_POST['NumofRSMS'] < 0) || ($_POST['NumofRSMS'] > 4)
     || ($_POST['NumofPower'] == "") || ($_POST['NumofPower'] < 0) || ($_POST['NumofPower'] > 7)){
-    $infoErr = true;
+    //$infoErr = true;
   }
 }
 
-if (isset($_SESSION['authLevel']) && intval($_SESSION['authLevel']) == 3)
-  if (isset($_SESSION['SetStep'])) {$SetNum=$_SESSION['SetStep'];} else {$SetStep=1;}
-
-
-if (isset($_SESSION['SystemStart'])) {$SystemStrtFlag=$_SESSION['SystemStart'];} else { $SystemStrtFlag=false;}
-$_SESSION['SystemStart']=$SystemStrtFlag;
-if (isset($_SESSION['SystemComp'])) {$SystemStrtFlag=$_SESSION['SystemComp'];} else { $SystemCompFlag=false;}
-$_SESSION['SystemComp']=$SystemCompFlag;
-
-if (isset($_SESSION['SetUpSensMap'])) {$MappingFlag=$_SESSION['SetUpSensMap'];} else { $MappingFlag=false;}
-if (isset($_SESSION['SetUpAlarm'])) {$AlarmFlag=$_SESSION['SetUpAlarm'];} else { $AlarmFlag=false;}
-if (isset($_SESSION['SetUpStatus'])) {$StatusFlag=$_SESSION['SetUpStatus'];} else { $StatusFlag=false;}
-if (isset($_SESSION['SetUpComp'])) {$CompFlag=$_SESSION['SetUpComp'];} else { $CompFlag=false;}
-switch($SetStep){
-    case 1: $BldColor="accordion-curstep";
-      break;
-    default: $BldColor="accordion-nocolor";
-}
-//Sesnor Mapping
+//Sensor Mapping
 if(isset($_POST['submitSensorMap'])){
   $query = "SELECT Recnum,SensorColName,SensorName FROM SysMap WHERE SourceID = " . $_POST['sourceID'];
   $sysMap = $db -> fetchAll($query);
@@ -103,12 +85,6 @@ if(isset($_POST['submitSensorMap'])){
               " AND AlarmUpLimit " . (isset($_POST[$hiValue]) ? "= " . $_POST[$hiValue] : "IS NULL") . " AND AlarmLoLimit " . (isset($_POST[$loValue]) ? "= " . $_POST[$loValue] : "IS NULL") . " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL");
       $exists = $db ->numRows($query);
       if($exists) continue;
-/*
-      only useful for modify, for new system everything should be a new record
-      $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "'";
-      $exists = $db -> numRows($query);
-      if($exists) $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "'";
-*/
       //duplicate row first then update
       $query = "SELECT * FROM SysMap WHERE Recnum = " . $resultRow['Recnum'];
       $sth = $db -> prepare($query);
@@ -136,16 +112,14 @@ if(isset($_POST['submitSensorMap'])){
       $bind[':model'] = $_POST[$modelValue];
       $db -> execute($query, $bind);
     }
+    $_SESSION['SetupStep'] = 3;
   }
 }
 
-if(isset($_POST['buildingID'])){
-  $buildingID = $_POST['buildingID'];
-  if($buildingID != "new") $_SESSION['buildingID'] = $buildingID;
-}else if(isset($_SESSION['buildingID'])) $buildingID = $_SESSION['buildingID'];
+if(isset($_POST['buildingID'])) $buildingID = $_POST['buildingID'];
 
 if(isset($buildingID)){
-  $_SESSION['SystemStart'] = true;
+  $_SESSION['SetupStep'] = 1;
   if($buildingID != "new"){
     $query = "SELECT buildingName FROM buildings WHERE buildingID = " . $buildingID . " LIMIT 1";
     $result = $db -> fetchRow($query);
@@ -197,7 +171,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
           <?php if($buildingID == "new") include('../new_building/index.php'); ?>
         </div>
   <!-- SYSTEM INFORMATION  -->
-   <?php   if ($_SESSION['SystemStart'] == true) {    ?>
+<?php if($_SESSION['SetupStep'] > 0){ ?>
          <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse"
@@ -207,7 +181,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                     data-parent="#accordion2"
                     href="#collapse1">
                             <div class="row">
-                                <h2 class="span8 offset3 <?//php echo($BldColor);?>">+ System Information <?php echo($_SESSION['SetUpBuild']);?></h2>
+                                <h2 class="span8 offset3">+ System Information</h2>
 
                             </div>
                 </a>
@@ -217,8 +191,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
 
                     <?php
                         if(isset($buildingID)){
-                          $_SESSION['SetUpNew']=true;
-                          $_SESSION['SystemStart']=true;
+                          $update = false;
                           include('../information/index.php');
                         }else echo "<span style='color:red'>Please Select A Building</span>";
                     ?>
@@ -226,19 +199,15 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 </div>
            </div>
         </div>
-             <?php   } else {?>
+<?php   } else {?>
 
             <div class="row"><font color="grey">
                 <h2 class="span8 offset3">&nbsp;&nbsp;System Information</h2>
                </font>
             </div>
-
-
-
-
-     <?php } ?>
+<?php } ?>
 <!-- SENSOR MAPPING INFORMATION  -->
-  <?php if ($_SESSION['SystemComp'] == true) {    ?>
+<?php if($_SESSION['SetupStep'] > 1){ ?>
          <div class="accordion-group" style="border:0px">
              <div class="accordion-heading">
                 <a class="accordion-toggle"
@@ -297,59 +266,32 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 </div>
              </div>
           </div>
-     <?php   } else {?>
+<?php   } else {?>
 
             <div class="row"><font color="grey">
                 <h2 class="span8 offset3">&nbsp;&nbsp;Sensor Mapping</h2>
                </font>
             </div>
-
-     <?php } ?>
-<!-- STATUS DASHBOARD MAPPING  -->
-  <?php   //if ($buildingFlag == true && $sensorFlag== true) {    ?>
-
-<!-- Disabled
-<div class="accordion-group">
-             <div class="accordion-heading">
+<?php } ?>
+<!-- MAINTENANCE  -->
+<?php if($_SESSION['SetupStep'] > 2){ ?>
+        <div class="accordion-group" style="border:0px">
+            <div class="accordion-heading">
                 <a class="accordion-toggle"
-                    data-toggle="collapse"
-                    data-parent="#accordion2"
-                    href="#collapse4">
-                            <div class="row">
-                                <h2 class="span8 offset3">+ Status Dashboard</h2>
-                            </div>
+                href="../../maintenance/">
+                    <div class="row">
+                        <h2 class="span8 offset3">+ Maintenance</h2>
+                    </div>
                 </a>
             </div>
-            <div id="collapse4" class="accordion-body collapse">
-                <div class="accordion-inner">
-                    <div class="row">
-                        <div class="span5">
-                             <h2 class="span8 offset3"><a href="information/">- Building Information2</a></h2>
-                             <h2 class="span8 offset3"><a href="sensor_mapping?id=<?php echo $SysID; ?>">- Sensor Mapping2</a></h2>
-                             <h2 class="span8 offset3"><a href="alarm_limits/">- Alarm Limits2</a></h2>
-                             <h2 class="span8 offset3">- Maintenance2</h2>
-                        </div>
-
-                    </div>
-
-
-
-
-                    </div>
-
-                </div>
-
-            </div>
--->
-  <?php   //} else {?>
-<!--
-              <div class="row"><font color="grey">
-                                <h2 class="span8 offset3">&nbsp;&nbsp;Status Dashboard</h2>
-                               </font>
-                            </div>
--->
-     <?php //} ?>
-
+        </div>
+<?php   } else { ?>
+        <div class="row">
+            <font color="grey">
+                <h2 class="span8 offset3">&nbsp;&nbsp;Maintenance</h2>
+            </font>
+        </div>
 <?php
-  require_once('../../includes/footer.php');
+    }
+    require_once('../../includes/footer.php');
 ?>

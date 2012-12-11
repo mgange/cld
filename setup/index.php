@@ -1,6 +1,3 @@
-
-
-
 <?php
 /**
  *------------------------------------------------------------------------------
@@ -18,13 +15,7 @@ require_once('../includes/header.php');
 unset($_SESSION['buildingID']);
 unset($_SESSION['SysID']);
 
-unset($_SESSION['SetStep']);
-unset($_SESSION['SystemStart']);
-unset($_SESSION['SystemComp']);
-unset($_SESSION['SetUpSensMap']);
-unset($_SESSION['SetUpAlarm']);
-unset($_SESSION['SetUpStatus']);
-unset($_SESSION['SetUpComp']);
+unset($_SESSION['SetupStep']);
 
  ?>
 

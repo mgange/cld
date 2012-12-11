@@ -13,7 +13,7 @@ checkSystemSet($config);
   //  gtfo($config);
 //}
 
-$db = new db($config);
+//$db = new db($config);
 $SysId = $_SESSION['SysID'];
 $BuildingID = $_SESSION['buildingID'];
 
@@ -35,13 +35,13 @@ $query = "SELECT AnalogMuxEnabled FROM SystemConfig WHERE SysID = " . $SysId;
 $result = $db -> fetchRow($query);
 $AnalogMuxEnabled = $result['AnalogMuxEnabled'];
 
-$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent
+$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
         FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
         AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
         AND SysID = 0 AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
 $sysMap = $db -> fetchAll($query);
 
-$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent
+$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
         FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
         AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
         AND SysID = " . $SysId . " AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
@@ -63,15 +63,24 @@ $sysMapUnique = $db -> fetchAll($query);
 
         var element = document.forms["sensorMapping" + sourceID][Name + Recnum];
         var elementSpan = document.getElementsByName(Name + Recnum + "Span")[0];
-        var valid = (!isNaN(element.value) && parseInt(element.value)) || ((element.value.length == 1) && (element.value != " "));
+        var elementSpan2 = document.getElementsByName(Name + Recnum + "Span2")[0];
+        var valid = (!isNaN(element.value) && parseInt(element.value));// || ((element.value.length == 1) && (element.value != " "));
+        if(element.value < 0) valid = false;
         if(!valid){
             element.style.border = "red solid 2px";
             elementSpan.style.visibility = "visible";
             elementSpan.style.fontSize = "14px";
+            elementSpan2.style.visibility = "hidden";
+            elementSpan2.style.fontSize = "0px";
         }else{
             element.style.border = "";
             elementSpan.style.visibility = "hidden";
             elementSpan.style.fontSize = "0px";
+            if(element.value < 5){
+                element.style.border = "red solid 2px";
+                elementSpan2.style.visibility = "visible";
+                elementSpan2.style.fontSize = "14px";
+            }
         }
     }
     function duplicateCheck(sourceID,Recnum){
@@ -121,11 +130,6 @@ $sysMapUnique = $db -> fetchAll($query);
             mydiv.appendChild(newcontent.firstChild);
         }
     }
-    function toggleCheckbox(Recnum){
-        var element = document.getElementsByName("Active" + Recnum)[0];
-        if(element.checked == true) element.checked = false;
-        else element.checked = true;
-    }
 </script>
 
 <form name="sensorMapping<?=$sourceID?>" action="./" method="post" onsubmit="return noErrors('sensorMapping<?=$sourceID?>')">
@@ -134,10 +138,11 @@ $sysMapUnique = $db -> fetchAll($query);
         <h4 class="span1">Model</h4>
         <h4 class="span1">Address</h4>
         <h4 class="span2">Channel</h4>
-		<h4 class="span2" style="width:130px">Low Limit</h4>
-		<h4 class="span2" style="width:130px">High Limit</h4>
+		<h4 class="span2" style="width:100px">Low Limit</h4>
+		<h4 class="span2" style="width:100px">High Limit</h4>
         <h4 class="span1" style="width:70px">Percent Threshold</h4>
-        <h4 class="span1" style="text-align:center">Active</h4>
+        <h4 class="span1" style="width:100px">Trigger Alarm After</h4>
+        <h4 class="span1" style="width:10px;text-align:center">Active</h4>
 	</div>
     <hr>
 <?php
@@ -183,7 +188,7 @@ $sysMapUnique = $db -> fetchAll($query);
                     break;
             }
 ?>
-	<div class="row over" onclick="toggleCheckbox(<?=$resultRow['Recnum']?>)">
+	<div class="row over">
 		<p class="span2" style="width:130px;margin-top:10px"><strong><?=(!strncasecmp($resultRow['SensorColName'],"power",5)) ? substr($resultRow['SensorName'],2) : $resultRow['SensorName']?></strong></p>
         <p class="span1" style="margin-top:10px;text-align:absolute">
         <?php
@@ -282,17 +287,22 @@ $sysMapUnique = $db -> fetchAll($query);
             $loValue = "Lo" . $resultRow['Recnum'];
             $hiValue = "Hi" . $resultRow['Recnum'];
             $percentValue = "Percent" . $resultRow['Recnum'];
+            $triggerValue = "Trigger" . $resultRow['Recnum'];
         ?>
-        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Lo',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($loErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$loValue])) ? $_POST[$loValue] : $resultRow['AlarmLoLimit']?>"> <?php echo $unit; } ?>
+        <p class="span2" style="width:100px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmLoLimit'])) { ?><input name="Lo<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Lo',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($loErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$loValue])) ? $_POST[$loValue] : $resultRow['AlarmLoLimit']?>"> <?php echo $unit; } ?>
             <span name="Lo<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span2" style="width:130px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Hi',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($hiErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$hiValue])) ? $_POST[$hiValue] : $resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?>
+        <p class="span2" style="width:100px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Hi',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($hiErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$hiValue])) ? $_POST[$hiValue] : $resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?>
             <span name="Hi<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
         <p class="span1" style="width:70px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Percent',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($percentErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$percentValue])) ? $_POST[$percentValue] : $resultRow['AlertPercent']?>"> %<?php } ?>
             <span name="Percent<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span1" style="margin-top:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
+        <p class="span1" style="width:100px;margin-top:10px;text-align:absolute"><input name="Trigger<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Trigger',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($triggerErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$triggerValue])) ? $_POST[$triggerValue] : $resultRow['AlarmTrigger']?>"> mins
+            <span name="Trigger<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
+            <span name="Trigger<?=$resultRow['Recnum']?>Span2" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Must be Greater than 5</span>
+        </p>
+        <p class="span1" style="width:10px;margin-top:10px;text-align:absolute"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
 	</div>
 <?php
         }

@@ -10,9 +10,9 @@ require_once('../../includes/pageStart.php');
 
 $db = new db($config);
 
-if($_SESSION['authLevel'] != 3) {
-    gtfo($config);
-}
+//if($_SESSION['authLevel'] != 3) {
+//    gtfo($config);
+//}
 
 /** CHECK ERRORS **/
 //System Information
@@ -41,7 +41,7 @@ if(isset($_POST['submitSensorMap'])){
   $sysMap = $db -> fetchAll($query);
   $query = "SELECT Recnum,SysID,SensorColName,SensorName,SysGroup FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SourceID = " . $_POST['sourceID'];
   $sysMapUnique = $db -> fetchAll($query);
-  foreach ($sysMap as $resultRow){       //check to see values are valied
+  foreach ($sysMap as $resultRow){       //check to see values are valid
     //check for uniques and use if necessary
     foreach($sysMapUnique as $uniqueResult){
             if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))
@@ -52,6 +52,7 @@ if(isset($_POST['submitSensorMap'])){
     $loValue = "Lo" . $resultRow['Recnum'];
     $hiValue = "Hi" . $resultRow['Recnum'];
     $percentValue = "Percent" . $resultRow['Recnum'];
+    $triggerValue = "Trigger" . $resultRow['Recnum'];
     $activeValue = "Active" . $resultRow['Recnum'];
     $addressValue = "Address" . $resultRow['Recnum'];
     $modelValue = "Model" . $resultRow['Recnum'];
@@ -67,6 +68,10 @@ if(isset($_POST['submitSensorMap'])){
       $percentErrFlag[$resultRow['Recnum']] = true;
       $mappingErr = true;
     }
+    if(isset($_POST[$triggerValue]) && (!is_numeric($_POST[$triggerValue]))){
+      $triggerErrFlag[$resultRow['Recnum']] = true;
+      $mappingErr = true;
+    }
   }
   if(!isset($mappingErr)){
     foreach ($sysMap as $resultRow){
@@ -80,6 +85,7 @@ if(isset($_POST['submitSensorMap'])){
         $loValue = "Lo" . $resultRow['Recnum'];
         $hiValue = "Hi" . $resultRow['Recnum'];
         $percentValue = "Percent" . $resultRow['Recnum'];
+        $triggerValue = "Trigger" . $resultRow['Recnum'];
         $activeValue = "Active" . $resultRow['Recnum'];
         $addressValue = "Address" . $resultRow['Recnum'];
         $modelValue = "Model" . $resultRow['Recnum'];
@@ -87,15 +93,16 @@ if(isset($_POST['submitSensorMap'])){
         if(!$_POST[$changeFlag]) continue;
         //check if entry already exists by changing it back
         $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $resultRow['SysID' ] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorModel " . (isset($_POST[$modelValue]) ? "= " . $_POST[$modelValue] : "IS NULL") .
-              " AND SensorAddress " . (isset($_POST[$addressValue]) ? "= " . $_POST[$addressValue] : "IS NULL") . " AND SensorActive = " . ($_POST[$activeValue] == on ? "1" : "0") .
+              " AND SensorAddress " . (isset($_POST[$addressValue]) ? "= '" . $_POST[$addressValue] . "'" : "IS NULL") . " AND SensorActive = " . ($_POST[$activeValue] == on ? "1" : "0") .
               " AND AlarmUpLimit " . (isset($_POST[$hiValue]) ? "= " . $_POST[$hiValue] : "IS NULL") . " AND AlarmLoLimit " . (isset($_POST[$loValue]) ? "= " . $_POST[$loValue] : "IS NULL") .
-              " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL") . " AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+              " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL") . " AND AlarmTrigger =  " . $_POST[$triggerValue] .
+              " AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'] . " AND SensorName = '" . $_POST[$resultRow['SensorColName']] . "'";
         $exists = $db ->numRows($query);
         if($exists) continue;
         //check if unique value exists to determine update or insert
-        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorName = '" . $_POST[$resultRow['SensorColName']] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
         $exists = $db -> numRows($query);
-        if($exists) $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        if($exists) $query = "UPDATE SysMap SET SensorName = :sensorName, AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
         else{
           //duplicate row first then update
           $query = "SELECT * FROM SysMap WHERE Recnum = " . $resultRow['Recnum'];
@@ -110,20 +117,23 @@ if(isset($_POST['submitSensorMap'])){
           //grab system info
           $query = "SELECT DAMID,PlatformID,Configuration FROM SystemConfig WHERE SysID = " . $_SESSION['SysID'];
           $result = $db -> fetchRow($query);
-          $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config, AlarmUpLimit = :hiValue,
-          AlarmLoLimit = :loValue, AlertPercent = :percent, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE Recnum = " . $lastinsert;
+          $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config, SensorName = :sensorName, AlarmUpLimit = :hiValue,
+          AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE Recnum = " . $lastinsert;
           $bind[':sysID'] = $_SESSION['SysID'];
           $bind[':DAMID'] = $result['DAMID'];
           $bind[':platformID'] = $result['PlatformID'];
           $bind[':config'] = $result['Configuration'];
         }
+        $bind[':sensorName'] = $_POST[$resultRow['SensorColName']];
         $bind[':hiValue'] = $_POST[$hiValue];
         $bind[':loValue'] = $_POST[$loValue];
         $bind[':percent'] = $_POST[$percentValue];
+        $bind[':trigger'] = $_POST[$triggerValue];
         $bind[':active'] = (isset($_POST[$activeValue]) ? "1" : "0");
         $bind[':address'] = $_POST[$addressValue];
         $bind[':model'] = $_POST[$modelValue];
         $db -> execute($query, $bind);
+        //die($query);
     }
   }
 }
@@ -309,39 +319,25 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
             </font>
         </div>
     <?php } ?>
-<!-- STATUS DASHBOARD MAPPING  -->
-<!-- Disabled
-        <div class="accordion-group">
-             <div class="accordion-heading">
+<!-- MAINTENANCE  -->
+<?php if(isset($systemID)){ ?>
+        <div class="accordion-group" style="border:0px">
+            <div class="accordion-heading">
                 <a class="accordion-toggle"
-                    data-toggle="collapse"
-                    data-parent="#accordion2"
-                    href="#collapse4">
-                            <div class="row">
-                                <h2 class="span8 offset3">+ Status Dashboard</h2>
-                            </div>
+                href="../../maintenance/">
+                    <div class="row">
+                        <h2 class="span8 offset3">+ Maintenance</h2>
+                    </div>
                 </a>
             </div>
-            <div id="collapse4" class="accordion-body collapse">
-                <div class="accordion-inner">
-                    <div class="row">
-                        <div class="span5">
-                             <h2 class="span8 offset3"><a href="information/">- Building Information</a></h2>
-                             <h2 class="span8 offset3"><a href="sensor_mapping?id=<?//php echo $SysID; ?>">- Sensor Mapping</a></h2>
-                             <h2 class="span8 offset3"><a href="alarm_limits/">- Alarm Limits</a></h2>
-                             <h2 class="span8 offset3">- Maintenance</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-
+<?php   } else { ?>
         <div class="row">
             <font color="grey">
-                <h2 class="span8 offset3">&nbsp;&nbsp;Status Dashboard</h2>
+                <h2 class="span8 offset3">&nbsp;&nbsp;Maintenance</h2>
             </font>
         </div>
-    -->
 <?php
-  require_once('../../includes/footer.php');
+    }
+    require_once('../../includes/footer.php');
 ?>

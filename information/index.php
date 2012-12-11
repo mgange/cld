@@ -83,6 +83,13 @@ require_once('../includes/header.php');
                     <p class="span3"><strong>Maintainer:</strong></p>
                     <p class="span3"><?=$systemInfo['Maintainer']?></p>
                 </div>
+
+                <hr>
+
+                <div class="row">
+                    <p class="span3"><strong>Location of Main System:</strong></p>
+                    <p class="span3"><?=$systemInfo['LocationMainSystem']?></p>
+                </div>
             </div>
 
             <div class="span6">
@@ -92,6 +99,13 @@ require_once('../includes/header.php');
                 <div class="row">
                     <p class="span3"><strong>DAMID:</strong></p>
                     <p class="span3"><?=$systemInfo['DAMID']?></p>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <p class="span3"><strong>System Description:</strong></p>
+                    <p class="span3"><?=$systemInfo['SystemDescription']?></p>
                 </div>
 
                 <hr>
@@ -123,43 +137,29 @@ require_once('../includes/header.php');
                 <hr>
 
                 <div class="row">
-                    <p class="span3"><strong>Heat Exchange Unit:</strong></p>
-                    <p class="span3"><?=$systemInfo['HeatExchangeUnit']?></p>
+                    <p class="span3"><strong>Heat Exchanger:</strong></p>
+                    <p class="span3"><?=$systemInfo['HeatExchanger']?></p>
                 </div>
 
                 <hr>
 
                 <div class="row">
-                    <p class="span3"><strong>Number of Sensor Group:</strong></p>
-                    <p class="span3"><?=$systemInfo['NumofSensGrp']?></p>
+                    <p class="span3"><strong>Number of Thermostats:</strong></p>
+                    <p class="span3"><?=$systemInfo['NumofTherms']?></p>
                 </div>
 
                 <hr>
 
                 <div class="row">
-                    <p class="span3"><strong>Number of Digital Sensor Channels:</strong></p>
-                    <p class="span3"><?=$systemInfo['NumDigSenChan']?></p>
+                    <p class="span3"><strong>Number of Power Meters:</strong></p>
+                    <p class="span3"><?=$systemInfo['NumofPowers']?></p>
                 </div>
 
                 <hr>
 
                 <div class="row">
-                    <p class="span3"><strong>Number of Temperature Sensor Channels:</strong></p>
-                    <p class="span3"><?=$systemInfo['NumTempSenChan']?></p>
-                </div>
-
-                <hr>
-
-                <div class="row">
-                    <p class="span3"><strong>Number of Flow Control Channels:</strong></p>
-                    <p class="span3"><?=$systemInfo['NumFlowCntlChan']?></p>
-                </div>
-
-                <hr>
-
-                <div class="row">
-                    <p class="span3"><strong>Number of Analog Channels:</strong></p>
-                    <p class="span3"><?=$systemInfo['NumAnlgChan']?></p>
+                    <p class="span3"><strong>Analog Mux:</strong></p>
+                    <p class="span3"><?=($systemInfo['AnalogMuxEnabled']) ? 'Enabled' : 'Disabled'?></p>
                 </div>
 
                 <hr>
