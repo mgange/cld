@@ -66,11 +66,7 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
-    $zone = 'RSM';
-}else{
-    $zone = 'Main';
-}
+$zone = 'Main';
 
 /* Get the default table.column values for the values to be graphed */
 $query = "SELECT

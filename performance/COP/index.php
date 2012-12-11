@@ -63,11 +63,8 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
-    $zone = 'RSM';
-}else{
-    $zone = 'Main';
-}
+$zone = 'Main';
+
 /* Get the default table.column values for the values to be graphed */
 $query = "SELECT
             SysMap.SourceID,            SysMap.SensorColName,
@@ -122,14 +119,15 @@ foreach($sensors as $sensor) {
     }
 }
 
-    $query = "SELECT DISTINCT
-    SourceHeader.Recnum,       SensorCalc.DateStamp,
-    SensorCalc.TimeStamp,
+$query = "SELECT DISTINCT
+    SourceHeader.Recnum,       SourceHeader.DateStamp,
+    SourceHeader.TimeStamp,
      ";
 foreach($sensors as $sensor) {
      $query .= $sensor['Table'] . "." . $sensor['SensorColName'] . ",
      ";
 }
+
 $query .="
     SourceData0.DigIn01,       SourceData0.DigIn02,
     SourceData0.DigIn03,       SourceData0.DigIn04,
@@ -139,23 +137,37 @@ foreach($tablesUsed as $table) {
     $query .= ", " . $table;
 }
 $query .= "
-    WHERE 1";
+    WHERE 1
+    ";
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
     AND SourceHeader.DateStamp =  '" . $date . "'
     AND SourceHeader.TimeStamp <=  '" . $time . "'
-    AND SourceHeader.Recnum = SourceData0.HeadID
-    AND SourceHeader.Recnum = SensorCalc.HeadID
+    ";
+    foreach($tablesUsed as $table) {
+        $query .= "
+        AND SourceHeader.Recnum = " . $table . ".HeadID
+        ";
+    }
+    $query .= "
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
-    AND SourceHeader.Recnum = SourceData0.HeadID
-    AND SourceHeader.Recnum = SensorCalc.HeadID
+    ";
+    foreach($tablesUsed as $table) {
+        $query .= "
+        AND SourceHeader.Recnum = " . $table . ".HeadID
+        ";
+    }
+    $query .= "
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
+    foreach($tablesUsed as $table) {
+        $query .= "
+        AND SourceHeader.Recnum = " . $table . ".HeadID
+        ";
+    }
     $query .= "
-    AND SourceHeader.Recnum = SensorCalc.HeadID
-    AND SourceHeader.Recnum = SourceData0.HeadID
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
@@ -173,6 +185,7 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
  * backwards from the specified time. Now that it's selected array_reverse() is
  * used to correct the order for the graph.
  */
+
 $result = array_reverse( $db -> fetchAll($query) );
 
 foreach($result as $resultRow) {
