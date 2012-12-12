@@ -66,6 +66,9 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
+$numRSMs = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$numRSM = $numRSMs['NumofRSM'];
+
 if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
     $zone = 'RSM';
 }else{
@@ -86,11 +89,11 @@ $query = "SELECT
              OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
              OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
              OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
-               )
+                )
             AND SysMap.SensorRefName = WebRefTable.SensorName
         ";
 if($zone == 'Main') {
-$query .= "
+    $query .= "
             AND SysMap.SourceID != 1
             AND SysMap.SourceID != 2
             AND SysMap.SourceID != 3
@@ -419,6 +422,16 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
                     echo 'range=' . intval($_GET['range']);
                 }
                     ?>" class="btn btn-mini span2" style="margin-top: 6px;">Full Graph</a>
+<?php
+if($numRSM > 0) {
+?>
+                <br><br>
+                <a href="./?z=<?php echo ($_GET['z'] == 'rsm')?'main':'rsm'; ?>" class="align-center span2">
+                    <?php echo ($_GET['z'] == 'rsm')?'Main':'RSM'; ?>
+                </a>
+<?php
+}
+?>
             </div>
         </div>
 
