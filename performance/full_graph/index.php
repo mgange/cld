@@ -258,6 +258,47 @@ require_once('../../includes/header.php');
                 opposite: true
               }
               ];
+            var plotOptions = {
+                  line: {
+                      allowPointSelect: false,
+                      dataLabels: {
+                          enabled: false
+                      },
+                      enableMouseTracking: true
+                      },
+                      lineWidth: 1,
+                      series: {
+                        marker: {
+                          enabled: false,
+                          radius: 2
+                        },
+                        point: {
+                          events: {
+                            click: function(){
+                              if(!Modernizr.touch) {
+                               loadStatus(recnums[this.x]);
+                              }
+                            }
+                          }
+                        }
+                      },
+                      shadow: false
+              };
+            var tooltip = {animate: false,
+                        crosshairs: [
+                        { // Vertical
+                          color: '#729472',
+                          dashStyle: 'solid',
+                          width: 1
+                        },
+                        { // Horizontal
+                          color: '#eee',
+                          dashStyle: 'solid',
+                          width: 1
+                        }
+                        ],
+                        enabled: (typeof tooltipEnable != 'undefined')?tooltipEnable:1
+              };
             var recnums = [<?php echoJSarray($Recnum); ?>]
             var categories = [<?php echoJSarray($Stamp, "'") ?>];
             xPlotBands = [

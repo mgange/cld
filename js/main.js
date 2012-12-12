@@ -60,69 +60,38 @@ if($('.refresh').length) {
 }
 
 // Initiate Chart
+/**
+ * I'm using putting a lot of the chart data/options into variables an then
+ * using those variables to fill options when the chart is called here. So when
+ * you see something like
+ *   (typeof variable != 'undefined')?variable:[]
+ * I'm checking if the current page has data to put in, and if it doesn't I'll
+ * fill in a default value. i.e. []
+ */
 if($('.chart-container').length) {
   $(function () {
       var chart;
       $(document).ready(function() {
           chart = new Highcharts.Chart({
               chart: {
-                  renderTo: 'chart',
-                  type: 'line',
-                  zoomType: 'x'
+                  renderTo: (typeof renderTo != 'undefined')?renderTo:'chart',
+                  type: (typeof chartType != 'undefined')?chartType:'line',
+                  zoomType: (typeof zoomType != 'undefined')?zoomType:'x'
               },
+              legend: (typeof legend != 'undefined')?legend:{},
               loading: {hideDuration: 0},
               subtitle: {text: ''},
               title: {text: ''},
-              tooltip: {animate: false,
-                        crosshairs: [
-                        { // Vertical
-                          color: '#729472',
-                          dashStyle: 'solid',
-                          width: 1
-                        },
-                        { // Horizontal
-                          color: '#eee',
-                          dashStyle: 'solid',
-                          width: 1
-                        }
-                        ],
-                        enabled: true
-              },
-              plotOptions: {
-                  line: {
-                      allowPointSelect: false,
-                      dataLabels: {
-                          enabled: false
-                      },
-                      enableMouseTracking: true
-                      },
-                      lineWidth: 1,
-                      series: {
-                        marker: {
-                          enabled: false,
-                          radius: 2
-                        },
-                        point: {
-                          events: {
-                            click: function(){
-                              if(!Modernizr.touch) {
-                               // console.log(recnums[this.x]);
-                               loadStatus(recnums[this.x]);
-                              }
-                            }
-                          }
-                        }
-                      },
-                      shadow: false
-              },
+              tooltip: (typeof tooltip != 'undefined')?tooltip:{},
+              plotOptions: (typeof plotOptions != 'undefined')?plotOptions:{},
               xAxis: {
-                  categories: categories,
+                  categories: (typeof categories != 'undefined')?categories:[],
                   labels: {
                     step: Math.floor(data[0].data.length/Math.floor($(document).width()/180))-1
                   },
-                  plotBands: xPlotBands
+                  plotBands: (typeof xPlotBands != 'undefined')?xPlotBands:[]
               },
-              yAxis: yAxisData,
+              yAxis: (typeof yAxisData != 'undefined')?yAxisData:{},
               series: data
           }); // End Highcharts.Chart
       }); // End $.ready()
