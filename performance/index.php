@@ -89,6 +89,7 @@ $query = "SELECT
              OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
              OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
              OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
+             OR (SysMap.SensorRefName = 'FlowRSM'    AND WebRefTable.WebSubPageName = '$zone')
                 )
             AND SysMap.SensorRefName = WebRefTable.SensorName
         ";
@@ -179,7 +180,7 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
 }else{
     $query .= '480';
 }
-// die(pprint($query));
+
 /**
  * The query orders by date and time descending so that it will get date going
  * backwards from the specified time. Now that it's selected array_reverse() is
@@ -359,7 +360,7 @@ foreach($result[0] as $key => $val) {
 ?>
                 {
                     name: "<?php echo $systemMap[$key]; ?>",
-<?php if($key == 'FlowPress01'){ ?>
+<?php if(preg_match('/Flow/', $key)){ ?>
                     color: '#aaa',
                     yAxis: 1,
                     zIndex: 1,
@@ -385,7 +386,17 @@ foreach($result[0] as $key => $val) {
             </script>
 
         <div class="row">
-            <h1 class="span7 offset2">Performance - <span class="building-name"><?php echo $buildingName; ?></span></h1>
+            <h1 class="span7 offset2">
+                Performance -
+                <span class="building-name">
+                    <?php
+                        echo $buildingName;
+                        if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
+                            echo ' - RSM';
+                        }
+                    ?>
+                </span>
+            </h1>
             <div class="span2">
 <?php
 
@@ -426,7 +437,9 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 if($numRSM > 0) {
 ?>
                 <br><br>
-                <a href="./?z=<?php echo ($_GET['z'] == 'rsm')?'main':'rsm'; ?>" class="align-center span2">
+                <a href="./<?php
+                    if(!isset($_GET['z'])) { echo '?z=rsm';}
+                ?>" class="align-center span2">
                     <?php echo ($_GET['z'] == 'rsm')?'Main':'RSM'; ?>
                 </a>
 <?php
