@@ -360,7 +360,7 @@ foreach($result[0] as $key => $val) {
 ?>
                 {
                     name: "<?php echo $systemMap[$key]; ?>",
-<?php if(preg_match('/Flow/', $key)){ ?>
+<?php if(preg_match('/FlowPress0(1|3)/', $key)){ ?>
                     color: '#aaa',
                     yAxis: 1,
                     zIndex: 1,
