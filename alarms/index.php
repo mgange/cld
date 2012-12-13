@@ -30,18 +30,18 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "datetime":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM Alarms_Active WHERE Alarm_Duration > '00:05:00' AND SysID = " . $SysID;
+                }else $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID;
                 $results = $db -> fetchAll($query);
                 if(!empty($results)){
         ?>
@@ -61,10 +61,19 @@ $db -> execute($query);
                 </tr>
                 <?php
                     foreach ($results as $value) {
+                        $durationTime = substr($value['Alarm_Duration'],0,(strripos($value['Alarm_Duration'],':')));    //HH:MM
                         $dateTime = date_create($value['TimeStamp_Start']);
                         $date = date_format($dateTime, 'm/d/Y');
                         $time = date_format($dateTime, 'g:i:s A');
-                        $durationTime = substr($value['Alarm_Duration'],0,(strripos($value['Alarm_Duration'],':'))) . "<br>";
+
+                        $hour = substr($durationTime,0,(strripos($durationTime,':')));
+                        $min = substr($durationTime,(strripos($durationTime,':'))+1);
+                        $timeInMins = ($hour * 60) + $min;
+
+                        $query = "SELECT AlarmTrigger FROM SysMap WHERE SysID = " . $SysID . " AND SourceID = " . $value['SourceID'] . " AND SensorNo = " . $value['SensorNo'];
+                        $trigger = $db -> fetchRow($query);
+                        if($trigger['AlarmTrigger'] > $timeInMins) continue;
+
                         $query = "SELECT * FROM Alarm_Codes WHERE Alarm_Code = " . $value['Alarm_Code'];
                         $alarm = $db -> fetchRow($query);
                 ?>
@@ -116,16 +125,16 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "started":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "ended":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY TimeStamp_End " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY TimeStamp_End " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " group BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
