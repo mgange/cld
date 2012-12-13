@@ -6,18 +6,6 @@
  *
  */
 
-function buildURLparameters($arr) {
-    if(count($arr) < 1) {
-        return '';
-    }else{
-        $seperator = '?';
-        foreach($arr as $key => $val) {
-            $url .= $seperator . $key . '=' . $val;
-            $seperator = '&';
-        }
-        return $url;
-    }
-}
 require_once('../../includes/pageStart.php');
 
 if(count($_POST) > 0) {

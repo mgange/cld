@@ -328,6 +328,26 @@ function arrayRemoveEmpty($array)
 
 
 /**
+ * Format an array of values to be passed in the url to another page.
+ * e.g. ?key1=val1&key2=val2
+ * @param  array  $arr Associative array of values to pass through a URL
+ * @return string      Values formatted as url parameters
+ */
+function buildURLparameters($arr) {
+    if(count($arr) < 1) {
+        return '';
+    }else{
+        $seperator = '?';
+        foreach($arr as $key => $val) {
+            $url .= $seperator . $key . '=' . $val;
+            $seperator = '&';
+        }
+        return $url;
+    }
+}
+
+
+/**
  *------------------------------------------------------------------------------
  * PDO Wrapper Class
  *------------------------------------------------------------------------------
