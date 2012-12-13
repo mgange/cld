@@ -61,33 +61,41 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
+$zoneTable = 'SourceData';
+$zoneTable .= (isset($_GET['z']) && $_GET['z'] == 'rsm')?'1':'0';
 
-$query = "SELECT
-     SourceHeader.Recnum,       SourceHeader.DateStamp,
-     SourceHeader.TimeStamp,
-     SourceData0.DigIn01,       SourceData0.DigIn02,
-     SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05
-    FROM SourceHeader, SourceData0";
+$query = "
+SELECT
+    SourceHeader.Recnum,
+    SourceHeader.DateStamp,
+    SourceHeader.TimeStamp,
+    ".$zoneTable.".DigIn01,
+    ".$zoneTable.".DigIn02,
+    ".$zoneTable.".DigIn03,
+    ".$zoneTable.".DigIn04,
+    ".$zoneTable.".DigIn05
+FROM
+    SourceHeader, ".$zoneTable;
 foreach($tablesUsed as $table) {
     $query .= ", SourceData" . $table;
 }
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $query .= "
-    WHERE SourceHeader.DateStamp =  '" . $date . "'
-    AND SourceHeader.TimeStamp <=  '" . $time . "'
-    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    OR SourceHeader.DateStamp <  '" . $date . "'
-    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
+WHERE SourceHeader.DateStamp =  '" . $date . "'
+ AND SourceHeader.TimeStamp <=  '" . $time . "'
+ AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
+  OR SourceHeader.DateStamp <  '" . $date . "'
+ AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }else{
     $query .= "
-    WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
+WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
     ";
 }
-$query .= "AND SourceHeader.Recnum = SourceData0.HeadID
-    ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
-    LIMIT 0 , ";
+$query .= "
+ AND SourceHeader.Recnum = ".$zoneTable.".HeadID
+ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
+LIMIT 0 , ";
 if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
     $query .= intval($_GET['range'])*120;
 }else{
@@ -100,7 +108,6 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
  * used to correct the order for the graph.
  */
 $result = array_reverse( $db -> fetchAll($query) );
-
 
 $totals["System Off"]   = 0;
 $totals["Fan Only"]     = 0;
@@ -168,6 +175,10 @@ foreach($totals as $stage => $count) {
                     ?>
                 </span>
             </h1>
+            <div class="btn-group span3">
+                <a class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>" href="./">Main</a>
+                <a class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>" href="./?z=rsm">RSM</a>
+            </div>
 
             <div
                 id="chart"
