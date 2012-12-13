@@ -257,6 +257,27 @@ if($range == $i) {
                         <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
                     </form>
                 </div>
+                <div class="span3">
+<?php
+if(isset($_GET['date']) && isset($_GET['time'] )) {
+?>
+                    <a class="btn btn-mini span2" href="./" style="margin-top: 6px;">
+                        Current Data
+                    </a>
+                    <br>
+<?php
+}
+?>
+                    <a class="btn btn-mini span2" href="../" style="margin-top: 6px;">
+                        Performance
+                    </a>
+                    <a class="btn btn-mini span2" href="../COP" style="margin-top: 6px;">
+                        COP
+                    </a>
+                    <a class="btn btn-mini span2" href="../full_graph" style="margin-top: 6px;">
+                        Full Graph
+                    </a>
+                </div>
             </div>
 
 <?php
