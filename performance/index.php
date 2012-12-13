@@ -71,8 +71,10 @@ $numRSM = $numRSMs['NumofRSM'];
 
 if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
     $zone = 'RSM';
+    $plotBandTable = 'SourceData1';
 }else{
     $zone = 'Main';
+    $plotBandTable = 'SourceData0';
 }
 
 /* Get the default table.column values for the values to be graphed */
@@ -128,17 +130,20 @@ foreach($sensors as $sensor) {
 }
 
     $query = "SELECT
-     SourceHeader.Recnum,       SourceHeader.DateStamp,
+     SourceHeader.Recnum,
+     SourceHeader.DateStamp,
      SourceHeader.TimeStamp,
      ";
 foreach($sensors as $sensor) {
      $query .= "SourceData" . $sensor['SourceID'] . "." . $sensor['SensorColName'] . ",
      ";
 }
+for ($i=1; $i <= 5; $i++) {
+    $query .= $plotBandTable . '.DigIn0' . $i;
+    if($i < 5){$query .= ',
+     ';}
+}
 $query .="
-     SourceData0.DigIn01,       SourceData0.DigIn02,
-     SourceData0.DigIn03,       SourceData0.DigIn04,
-     SourceData0.DigIn05
     FROM SourceHeader";
 foreach($tablesUsed as $table) {
     $query .= ", SourceData" . $table;
