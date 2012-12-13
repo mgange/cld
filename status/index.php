@@ -177,7 +177,7 @@ require_once('../includes/header.php');
    // fixed fields and labels for this page
 
      $systemInfo=$SysName." - ". $SysLocation;
-     $systemDesc=$sysDAMID[SystemDescription].$lf.$sysDAMID[HeatExchangeUnit].$lf.
+     $systemDesc=$sysDAMID[SystemDescription].$lf."Heat Exchanger -".$sysDAMID[HeatExchanger].$lf.
                  "Location-".$sysDAMID[LocationMainSystem].$lf."Main DAMID-".$sysDAMID[DAMID].$lf.
                  "RSMs-".$sysDAMID[NumofRSM];
 
