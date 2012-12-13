@@ -6,44 +6,46 @@
  *
  */
 
+function buildURLparameters($arr) {
+    if(count($arr) < 1) {
+        return '';
+    }else{
+        $seperator = '?';
+        foreach($arr as $key => $val) {
+            $url .= $seperator . $key . '=' . $val;
+            $seperator = '&';
+        }
+        return $url;
+    }
+}
 require_once('../../includes/pageStart.php');
 
 if(count($_POST) > 0) {
-    /**
-     * If the date/time form is submitted it builds a url based on the values sent.
-     */
-    if(isset($_POST['date']) && $_POST['date'] != ''
-    && isset($_POST['time']) && $_POST['time'] != '' ) {
-        if(substr($_POST['time'], -2, 2) == "PM") {
-            $hour = intval(substr($_POST['time'], 0, 2)) + 12;
-        }else{
-            $hour = intval(substr($_POST['time'], 0, 2));
-        }
-        $minute = substr($_POST['time'], 3, 2);
-        $seconds = '00';
-
-        $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
-        if(isset($range) && $range > 0) {
-            $location .= '&range=' . $range;
-        }
+    if(
+        isset($_POST['date']) && $_POST['date'] != ''&&
+        isset($_POST['time']) && $_POST['time'] != ''
+    ) {
+        $endTime = strtotime($_POST['date'] . ' ' . $_POST['time']);
+        $params['date'] = date('Y-m-d', $endTime);
+        $params['time'] = date('H:i:s', $endTime);
     }
-    if(isset($_POST['range']) && $_POST['range'] != '') {
-        /**
-         * The time range to be displayed is also added to the url. Users may
-         * select a date/time/range, a date/time, or just a range.
-         */
-        if(isset($location)) {
-            $location .= '&';
-        }else{
-            $location = './?';
-        }
-        $location .= 'range=' . $_POST['range'];
+
+    if(
+        isset($_POST['range'])
+        && $_POST['range'] != ''
+        && withinRange(intval($_POST['range']), 0, 25)
+    ) {
+        $params['range'] = intval($_POST['range']);
+    }
+
+    if(isset($_POST['z']) && $_POST['z'] == 'rsm') {
+        $params['z'] = 'rsm';
     }
     /**
      * The page redirects to the built url and loads this file for a second
      * time. This avoids POST issues when refreshign the page.
      */
-    header('Location: ' . $location);
+    header('Location: ./' . buildURLparameters($params));
 }
 
 checkSystemSet($config);
@@ -64,8 +66,23 @@ $buildingName = $buildingNames['SysName'];
 $zoneTable = 'SourceData';
 $zoneTable .= (isset($_GET['z']) && $_GET['z'] == 'rsm')?'1':'0';
 
+/* The range of time(in seconds) that will be displayed */
+if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
+    $range = intval($_GET['range'])*3600;
+}else{
+    $range = 14400;
+}
+
+if(isset($_GET['date']) && isset($_GET['time'])) {
+    $endTime = strtotime($_GET['date'] . ' ' . $_GET['time']);
+}else{
+    $endTime = strtotime('now');
+}
+
+$startTime = $endTime - $range;
+
 $query = "
-SELECT
+SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
@@ -75,39 +92,36 @@ SELECT
     ".$zoneTable.".DigIn04,
     ".$zoneTable.".DigIn05
 FROM
-    SourceHeader, ".$zoneTable;
-foreach($tablesUsed as $table) {
-    $query .= ", SourceData" . $table;
-}
-if(isset($_GET['date']) && isset($_GET['time'])) {
-    $query .= "
-WHERE SourceHeader.DateStamp =  '" . $date . "'
- AND SourceHeader.TimeStamp <=  '" . $time . "'
- AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-  OR SourceHeader.DateStamp <  '" . $date . "'
- AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    ";
-}else{
-    $query .= "
+    SourceHeader, " . $zoneTable . "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    ";
-}
-$query .= "
- AND SourceHeader.Recnum = ".$zoneTable.".HeadID
-ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
-LIMIT 0 , ";
-if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
-    $query .= intval($_GET['range'])*120;
-}else{
-    $query .= '480';
-}
+  AND SourceHeader.Recnum = ".$zoneTable.".HeadID
+  AND
+(
+    (
+        (
+                SourceHeader.DateStamp = '" . date('Y-m-d', $endTime) . "'
+            AND SourceHeader.TimeStamp <= '" . date('H:i:s', $endTime) . "'
+        )
+        OR
+            SourceHeader.DateStamp < '" . date('Y-m-d', $endTime) . "'
+    )
+    AND
+    (
+        (
+                SourceHeader.DateStamp = '" . date('Y-m-d', $startTime) . "'
+            AND SourceHeader.TimeStamp >= '" . date('H:i:s', $startTime) . "'
+        )
+        OR
+            SourceHeader.DateStamp > '" . date('Y-m-d', $startTime) . "'
+    )
+)
+ORDER BY
+    SourceHeader.DateStamp DESC,
+    SourceHeader.TimeStamp DESC
+";
 
-/**
- * The query orders by date and time descending so that it will get date going
- * backwards from the specified time. Now that it's selected array_reverse() is
- * used to correct the order for the graph.
- */
-$result = array_reverse( $db -> fetchAll($query) );
+$result = $db -> fetchAll($query);
+
 
 $totals["System Off"]   = 0;
 $totals["Fan Only"]     = 0;
@@ -138,7 +152,7 @@ require_once('../../includes/header.php');
         var tooltipEnable = 0;
         var yAxisData = [
             {
-                title: {text: 'Time in Each Stage'}
+                title: {text: 'Minutes in Each Stage'}
               }];
         var xAxisOptions = [
             {
@@ -172,6 +186,9 @@ foreach($totals as $stage => $count) {
                 <span class="building-name">
                     <?php
                         echo $buildingName;
+                        if($_GET['z'] =='rsm') {
+                            echo ' - RSM';
+                        }
                     ?>
                 </span>
             </h1>
@@ -255,6 +272,7 @@ if($range == $i) {
                         </div>
                         <br>
                         <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
+                        <input type="hidden" name="z" value="<?php echo ($_GET['z']=='rsm')?'rsm':'main'; ?>">
                     </form>
                 </div>
                 <div class="span3">
