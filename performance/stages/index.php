@@ -51,23 +51,33 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-$zoneTable = 'SourceData';
-$zoneTable .= (isset($_GET['z']) && $_GET['z'] == 'rsm')?'1':'0';
 
-/* The range of time(in seconds) that will be displayed */
+/* The range of time(in hours) that will be displayed */
 if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
-    $range = intval($_GET['range'])*3600;
+    $range = intval($_GET['range']);
+    $params['range'] = $range;
 }else{
-    $range = 14400;
+    $range = 4;
 }
 
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $endTime = strtotime($_GET['date'] . ' ' . $_GET['time']);
+    $params['date'] = date('Y-m-d', $endTime);
+    $params['time'] = date('H:i:s', $endTime);
 }else{
     $endTime = strtotime('now');
 }
 
-$startTime = $endTime - $range;
+$startTime = $endTime - ($range*3600);
+
+$zoneTable = 'SourceData';
+if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
+    $zoneTable .= '1';
+    $params['z'] = 'rsm';
+}else{
+    $zoneTable .= '0';
+    $params['z'] = 'main';
+}
 
 $query = "
 SELECT DISTINCT
@@ -181,8 +191,27 @@ foreach($totals as $stage => $count) {
                 </span>
             </h1>
             <div class="btn-group span3">
-                <a class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>" href="./">Main</a>
-                <a class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>" href="./?z=rsm">RSM</a>
+                <a
+                    class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>"
+                    href="./<?php
+                        $params['z'] = 'main';
+                        echo buildURLparameters($params);
+                    ?>">
+                    Main
+                </a>
+                <a
+                    class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>"
+                    href="./<?php
+                        $params['z'] = 'rsm';
+                        echo buildURLparameters($params);
+                        if(isset($_GET['z'])) {
+                            $params['z'] = $_GET['z'];
+                        }else{
+                            unset($params['z']);
+                        }
+                    ?>">
+                    RSM
+                </a>
             </div>
 
             <div
@@ -210,28 +239,20 @@ foreach($totals as $stage => $count) {
  * Auto-till the form with previously submitted values. If there are no values
  * to use then fill it with the current date/time and the default time range.
  */
-                                        if(isset($_GET['date'])) {
-                                            echo $_GET['date'];
-                                        }else{
-                                            echo date('o-m-d');
-                                        }
+                                        echo date('o-m-d', $endTime);
                                     ?>">
                             </label>
-                            <label class="span2" for="time">Time &nbsp;
+                            <label class="span2" for="time">Time
                                 <input
                                     id="time"
                                     class="timepick span2"
                                     type="text"
                                     name="time"
                                     value="<?php
-                                        if(isset($_GET['date'])) {
-                                            echo $_GET['time'];
-                                        }else{
-                                            echo date('h:i A');
-                                        }
+                                        echo date('h:i A', $endTime);
                                     ?>">
                             </label>
-                            <label class="span2" for="range">Range &nbsp;
+                            <label class="span2" for="range">Range
                                 <select
                                     id="range"
                                     class="span2"
@@ -239,7 +260,6 @@ foreach($totals as $stage => $count) {
                                     name="range"
                                     >
 <?php
-if(isset($_GET['range'])) { $range = intval($_GET['range']);}else{$range = 4;}
 for ($i=1; $i <= 6; $i++) {
 ?>
                                     <option value="<?php echo $i; ?>"<?php
@@ -266,21 +286,38 @@ if($range == $i) {
                 <div class="span3">
 <?php
 if(isset($_GET['date']) && isset($_GET['time'] )) {
+    $currentData['range'] = $range;
+    if(isset($_GET['z'])){$currentData['z'] = $_GET['z'];}
 ?>
-                    <a class="btn btn-mini span2" href="./" style="margin-top: 6px;">
+                    <a
+                        class="btn btn-mini span2"
+                        href="./<?php echo buildURLparameters($currentData); ?>"
+                        style="margin-top: 6px;">
                         Current Data
                     </a>
                     <br>
 <?php
 }
 ?>
-                    <a class="btn btn-mini span2" href="../" style="margin-top: 6px;">
+                    <a
+                        class="btn btn-mini span2"
+                        href="../<?php
+                            echo buildURLparameters($params);
+                            unset($params['z']); // I won't need it for the other links
+                        ?>"
+                        style="margin-top: 6px;">
                         Performance
                     </a>
-                    <a class="btn btn-mini span2" href="../COP" style="margin-top: 6px;">
+                    <a
+                    class="btn btn-mini span2"
+                    href="../COP/<?php echo buildURLparameters($params); ?>"
+                    style="margin-top: 6px;">
                         COP
                     </a>
-                    <a class="btn btn-mini span2" href="../full_graph" style="margin-top: 6px;">
+                    <a
+                    class="btn btn-mini span2"
+                    href="../full_graph/<?php echo buildURLparameters($params); ?>"
+                    style="margin-top: 6px;">
                         Full Graph
                     </a>
                 </div>
