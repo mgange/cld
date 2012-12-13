@@ -8,43 +8,43 @@
 
 require_once('../../includes/pageStart.php');
 
-// if(count($_POST) > 0) {
-//     /**
-//      * If the date/time form is submitted it builds a url based on the values sent.
-//      */
-//     if(isset($_POST['date']) && $_POST['date'] != ''
-//     && isset($_POST['time']) && $_POST['time'] != '' ) {
-//         if(substr($_POST['time'], -2, 2) == "PM") {
-//             $hour = intval(substr($_POST['time'], 0, 2)) + 12;
-//         }else{
-//             $hour = intval(substr($_POST['time'], 0, 2));
-//         }
-//         $minute = substr($_POST['time'], 3, 2);
-//         $seconds = '00';
+if(count($_POST) > 0) {
+    /**
+     * If the date/time form is submitted it builds a url based on the values sent.
+     */
+    if(isset($_POST['date']) && $_POST['date'] != ''
+    && isset($_POST['time']) && $_POST['time'] != '' ) {
+        if(substr($_POST['time'], -2, 2) == "PM") {
+            $hour = intval(substr($_POST['time'], 0, 2)) + 12;
+        }else{
+            $hour = intval(substr($_POST['time'], 0, 2));
+        }
+        $minute = substr($_POST['time'], 3, 2);
+        $seconds = '00';
 
-//         $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
-//         if(isset($range) && $range > 0) {
-//             $location .= '&range=' . $range;
-//         }
-//     }
-//     if(isset($_POST['range']) && $_POST['range'] != '') {
-//         /**
-//          * The time range to be displayed is also added to the url. Users may
-//          * select a date/time/range, a date/time, or just a range.
-//          */
-//         if(isset($location)) {
-//             $location .= '&';
-//         }else{
-//             $location = './?';
-//         }
-//         $location .= 'range=' . $_POST['range'];
-//     }
-//     /**
-//      * The page redirects to the built url and loads this file for a second
-//      * time. This avoids POST issues when refreshign the page.
-//      */
-//     header('Location: ' . $location);
-// }
+        $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
+        if(isset($range) && $range > 0) {
+            $location .= '&range=' . $range;
+        }
+    }
+    if(isset($_POST['range']) && $_POST['range'] != '') {
+        /**
+         * The time range to be displayed is also added to the url. Users may
+         * select a date/time/range, a date/time, or just a range.
+         */
+        if(isset($location)) {
+            $location .= '&';
+        }else{
+            $location = './?';
+        }
+        $location .= 'range=' . $_POST['range'];
+    }
+    /**
+     * The page redirects to the built url and loads this file for a second
+     * time. This avoids POST issues when refreshign the page.
+     */
+    header('Location: ' . $location);
+}
 
 checkSystemSet($config);
 
