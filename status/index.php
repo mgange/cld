@@ -226,17 +226,17 @@ require_once('../includes/header.php');
         $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
         $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID=0 or SourceID=1 or SourceID=4  or SourceID=5) and WebSubPageName='RSM' order by WebPagePosNo,SourceId
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID=0 or SourceID=1 or SourceID=4  or SourceID=99) and WebSubPageName='RSM' order by WebPagePosNo,SourceId
                         ";
 
       $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
-                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=5) and WebSubPageName='Main' order by WebPagePosNo";
+                        WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo";
       $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and
