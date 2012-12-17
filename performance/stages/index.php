@@ -150,7 +150,7 @@ require_once('../../includes/header.php');
         var tooltipEnable = 0;
         var yAxisData = [
             {
-                title: {text: 'Minutes in Each Stage'}
+                title: {text: '% Time in Each Stage'}
               }];
         var xAxisOptions = [
             {
@@ -168,7 +168,7 @@ foreach($totals as $stage => $count) {
 $i = 0;
 foreach($totals as $stage => $count) {
     $i++;
-    echo round($count/2);
+    echo round((100/count($result)*$count));
     if($i < count($totals)){echo ', ';}
 }
 ?>
