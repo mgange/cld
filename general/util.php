@@ -487,6 +487,17 @@ class db extends PDO
     }
 }
 
+/* A map of SourceIDs and the database table they refer to */
+$tablesIndex = array(
+// 'z' => 'table name'
+    0  => 'SourceData0',
+    1  => 'SourceData1',
+    2  => 'SourceData2',
+    3  => 'SourceData3',
+    4  => 'SourceData4',
+    99 => 'SensorCalc'
+);
+
 /**
  * An array of state names that might be used in several places, but really I
  * just don't want clogging up other pages.

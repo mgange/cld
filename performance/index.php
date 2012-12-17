@@ -14,54 +14,34 @@
 require_once('../includes/pageStart.php');
 
 if(count($_POST) > 0) {
-    /**
-     * If the date/time form is submitted it builds a url based on the values sent.
-     */
-    if(isset($_POST['date']) && $_POST['date'] != ''
-    && isset($_POST['time']) && $_POST['time'] != '' ) {
-        if(substr($_POST['time'], -2, 2) == "PM") {
-            $hour = intval(substr($_POST['time'], 0, 2)) + 12;
-        }else{
-            $hour = intval(substr($_POST['time'], 0, 2));
-        }
-        $minute = substr($_POST['time'], 3, 2);
-        $seconds = '00';
-
-        $location = './?date=' . $_POST['date'] . '&time=' . $hour . ':' . $minute . ':' . $seconds;
-        if(isset($range) && $range > 0) {
-            $location .= '&range=' . $range;
-        }
-        if(isset($_POST['zone'])) $location .= "&z=rsm";
+    if(
+        isset($_POST['date']) && $_POST['date'] != ''&&
+        isset($_POST['time']) && $_POST['time'] != ''
+    ) {
+        $endTime = strtotime($_POST['date'] . ' ' . $_POST['time']);
+        $params['date'] = date('Y-m-d', $endTime);
+        $params['time'] = date('H:i:s', $endTime);
     }
-    if(isset($_POST['range']) && $_POST['range'] != '') {
-        /**
-         * The time range to be displayed is also added to the url. Users may
-         * select a date/time/range, a date/time, or just a range.
-         */
-        if(isset($location)) {
-            $location .= '&';
-        }else{
-            $location = './?';
-        }
-        $location .= 'range=' . $_POST['range'];
-        if(isset($_POST['zone'])) $location .= "&z=rsm";
+
+    if(
+        isset($_POST['range'])
+        && $_POST['range'] != ''
+        && withinRange(intval($_POST['range']), 0, 25)
+    ) {
+        $params['range'] = intval($_POST['range']);
+    }
+
+    if(isset($_POST['z']) && $_POST['z'] == 'rsm') {
+        $params['z'] = 'rsm';
     }
     /**
      * The page redirects to the built url and loads this file for a second
      * time. This avoids POST issues when refreshign the page.
      */
-    header('Location: ' . $location);
+    header('Location: ./' . buildURLparameters($params));
 }
 
 checkSystemSet($config);
-
-if(isset($_GET['date']) && isset($_GET['time'])) {
-    $datetime = date_create($_GET['date'] . ' ' . $_GET['time']);
-    $date = date_format($datetime, 'Y-m-d');
-    $time = date_format($datetime, 'H:i:s');
-    $startTime = $time;
-    $endTime = $time;
-}
 
 $db = new db($config);
 
@@ -80,29 +60,32 @@ if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
 }
 
 /* Get the default table.column values for the values to be graphed */
-$query = "SELECT
-            SysMap.SourceID,            SysMap.SensorColName,
-            SysMap.SensorName,          SysMap.SensorRefName,
-            WebRefTable.SensorLabel
-          FROM SysMap, WebRefTable
-          WHERE (
-                (SysMap.SensorRefName = 'WaterIn'    AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'WaterOut'   AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'AirIn'      AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'AirOut'     AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
-             OR (SysMap.SensorRefName = 'FlowRSM'    AND WebRefTable.WebSubPageName = '$zone')
-                )
-            AND SysMap.SensorRefName = WebRefTable.SensorName
+$query = "
+SELECT
+    SysMap.SourceID,
+    SysMap.SensorColName,
+    SysMap.SensorName,
+    SysMap.SensorRefName,
+    WebRefTable.SensorLabel
+FROM SysMap, WebRefTable
+WHERE (
+       (SysMap.SensorRefName = 'WaterIn'    AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'WaterOut'   AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'AirIn'      AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'AirOut'     AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
+    OR (SysMap.SensorRefName = 'FlowRSM'    AND WebRefTable.WebSubPageName = '$zone')
+)
+  AND SysMap.SensorRefName = WebRefTable.SensorName
         ";
 if($zone == 'Main') {
     $query .= "
-            AND SysMap.SourceID != 1
-            AND SysMap.SourceID != 2
-            AND SysMap.SourceID != 3
-            AND SysMap.SourceID != 5
+  AND SysMap.SourceID != 1
+  AND SysMap.SourceID != 2
+  AND SysMap.SourceID != 3
+  AND SysMap.SourceID != 5
     ";
 }
 $defaultSensors = $db->fetchAll($query . "AND DAMID = '000000000000'");
@@ -124,6 +107,7 @@ foreach($sensors as $key=>$value) {
     }
 }
 
+/* An array of tables being used to buid the FROM part of a query */
 $tablesUsed = array();
 foreach($sensors as $sensor) {
     if(!in_array($sensor['SourceID'], $tablesUsed)) {
@@ -131,62 +115,85 @@ foreach($sensors as $sensor) {
     }
 }
 
-    $query = "SELECT
-     SourceHeader.Recnum,
-     SourceHeader.DateStamp,
-     SourceHeader.TimeStamp,
-     ";
+/* The range of time(in hours) that will be displayed */
+if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
+    $range = intval($_GET['range']);
+    $params['range'] = $range;
+}else{
+    $range = 4;
+}
+
+if(isset($_GET['date']) && isset($_GET['time'])) {
+    $endTime = strtotime($_GET['date'] . ' ' . $_GET['time']);
+    $params['date'] = date('Y-m-d', $endTime);
+    $params['time'] = date('H:i:s', $endTime);
+}else{
+    $endTime = strtotime('now');
+}
+
+$startTime = $endTime - ($range*3600);
+
+$zoneTable = 'SourceData';
+if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
+    $zoneTable .= '1';
+    $params['z'] = 'rsm';
+}else{
+    $zoneTable .= '0';
+    $params['z'] = 'main';
+}
+
+$query = "SELECT
+    SourceHeader.Recnum,
+    SourceHeader.DateStamp,
+    SourceHeader.TimeStamp,
+    ";
 foreach($sensors as $sensor) {
      $query .= "SourceData" . $sensor['SourceID'] . "." . $sensor['SensorColName'] . ",
-     ";
+    ";
 }
-for ($i=1; $i <= 5; $i++) {
-    $query .= $plotBandTable . '.DigIn0' . $i;
-    if($i < 5){$query .= ',
-     ';}
-}
-$query .="
-    FROM SourceHeader";
+$query .=
+      $zoneTable.".DigIn01,
+    ".$zoneTable.".DigIn02,
+    ".$zoneTable.".DigIn03,
+    ".$zoneTable.".DigIn04,
+    ".$zoneTable.".DigIn05";
+$query .= "
+FROM
+    SourceHeader";
 foreach($tablesUsed as $table) {
     $query .= ", SourceData" . $table;
 }
-if(isset($_GET['date']) && isset($_GET['time'])) {
-    $query .= "
-    WHERE SourceHeader.DateStamp =  '" . $date . "'
-    AND SourceHeader.TimeStamp <=  '" . $time . "'
-    ";
+$query .= "
+WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
 foreach($tablesUsed as $table) {
-    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
-}
     $query .= "
-    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    OR SourceHeader.DateStamp <  '" . $date . "'
-    ";
-foreach($tablesUsed as $table) {
-    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
+  AND SourceHeader.Recnum = ". $tablesIndex[$table].".HeadID";
 }
-    $query .= "
-    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    ";
-}else{
-    $query .= "
-    WHERE 1
-    ";
-foreach($tablesUsed as $table) {
-    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID
-    ";
-}
-    $query .= "
-    AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
-    ";
-}
-$query .= "ORDER BY SourceHeader.DateStamp DESC , SourceHeader.TimeStamp DESC
-    LIMIT 0 , ";
-if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
-    $query .= intval($_GET['range'])*120;
-}else{
-    $query .= '480';
-}
+$query .= "
+  AND
+(
+    (
+        (
+                SourceHeader.DateStamp = '" . date('Y-m-d', $endTime) . "'
+            AND SourceHeader.TimeStamp <= '" . date('H:i:s', $endTime) . "'
+        )
+        OR
+            SourceHeader.DateStamp < '" . date('Y-m-d', $endTime) . "'
+    )
+    AND
+    (
+        (
+                SourceHeader.DateStamp = '" . date('Y-m-d', $startTime) . "'
+            AND SourceHeader.TimeStamp >= '" . date('H:i:s', $startTime) . "'
+        )
+        OR
+            SourceHeader.DateStamp > '" . date('Y-m-d', $startTime) . "'
+    )
+)
+ORDER BY
+    SourceHeader.DateStamp DESC,
+    SourceHeader.TimeStamp DESC
+";
 
 /**
  * The query orders by date and time descending so that it will get date going
@@ -287,7 +294,8 @@ require_once('../includes/header.php');
                           events: {
                             click: function(){
                               if(!Modernizr.touch) {
-                               loadStatus(recnums[this.x]);
+                                window.location='../status?id='+recnums[this.x]<?php if(isset($_GET['z'])){echo "+'&z=".$_GET['z']."'";} ?>;
+                               // loadStatus(recnums[this.x]);
                               }
                             }
                           }
@@ -435,66 +443,39 @@ foreach($result[0] as $key => $val) {
 
         <div class="row">
             <h1 class="span7 offset2">
-                Performance -
+                Time / Stage -
                 <span class="building-name">
                     <?php
                         echo $buildingName;
-                        if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
+                        if($_GET['z'] =='rsm') {
                             echo ' - RSM';
                         }
                     ?>
                 </span>
             </h1>
-            <div class="span2">
-<?php
-
-if(isset($_GET['date']) && isset($_GET['time'])) {
-?>
-                <a href="./" class="btn btn-mini span2">
-                    <i class="icon-time"></i>
-                    Current Data
+            <div class="btn-group span3">
+                <a
+                    class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>"
+                    href="./<?php
+                        $params['z'] = 'main';
+                        echo buildURLparameters($params);
+                    ?>">
+                    Main
                 </a>
-<?php
-}
-?>
-                <br>
-                <a href="COP<?php
-                if(isset($_GET['date'])) {
-                    echo '?date=' . $_GET['date']
-                       . '&time=' . $_GET['time'];
-                }
-                if(isset($_GET['range'])) {
-                    echo (isset($_GET['date']))?'&':'?';
-                    echo 'range=' . intval($_GET['range']);
-                }
-                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">COP</a>
-
-                <br>
-
-                <a href="full_graph<?php
-                if(isset($_GET['date'])) {
-                    echo '?date=' . $_GET['date']
-                       . '&time=' . $_GET['time'];
-                }
-                if(isset($_GET['range'])) {
-                    echo (isset($_GET['date']))?'&':'?';
-                    echo 'range=' . intval($_GET['range']);
-                }
-                    ?>" class="btn btn-mini span2" style="margin-top: 6px;">Full Graph</a>
-<?php
-if($numRSM > 0) {
-?>
-                <br><br>
-                <a href="./<?php
-                    if(!isset($_GET['z'])) { echo '?z=rsm';}
-                ?>" class="align-center span2">
-                    <?php echo ($_GET['z'] == 'rsm')?'Main':'RSM'; ?>
+                <a
+                    class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>"
+                    href="./<?php
+                        $params['z'] = 'rsm';
+                        echo buildURLparameters($params);
+                        if(isset($_GET['z'])) {
+                            $params['z'] = $_GET['z'];
+                        }else{
+                            unset($params['z']);
+                        }
+                    ?>">
+                    RSM
                 </a>
-<?php
-}
-?>
             </div>
-        </div>
 
             <div
                 id="chart"
@@ -521,28 +502,20 @@ if($numRSM > 0) {
  * Auto-till the form with previously submitted values. If there are no values
  * to use then fill it with the current date/time and the default time range.
  */
-                                        if(isset($_GET['date'])) {
-                                            echo $_GET['date'];
-                                        }else{
-                                            echo date('o-m-d');
-                                        }
+                                        echo date('o-m-d', $endTime);
                                     ?>">
                             </label>
-                            <label class="span2" for="time">Time &nbsp;
+                            <label class="span2" for="time">Time
                                 <input
                                     id="time"
                                     class="timepick span2"
                                     type="text"
                                     name="time"
                                     value="<?php
-                                        if(isset($_GET['date'])) {
-                                            echo $_GET['time'];
-                                        }else{
-                                            echo date('h:i A');
-                                        }
+                                        echo date('h:i A', $endTime);
                                     ?>">
                             </label>
-                            <label class="span2" for="range">Range &nbsp;
+                            <label class="span2" for="range">Range
                                 <select
                                     id="range"
                                     class="span2"
@@ -550,7 +523,6 @@ if($numRSM > 0) {
                                     name="range"
                                     >
 <?php
-if(isset($_GET['range'])) { $range = intval($_GET['range']);}else{$range = 4;}
 for ($i=1; $i <= 6; $i++) {
 ?>
                                     <option value="<?php echo $i; ?>"<?php
@@ -571,8 +543,43 @@ if($range == $i) {
                         </div>
                         <br>
                         <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
-                        <input type="hidden" name="zone" value="<?=$_GET['z']?>">
+                        <input type="hidden" name="z" value="<?php echo ($_GET['z']=='rsm')?'rsm':'main'; ?>">
                     </form>
+                </div>
+                <div class="span3">
+<?php
+if(isset($_GET['date']) && isset($_GET['time'] )) {
+    $currentData['range'] = $range;
+    if(isset($_GET['z'])){$currentData['z'] = $_GET['z'];}
+?>
+                    <a
+                        class="btn btn-mini span2"
+                        href="./<?php echo buildURLparameters($currentData); ?>"
+                        style="margin-top: 6px;">
+                        Current Data
+                    </a>
+                    <br>
+<?php
+}
+?>
+                    <a
+                    class="btn btn-mini span2"
+                    href="./COP/<?php echo buildURLparameters($params); ?>"
+                    style="margin-top: 6px;">
+                        COP
+                    </a>
+                    <a
+                    class="btn btn-mini span2"
+                    href="./full_graph/<?php echo buildURLparameters($params); ?>"
+                    style="margin-top: 6px;">
+                        Full Graph
+                    </a>
+                    <a
+                    class="btn btn-mini span2"
+                    href="./stages/<?php echo buildURLparameters($params); ?>"
+                    style="margin-top: 6px;">
+                        System Stages
+                    </a>
                 </div>
             </div>
 

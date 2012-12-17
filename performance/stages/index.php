@@ -38,14 +38,6 @@ if(count($_POST) > 0) {
 
 checkSystemSet($config);
 
-if(isset($_GET['date']) && isset($_GET['time'])) {
-    $datetime = date_create($_GET['date'] . ' ' . $_GET['time']);
-    $date = date_format($datetime, 'Y-m-d');
-    $time = date_format($datetime, 'H:i:s');
-    $startTime = $time;
-    $endTime = $time;
-}
-
 $db = new db($config);
 
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
