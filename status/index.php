@@ -615,7 +615,8 @@ $R2=$resultRow[WebRefTable.Recnum];
                         $dt = strtotime($ValA[0]);
                         echo '?date=' . date('Y-m-d', $dt);
                         echo '&time=' . date('H:i:s', $dt);
-                      }
+                        if(isset($_GET['z'])) echo "&z=rsm";
+                      }else if(isset($_GET['z'])) echo "?z=rsm";
                       echo "'>Performance</a>";
                       echo "<BR>";
                       for($i=0;$i<$NumRSM+1;$i++){

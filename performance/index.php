@@ -31,6 +31,7 @@ if(count($_POST) > 0) {
         if(isset($range) && $range > 0) {
             $location .= '&range=' . $range;
         }
+        if(isset($_POST['zone'])) $location .= "&z=rsm";
     }
     if(isset($_POST['range']) && $_POST['range'] != '') {
         /**
@@ -43,6 +44,7 @@ if(count($_POST) > 0) {
             $location = './?';
         }
         $location .= 'range=' . $_POST['range'];
+        if(isset($_POST['zone'])) $location .= "&z=rsm";
     }
     /**
      * The page redirects to the built url and loads this file for a second
@@ -154,14 +156,14 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     AND SourceHeader.TimeStamp <=  '" . $time . "'
     ";
 foreach($tablesUsed as $table) {
-    $query .= "AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
+    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
 }
     $query .= "
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
     OR SourceHeader.DateStamp <  '" . $date . "'
     ";
 foreach($tablesUsed as $table) {
-    $query .= "AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
+    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
 }
     $query .= "
     AND SourceHeader.SysID = " . $_SESSION['SysID'] . "
@@ -171,7 +173,7 @@ foreach($tablesUsed as $table) {
     WHERE 1
     ";
 foreach($tablesUsed as $table) {
-    $query .= "AND SourceHeader.Recnum = SourceData" . $table . ".HeadID
+    $query .= " AND SourceHeader.Recnum = SourceData" . $table . ".HeadID
     ";
 }
     $query .= "
@@ -569,6 +571,7 @@ if($range == $i) {
                         </div>
                         <br>
                         <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
+                        <input type="hidden" name="zone" value="<?=$_GET['z']?>">
                     </form>
                 </div>
             </div>
