@@ -293,7 +293,7 @@ if(isset($_GET['date']) && isset($_GET['time'] )) {
 ?>
                     <a
                         class="btn btn-mini span2"
-                        href="../<?php
+                        href="../performance/<?php
                             echo buildURLparameters($params);
                             unset($params['z']); // I won't need it for the other links
                         ?>"
@@ -301,15 +301,15 @@ if(isset($_GET['date']) && isset($_GET['time'] )) {
                         Performance
                     </a>
                     <a
-                    class="btn btn-mini span2"
-                    href="../COP/<?php echo buildURLparameters($params); ?>"
-                    style="margin-top: 6px;">
+                        class="btn btn-mini span2"
+                        href="../performance/COP/<?php echo buildURLparameters($params); ?>"
+                        style="margin-top: 6px;">
                         COP
                     </a>
                     <a
-                    class="btn btn-mini span2"
-                    href="../full_graph/<?php echo buildURLparameters($params); ?>"
-                    style="margin-top: 6px;">
+                        class="btn btn-mini span2"
+                        href="../performance/full_graph/<?php echo buildURLparameters($params); ?>"
+                        style="margin-top: 6px;">
                         Full Graph
                     </a>
                 </div>
