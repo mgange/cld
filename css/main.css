@@ -7150,6 +7150,9 @@ body > .page-content {
 .alarm-header {
   background: #0ff;
 }
+.rsmToggle .btn {
+  padding: 2px 14px;
+}
 .align-left {
   text-align: left;
 }
