@@ -520,12 +520,6 @@ if(isset($_GET['date']) && isset($_GET['time'] )) {
                     style="margin-top: 6px;">
                         COP
                     </a>
-                    <a
-                    class="btn btn-mini span2"
-                    href="../stages/<?php echo buildURLparameters($params); ?>"
-                    style="margin-top: 6px;">
-                        System Stages
-                    </a>
                 </div>
             </div>
 

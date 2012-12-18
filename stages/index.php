@@ -6,7 +6,7 @@
  *
  */
 
-require_once('../../includes/pageStart.php');
+require_once('../includes/pageStart.php');
 
 if(count($_POST) > 0) {
     if(
@@ -133,7 +133,7 @@ foreach($result as $datapoint) {
     $totals[$stage]++;
 }
 
-require_once('../../includes/header.php');
+require_once('../includes/header.php');
 ?>
         <script>
         var chartType = 'column';
@@ -316,5 +316,5 @@ if(isset($_GET['date']) && isset($_GET['time'] )) {
             </div>
 
 <?php
-require_once('../../includes/footer.php');
+require_once('../includes/footer.php');
 ?>
