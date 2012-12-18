@@ -295,7 +295,6 @@ require_once('../includes/header.php');
                             click: function(){
                               if(!Modernizr.touch) {
                                 window.location='../status?id='+recnums[this.x]<?php if(isset($_GET['z'])){echo "+'&z=".$_GET['z']."'";} ?>;
-                               // loadStatus(recnums[this.x]);
                               }
                             }
                           }
@@ -412,6 +411,7 @@ for ($i=0; $i < count($result); $i++) {
     unset($result[$i]['DigIn04']);
     unset($result[$i]['DigIn05']);
 }
+$i = 1;
 foreach($result[0] as $key => $val) {
 ?>
                 {
@@ -433,8 +433,10 @@ foreach($result[0] as $key => $val) {
                         echoJSarray(eval('return $'. $key . ';'), null, 100, 0);
                     }
                     ?>]
-                },
+                }<?php if($i < count($result[0])){echo',';} ?>
+
 <?php
+    $i++;
 }
 ?>
             ];
@@ -443,7 +445,7 @@ foreach($result[0] as $key => $val) {
 
         <div class="row">
             <h1 class="span7 offset2">
-                Time / Stage -
+                Performance -
                 <span class="building-name">
                     <?php
                         echo $buildingName;
