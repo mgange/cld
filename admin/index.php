@@ -53,6 +53,7 @@ require_once('../includes/header.php');
             <h1 class="span8 offset2">Site Administration</h1>
         </div>
 
+        <div id="accordion">
 <?php
 foreach($customers as $cust) {
 ?>
@@ -60,7 +61,7 @@ foreach($customers as $cust) {
             <div class="accordion-heading">
                 <a class="accordion-toggle"
                     data-toggle="collapse"
-                    data-parent="#accordion2"
+                    data-parent="#accordion"
                     href="#collapse<? echo $cust['customerID']; ?>">
                 <h3><?php echo $cust['customerName']; ?></h3>
                 </a>
@@ -158,7 +159,9 @@ if($_SESSION['authLevel'] == 3) {
         </div>
 <?php
 }
-
+?>
+        </div>
+<?php
 if($_SESSION['authLevel'] == 3) {
 ?>
 
