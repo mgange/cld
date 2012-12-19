@@ -26,7 +26,7 @@ require_once('../includes/header.php');
     $openloop   = false;
     $openloopdw = false;
     $closedloop = false;
-
+    $FourthConfig= false;
     // selects which system diagram to display
    switch  ($SysConfig)
    {
@@ -38,6 +38,9 @@ require_once('../includes/header.php');
         break;
     case 3:
        $closedloop=true;
+        break;
+    case 4:
+       $FourthConfig=true;
 
    }
 
@@ -55,8 +58,7 @@ require_once('../includes/header.php');
         case 3:
           $zone = 3;
           break;
-        case 4:
-          $zone = 5;
+        default : $zone= $_GET['z']+1;
           break;
       }
     }
@@ -200,14 +202,14 @@ require_once('../includes/header.php');
 
      $LblA[38]="System Status";
 
-  //   $LblA[40]="System COP";
+   //  $LblA[40]="System COP";
    //  $LblA[46]="Heat Pump COP";
 
      $ShwA[29]=true;
      $SStatus[29]=1;
      $ShwA[38]=true;
      $SStatus[38]=1;
-  //  $ShwA[40]=true;
+ //   $ShwA[40]=true;
  //  $ShwA[46]=true;
   // end of fixed fields for this page
    //     $i=0;
@@ -225,21 +227,21 @@ require_once('../includes/header.php');
    {
         $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                       where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
                         WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
         $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                       where SysMap.SensorRefName = WebRefTable.SensorName and  WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
                         WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID=0 or SourceID=1 or SourceID=4  or SourceID=99) and WebSubPageName='RSM' order by WebPagePosNo,SourceId
                         ";
 
       $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                       where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo";
       $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and
+                       where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and WebSubPageName='RSM' order by WebPagePosNo";
 
 
@@ -291,8 +293,8 @@ require_once('../includes/header.php');
             if ($UplmtA[$SPos]!=NULL) {$TUlim="Up Limit: ".$UplmtA[$SPos].$cr;} else {$TUlim="";}
             if ($resultRow[SourceID] == 5) {$DataTable="SensorCalc";} else {$DataTable="SourceData".$resultRow[SourceID];}
             if ($resultRow[SourceID]== 4) {$Address="ModBus Addr:".$resultRow[SensorAddress].$cr;} else {$Address="";}
-$R1=$resultRow[Recnum];
-$R2=$resultRow[WebRefTable.Recnum];
+//$R1=$resultRow[Recnum];
+//$R2=$resultRow[WebRefTable.Recnum];
 //echo("R1".$R1);
 //echo("R2".$R2);
           switch ($resultRow[SensorStatus])
@@ -312,7 +314,7 @@ $R2=$resultRow[WebRefTable.Recnum];
 
 
 
-            $Title[$SPos]=" Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim.$cr.$SStat.$cr.$R1.$cr.$R2."|";
+            $Title[$SPos]=" Table: ".$DataTable.$cr."Field: ".$DBCol.$cr.$Address.$TUlim.$TLlim.$cr.$SStat;//.$cr.$R1.$cr.$R2."|";
 
             switch ($resultRow[SourceID])
             {
@@ -324,18 +326,18 @@ $R2=$resultRow[WebRefTable.Recnum];
                     break;
                 case 4:
                       foreach ($sysStatus4 as $modrow)
-                {
+                {  //echo($resultRow[SensorAddress]."||".$modrow[PwrSubAddress]."||".$modrow[ThermSubAddress]."<BR>");
                       if (($resultRow[SensorAddress]==$modrow[PwrSubAddress]) or  ($resultRow[SensorAddress]== $modrow[ThermSubAddress]))
                            {$GetValue=$modrow[$DBCol];}
  //echo("||||".$resultRow[SensorAddress]."=".$modrow[PwrSubAddress]."/".$modrow[ThermSubAddress]."/".$GetValue."<BR>");}
                 }
                     break;
-                case 5: $GetValue=$sysCalc[$DBCol];
-                    break;
+             //   case 5: $GetValue=$sysCalc[$DBCol];
+              //      break;
                 case 99: $GetValue=$sysCalc[$DBCol];
                     break;
                 //default covers all RSMS
-                default : $GetValue=$sysStatus1[$DBCol];
+                default : $GetValue=$sysStatus1[$DBCol];  // gets data from all rsms
                     break;
             }
 
@@ -384,7 +386,8 @@ $R2=$resultRow[WebRefTable.Recnum];
 
 
 
-// code for system image selection here?
+// code for system image selection here
+      // heat mode is default need logic here to switch graphic between modes
        $exchangermode = 0;
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
 
@@ -394,7 +397,7 @@ $R2=$resultRow[WebRefTable.Recnum];
      //  $SizA[27]=0.5;
 
        if ($exchangermode==1)
-       {// open loop
+       { // cooling mode needs to be image needs to be defined
             $exchnimage="../status/image/WebBackGroundHeatingMode.png";
        }
 
