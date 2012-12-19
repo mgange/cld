@@ -72,8 +72,8 @@ foreach($buildings as $building) {
             </div>
 <?php
     foreach($sysConfigs as $sysConfig) {
-        $redAlert    = $db -> numRows("SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND Alarm_Level = 1 AND SysID = " . $sysConfig['SysID']);
-        $yellowAlert = $db -> numRows("SELECT * FROM System_Alarms_Status WHERE Alarm_Active = 1 AND Alarm_Level = 2 AND SysID = " . $sysConfig['SysID']);
+        $redAlert    = $db -> numRows("SELECT * FROM Alarms_Active WHERE Alarm_Level = 1 AND SysID = " . $sysConfig['SysID']);
+        $yellowAlert = $db -> numRows("SELECT * FROM Alarms_Active WHERE Alarm_Level = 2 AND SysID = " . $sysConfig['SysID']);
 ?>
 
             <div class="row clearfix">
