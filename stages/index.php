@@ -8,33 +8,6 @@
 
 require_once('../includes/pageStart.php');
 
-if(count($_POST) > 0) {
-    if(
-        isset($_POST['date']) && $_POST['date'] != ''&&
-        isset($_POST['time']) && $_POST['time'] != ''
-    ) {
-        $endTime = strtotime($_POST['date'] . ' ' . $_POST['time']);
-        $params['date'] = date('Y-m-d', $endTime);
-        $params['time'] = date('H:i:s', $endTime);
-    }
-
-    if(
-        isset($_POST['range'])
-        && $_POST['range'] != ''
-        && withinRange(intval($_POST['range']), 0, 25)
-    ) {
-        $params['range'] = intval($_POST['range']);
-    }
-
-    if(isset($_POST['z']) && $_POST['z'] == 'rsm') {
-        $params['z'] = 'rsm';
-    }
-    /**
-     * The page redirects to the built url and loads this file for a second
-     * time. This avoids POST issues when refreshign the page.
-     */
-    header('Location: ./' . buildURLparameters($params));
-}
 
 checkSystemSet($config);
 
@@ -46,24 +19,10 @@ $buildingName = $buildingNames['SysName'];
 $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSM['NumofRSM'];
 
-/* The range of time(in hours) that will be displayed */
-if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
-    $range = intval($_GET['range']);
-    $params['range'] = $range;
-}else{
-    $range = 4;
-}
-
-if(isset($_GET['date']) && isset($_GET['time'])) {
-    $endTime = strtotime($_GET['date'] . ' ' . $_GET['time']);
-    $params['date'] = date('Y-m-d', $endTime);
-    $params['time'] = date('H:i:s', $endTime);
-}else{
-    $endTime = strtotime('now');
-}
+$endTime = strtotime('now');
 
 ini_set('memory_limit','200M');
-$startTime = $endTime - (86400*30);
+$startTime = $endTime - (86400*10);
 
 $zoneTable = 'SourceData';
 if(isset($_GET['z']) && withinRange(intval($GET['z']), -1, $numRSM + 1)) {
@@ -141,6 +100,7 @@ require_once('../includes/header.php');
         <script>
         var chartType = 'area';
         var legend = {enabled: 1};
+        var zoomType = 'xy';
         var plotOptions = {
             area: {
                     stacking: 'percent',
@@ -215,7 +175,7 @@ foreach(end($data) as $stage => $val) {
                     ?>
                 </span>
                 <?php
-                    if($_GET['z'] != 'main') {
+                    if(isset($_GET['z']) && $_GET['z'] != 'main') {
                         echo ' - RSM';
                         if($numRSM > 1){echo '-'.intval($_GET['z']);}
                     }
@@ -263,108 +223,6 @@ if(isset($_GET['z'])) {
                 id="chart"
                 class="chart-container data"
                 style="min-width: 400px; min-height: 500px; margin: 0 auto">
-            </div>
-
-            <br>
-            <div class="row">
-                <h5 class="span12 align-center">Date/Time Filter</h5>
-            </div>
-            <div class="row">
-                <div class="span6 offset3">
-                    <form class="form-inline" action="./" method="POST">
-                        <div class="row">
-                            <label class="span2" for="date">Date &nbsp;
-                                <input
-                                    id="date"
-                                    class="datepick span2"
-                                    type="text"
-                                    name="date"
-                                    value="<?php
-/**
- * Auto-till the form with previously submitted values. If there are no values
- * to use then fill it with the current date/time and the default time range.
- */
-                                        echo date('o-m-d', $endTime);
-                                    ?>">
-                            </label>
-                            <label class="span2" for="time">Time
-                                <input
-                                    id="time"
-                                    class="timepick span2"
-                                    type="text"
-                                    name="time"
-                                    value="<?php
-                                        echo date('h:i A', $endTime);
-                                    ?>">
-                            </label>
-                            <label class="span2" for="range">Range
-                                <select
-                                    id="range"
-                                    class="span2"
-                                    type="text"
-                                    name="range"
-                                    >
-<?php
-for ($i=1; $i <= 6; $i++) {
-?>
-                                    <option value="<?php echo $i; ?>"<?php
-if($range == $i) {
-    echo ' selected';
-}
-                                    ?>>
-                                        <?php echo $i . ' Hour'; if($i > 1){ echo 's'; } ?>
-
-                                    </option>
-<?php
-}
-?>
-                                    <option value="12"<?=($range == 12) ? ' selected' : ''?>>12 Hours</option>
-                                    <option value="24"<?=($range == 24) ? ' selected' : ''?>>24 Hours</option>
-                                </select>
-                            </label>
-                        </div>
-                        <br>
-                        <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
-                        <input type="hidden" name="z" value="<?php echo ($_GET['z']=='rsm')?'rsm':'main'; ?>">
-                    </form>
-                </div>
-                <div class="span3">
-<?php
-if(isset($_GET['date']) && isset($_GET['time'] )) {
-    $currentData['range'] = $range;
-    if(isset($_GET['z'])){$currentData['z'] = $_GET['z'];}
-?>
-                    <a
-                        class="btn btn-mini span2"
-                        href="./<?php echo buildURLparameters($currentData); ?>"
-                        style="margin-top: 6px;">
-                        Current Data
-                    </a>
-                    <br>
-<?php
-}
-?>
-                    <a
-                        class="btn btn-mini span2"
-                        href="../performance/<?php
-                            echo buildURLparameters($params);
-                        ?>"
-                        style="margin-top: 6px;">
-                        Performance
-                    </a>
-                    <a
-                        class="btn btn-mini span2"
-                        href="../performance/COP/<?php echo buildURLparameters($params); ?>"
-                        style="margin-top: 6px;">
-                        COP
-                    </a>
-                    <a
-                        class="btn btn-mini span2"
-                        href="../performance/full_graph/<?php echo buildURLparameters($params); ?>"
-                        style="margin-top: 6px;">
-                        Full Graph
-                    </a>
-                </div>
             </div>
 
 <?php
