@@ -498,6 +498,45 @@ $tablesIndex = array(
     99 => 'SensorCalc'
 );
 
+$statusIndex = array(
+'System Off' => array(
+    'text'  => 'System Off',
+    'color' => 'rgba(250, 250, 250, 0.5)'
+    ),
+'Fan Only' => array(
+    'text'  => 'Fan Only',
+    'color' => 'rgba(137, 255, 93, 0.2)'
+    ),
+'Stage 1 Heat' => array(
+    'text'  => 'Stage 1 Heat',
+    'color' => 'rgba(232, 193, 6, 0.2)'
+    ),
+'Stage 2 Heat' => array(
+    'text'  => 'Stage 2 Heat',
+    'color' => 'rgba(255, 131, 7, 0.2)'
+    ),
+'Emerg. Heat' => array(
+    'text'  => 'Emerg. Heat',
+    'color' => 'rgba(255, 0, 0, 0.2)'
+    ),
+'Stage 3 Heat' => array(
+    'text'  => 'Stage 3 Heat',
+    'color' => 'rgba(232, 88, 35, 0.2)'
+    ),
+'Stage 1 Cool' => array(
+    'text'  => 'Stage 1 Cool',
+    'color' => 'rgba(30, 155, 255, 0.2)'
+    ),
+'Stage 2 Cool' => array(
+    'text'  => 'Stage 2 Cool',
+    'color' => 'rgba(15, 72, 232, 0.2)'
+    ),
+'Invalid State' => array(
+    'text'  => 'Invalid State',
+    'color' => 'rgba(0, 0, 0, 0.5)'
+    )
+);
+
 /**
  * An array of state names that might be used in several places, but really I
  * just don't want clogging up other pages.
@@ -556,3 +595,46 @@ $state_list = array(
     'WI'=>"Wisconsin",
     'WY'=>"Wyoming"
 );
+
+/* General Function to Select an item on a pulldown, generates a "selected" when a match exists*/
+
+
+function SelectPD($DBValue,$SelValue)
+{
+    if ($DBValue==$SelValue) { return "selected";} else {return "";}
+}
+
+/* General function for creating a pull down menu from a sql table
+ * Input Fields
+ * $Config -  database configuration variable
+ * $query - query for list selection
+ * $InputName - Name of the list to show as first entry
+ * $DisplayField - Field from database list to display in pulldown
+ * $SelField - Field from which to generate selection value
+ * $SelValue - Value of selected item
+ * $DefMess - true if showing inputname as first entty
+ * $Class - Style class of input box
+ * $Submit - file to execute onsubmit (not implemented as yet
+ *
+ */
+function MySQL_Pull_Down($config,$query,$InputName,$DisplayField,$SelField,$SelValue,$DefMess,$Class,$Submit)
+{
+    // first get data
+  $dbpd = new db($config);
+  $pdrows= $dbpd -> numRows($query);
+  $PDList = $dbpd -> fetchAll($query);
+  $dropdown = "<select name='".$InputName."' class='".$Class."'>";
+
+  if($DefMess==true) {$dropdown .= "\r\n<option value='-'>Select a ".$InputName."</option>";}
+foreach ($PDList as $row) {
+  //  echo($row[$SelField]."||".$SelValue);
+    $Sel= SelectPD($row[$SelField],$SelValue);
+  //echo($Sel);
+   $dropdown .= "\r\n<option value='".$row[$SelField]."' ".$Sel.">".$row[$DisplayField]."</option>";
+    }
+
+   $dropdown .= "\r\n</select>";
+
+   echo $dropdown;
+
+}
