@@ -197,43 +197,6 @@ foreach($sensors as $sensor) {
     $systemMap[$sensor['SensorColName']] = $sensor['SensorLabel'];
 }
 
-$statusIndex['System Off'] = array(
-    'text' => 'System Off',
-    'color' => 'rgba(255, 255, 255, 0)'
-);
-$statusIndex['Fan Only'] = array(
-    'text' => 'Fan Only',
-    'color' => 'rgba(137, 255, 93, 0.2)'
-);
-$statusIndex['Stage 1 Heat'] = array(
-    'text' => 'Stage 1 Heat',
-    'color' => 'rgba(232, 193, 6, 0.2)'
-);
-$statusIndex['Stage 2 Heat'] = array(
-    'text' => 'Stage 2 Heat',
-    'color' => 'rgba(255, 131, 7, 0.2)'
-);
-$statusIndex['Emerg. Heat'] = array(
-    'text' => 'Emerg. Heat',
-    'color' => 'rgba(255, 0, 0, 0.2)'
-);
-$statusIndex['Stage 3 Heat'] = array(
-    'text' => 'Stage 3 Heat',
-    'color' => 'rgba(232, 88, 35, 0.2)'
-);
-$statusIndex['Stage 1 Cool'] = array(
-    'text' => 'Stage 1 Cool',
-    'color' => 'rgba(30, 155, 255, 0.2)'
-);
-$statusIndex['Stage 2 Cool'] = array(
-    'text' => 'Stage 2 Cool',
-    'color' => 'rgba(15, 72, 232, 0.2)'
-);
-$statusIndex['Invalid State'] = array(
-    'text' => 'Invalid State',
-    'color' => 'rgba(0, 0, 0, 0.5)'
-);
-
 require_once('../../includes/header.php');
 ?>
             <script type="text/javascript">

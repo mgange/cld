@@ -498,6 +498,7 @@ $tablesIndex = array(
     99 => 'SensorCalc'
 );
 
+/* Array of system status' and their display name/color */
 $statusIndex = array(
 'System Off' => array(
     'text'  => 'System Off',
