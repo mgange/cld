@@ -119,7 +119,7 @@ $startTime = $endTime - ($range*3600);
 
 $zoneTable = 'SourceData0';
 
-$query = "SELECT
+$query = "SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
@@ -423,6 +423,7 @@ foreach($result[0] as $key => $val) {
                     ?>
                 </span>
             </h1>
+        </div>
 
             <div
                 id="chart"
