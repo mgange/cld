@@ -43,6 +43,8 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
+$numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$numRSM = $numRSM['NumofRSM'];
 
 /* The range of time(in hours) that will be displayed */
 if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
@@ -60,15 +62,15 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
     $endTime = strtotime('now');
 }
 
-$startTime = $endTime - ($range*3600);
+ini_set('memory_limit','200M');
+$startTime = $endTime - (86400*30);
 
 $zoneTable = 'SourceData';
-if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
-    $zoneTable .= '1';
-    $params['z'] = 'rsm';
+if(isset($_GET['z']) && withinRange(intval($GET['z']), -1, $numRSM + 1)) {
+    $params['z'] = intval($_GET['z']);
+    $zoneTable .= intval($_GET['z']);
 }else{
     $zoneTable .= '0';
-    $params['z'] = 'main';
 }
 
 $query = "
@@ -110,36 +112,52 @@ ORDER BY
     SourceHeader.TimeStamp DESC
 ";
 
-$result = $db -> fetchAll($query);
+$result = array_reverse($db -> fetchAll($query));
 
+foreach($result as $res) {
+    /* Touch all the system stages so they're created in the correct order */
+    $data[$res['DateStamp']]["System Off"]   += 0;
+    $data[$res['DateStamp']]["Fan Only"]     += 0;
+    $data[$res['DateStamp']]["Emerg. Heat"]  += 0;
+    $data[$res['DateStamp']]["Stage 3 Heat"] += 0;
+    $data[$res['DateStamp']]["Stage 2 Heat"] += 0;
+    $data[$res['DateStamp']]["Stage 1 Heat"] += 0;
+    $data[$res['DateStamp']]["Stage 2 Cool"] += 0;
+    $data[$res['DateStamp']]["Stage 1 Cool"] += 0;
 
-$totals["System Off"]   = 0;
-$totals["Fan Only"]     = 0;
-$totals["Stage 1 Heat"] = 0;
-$totals["Stage 2 Heat"] = 0;
-$totals["Emerg. Heat"]  = 0;
-$totals["Stage 3 Heat"] = 0;
-$totals["Stage 1 Cool"] = 0;
-$totals["Stage 2 Cool"] = 0;
-
-foreach($result as $datapoint) {
     $stage = Systemlogic(
-    $datapoint['DigIn04'],
-    $datapoint['DigIn01'],
-    $datapoint['DigIn02'],
-    $datapoint['DigIn03'],
-    $datapoint['DigIn05'],
-    0);
-    $totals[$stage]++;
+        $res['DigIn04'],
+        $res['DigIn01'],
+        $res['DigIn02'],
+        $res['DigIn03'],
+        $res['DigIn05'],
+        0
+    );
+    $data[$res['DateStamp']][$stage]++;
 }
 
 require_once('../includes/header.php');
 ?>
         <script>
-        var chartType = 'column';
-        var legend = {enabled: 0};
-        var plotOptions = {column: {}}
-        var tooltipEnable = 0;
+        var chartType = 'area';
+        var legend = {enabled: 1};
+        var plotOptions = {
+            area: {
+                    stacking: 'percent',
+                    lineWidth: 1,
+                    marker: {
+                        lineWidth: 1,
+                        radius: 3
+                    }
+                }
+        };
+        var tooltip = {
+            enabled: 1,
+            formatter: function() {
+                    return this.x+'<br>'+
+                    this.series.name+' <strong>'+Highcharts.numberFormat(this.percentage, 1) +'%</strong>'
+            }
+        }
         var yAxisData = [
             {
                 title: {text: '% Time in Each Stage'}
@@ -149,61 +167,96 @@ require_once('../includes/header.php');
                 title: {text: 'Stages'}
             }];
         var categories = [<?php
-foreach($totals as $stage => $count) {
-    echo "'" . $stage . "', ";
-}
-?>
-        ];
+            $i = 1;
+            foreach($data as $date => $vals) {
+                echo "'" . date('M d, Y', strtotime($date)) . "'";
+                if($i < count($data)) {
+                    echo ", ";
+                }
+                $i++;
+            }
+        ?>];
         var data = [
-        {
-            data: [<?php
-$i = 0;
-foreach($totals as $stage => $count) {
-    $i++;
-    echo round((100/count($result)*$count));
-    if($i < count($totals)){echo ', ';}
-}
+<?php
+$i = 1;
+foreach(end($data) as $stage => $val) {
 ?>
-            ]
-        }
-        ];
+            {
+                name: <?php echo "'" . $stage . "'"; ?>,
+                color: '<?php echo $statusIndex[$stage]['color'] ?>',
+                data: [<?php
+                $j = 1;
+                foreach($data as $date => $arr) {
+                    echo $arr[$stage];
+                    if($j < count($data)) {
+                        echo ', ';
+                    }
+                    $j++;
+                }
+                ?>]
+            }<?php
+            if($i < count(end($data))) {
+                echo ",";
+            }
+            ?>
+<?php
+    $i++;
+}
+?>];
         </script>
 
 
         <div class="row">
             <h1 class="span7 offset2">
-                Time / Stage -
+                % Time / Stage -
                 <span class="building-name">
                     <?php
                         echo $buildingName;
-                        if($_GET['z'] =='rsm') {
-                            echo ' - RSM';
-                        }
                     ?>
                 </span>
+                <?php
+                    if($_GET['z'] != 'main') {
+                        echo ' - RSM';
+                        if($numRSM > 1){echo '-'.intval($_GET['z']);}
+                    }
+                    ?>
             </h1>
-            <div class="btn-group span3">
+<?php
+if($numRSM > 0) {
+
+?>
+            <div class="rsmToggle btn-group span3">
                 <a
-                    class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>"
+                    class="btn btn-mini <?php if(!isset($_GET['z']) || $_GET['z'] == 'main'){echo ' active';} ?>"
                     href="./<?php
                         $params['z'] = 'main';
                         echo buildURLparameters($params);
                     ?>">
                     Main
                 </a>
+<?php
+    for ($i=1; $i <= $numRSM; $i++) {
+?>
                 <a
-                    class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>"
+                    class="btn btn-mini<?php if($_GET['z']==$i){echo ' active';} ?>"
                     href="./<?php
-                        $params['z'] = 'rsm';
+                        $params['z'] = $i;
                         echo buildURLparameters($params);
-                        if(isset($_GET['z'])) {
-                            $params['z'] = $_GET['z'];
-                        }else{
-                            unset($params['z']);
-                        }
                     ?>">
-                    RSM
+                    RSM<?php
+                    if($numRSM > 1){echo '-'.$i;}
+                    ?>
                 </a>
+<?php
+    }
+}
+/* Now that the RSM links are made the current RSM value has to be reset */
+if(isset($_GET['z'])) {
+    $params['z'] = $_GET['z'];
+}else{
+    unset($params['z']);
+}
+?>
             </div>
 
             <div
@@ -295,7 +348,6 @@ if(isset($_GET['date']) && isset($_GET['time'] )) {
                         class="btn btn-mini span2"
                         href="../performance/<?php
                             echo buildURLparameters($params);
-                            unset($params['z']); // I won't need it for the other links
                         ?>"
                         style="margin-top: 6px;">
                         Performance
