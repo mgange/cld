@@ -8,8 +8,19 @@
 
 require_once('../includes/pageStart.php');
 
-
 checkSystemSet($config);
+
+if(count($_POST) > 0) {
+    if(isset($_POST['startTime']) && isset($_POST['endTime'])) {
+        $params['start'] = date('Y-m-d', strtotime($_POST['startTime']));
+        $params['end']   = date('Y-m-d', strtotime($_POST['endTime']));
+    }
+    if(isset($_POST['z'])) {
+        $params['z'] = $_POST['z'];
+    }
+
+    header('Location: ./' . buildURLparameters($params));
+}
 
 $db = new db($config);
 
@@ -19,81 +30,77 @@ $buildingName = $buildingNames['SysName'];
 $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSM['NumofRSM'];
 
-$endTime = strtotime('now');
-
-ini_set('memory_limit','200M');
-$startTime = $endTime - (86400*10);
-
-$zoneTable = 'SourceData';
-if(isset($_GET['z']) && withinRange(intval($GET['z']), -1, $numRSM + 1)) {
-    $params['z'] = intval($_GET['z']);
-    $zoneTable .= intval($_GET['z']);
+if(isset($_GET['start']) && isset($_GET['end'])) {
+    $endTime   = $_GET['end'];
+    $startTime = $_GET['start'];
 }else{
-    $zoneTable .= '0';
+    $endTime = date('Y-m-d');
+    $startTime = date('Y-m-d', strtotime('-1 week'));
+}
+$params['start'] = $startTime;
+$params['end']   = $endTime;
+
+if(isset($_GET['z']) && $_GET['z'] != 'main') {
+    $zoneTable = '1';
+}else{
+    $zoneTable = '0';
 }
 
-$query = "
+$daysToDisplay = floor((strtotime($endTime) - strtotime($startTime))/(60*60*24));
+
+$maxDays = 180;
+if(! withinRange($daysToDisplay, 1, $maxDays+1)) {
+    $daysToDisplay = $maxDays;
+}
+
+for ($i=0; $i <= $daysToDisplay; $i++) {
+
+    $query = "
 SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
-    ".$zoneTable.".DigIn01,
-    ".$zoneTable.".DigIn02,
-    ".$zoneTable.".DigIn03,
-    ".$zoneTable.".DigIn04,
-    ".$zoneTable.".DigIn05
+    SourceData".$zoneTable.".DigIn01,
+    SourceData".$zoneTable.".DigIn02,
+    SourceData".$zoneTable.".DigIn03,
+    SourceData".$zoneTable.".DigIn04,
+    SourceData".$zoneTable.".DigIn05
 FROM
-    SourceHeader, " . $zoneTable . "
+    SourceHeader, SourceData" . $zoneTable . "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
-  AND SourceHeader.Recnum = ".$zoneTable.".HeadID
-  AND
-(
-    (
-        (
-                SourceHeader.DateStamp = '" . date('Y-m-d', $endTime) . "'
-            AND SourceHeader.TimeStamp <= '" . date('H:i:s', $endTime) . "'
-        )
-        OR
-            SourceHeader.DateStamp < '" . date('Y-m-d', $endTime) . "'
-    )
-    AND
-    (
-        (
-                SourceHeader.DateStamp = '" . date('Y-m-d', $startTime) . "'
-            AND SourceHeader.TimeStamp >= '" . date('H:i:s', $startTime) . "'
-        )
-        OR
-            SourceHeader.DateStamp > '" . date('Y-m-d', $startTime) . "'
-    )
-)
+  AND SourceHeader.Recnum = SourceData".$zoneTable.".HeadID
+  AND SourceHeader.DateStamp = '" . date('Y-m-d', strtotime($endTime."- ".$i." day")) . "'
 ORDER BY
     SourceHeader.DateStamp DESC,
     SourceHeader.TimeStamp DESC
 ";
 
-$result = array_reverse($db -> fetchAll($query));
+    $result = $db -> fetchAll($query);
 
-foreach($result as $res) {
-    /* Touch all the system stages so they're created in the correct order */
-    $data[$res['DateStamp']]["System Off"]   += 0;
-    $data[$res['DateStamp']]["Fan Only"]     += 0;
-    $data[$res['DateStamp']]["Emerg. Heat"]  += 0;
-    $data[$res['DateStamp']]["Stage 3 Heat"] += 0;
-    $data[$res['DateStamp']]["Stage 2 Heat"] += 0;
-    $data[$res['DateStamp']]["Stage 1 Heat"] += 0;
-    $data[$res['DateStamp']]["Stage 2 Cool"] += 0;
-    $data[$res['DateStamp']]["Stage 1 Cool"] += 0;
+    foreach($result as $res) {
+        /* Touch all the system stages so they're created in the correct order */
+        $data[$res['DateStamp']]["System Off"]   += 0;
+        $data[$res['DateStamp']]["Fan Only"]     += 0;
+        $data[$res['DateStamp']]["Emerg. Heat"]  += 0;
+        $data[$res['DateStamp']]["Stage 3 Heat"] += 0;
+        $data[$res['DateStamp']]["Stage 2 Heat"] += 0;
+        $data[$res['DateStamp']]["Stage 1 Heat"] += 0;
+        $data[$res['DateStamp']]["Stage 2 Cool"] += 0;
+        $data[$res['DateStamp']]["Stage 1 Cool"] += 0;
 
-    $stage = Systemlogic(
-        $res['DigIn04'],
-        $res['DigIn01'],
-        $res['DigIn02'],
-        $res['DigIn03'],
-        $res['DigIn05'],
-        0
-    );
-    $data[$res['DateStamp']][$stage]++;
+        $stage = Systemlogic(
+            $res['DigIn04'],
+            $res['DigIn01'],
+            $res['DigIn02'],
+            $res['DigIn03'],
+            $res['DigIn05'],
+            0
+        );
+        $data[$res['DateStamp']][$stage]++;
+    }
 }
+
+$data = array_reverse($data);
 
 require_once('../includes/header.php');
 ?>
@@ -214,7 +221,7 @@ if($numRSM > 0) {
 if(isset($_GET['z'])) {
     $params['z'] = $_GET['z'];
 }else{
-    unset($params['z']);
+    $params['z'] = 'main';
 }
 ?>
             </div>
@@ -223,6 +230,34 @@ if(isset($_GET['z'])) {
                 id="chart"
                 class="chart-container data"
                 style="min-width: 400px; min-height: 500px; margin: 0 auto">
+            </div>
+
+            <div class="row">
+                <div class="span6 offset3">
+                    <h5 class="align-center">Display Data</h5>
+                    <form class="form-inline" action="./" method="POST">
+                        <div class="row">
+                            <label class="span3" for="startTime">From
+                                <input
+                                    id="startTime"
+                                    class="datepick span3"
+                                    type="text" name="startTime"
+                                    value="<?php echo $startTime; ?>">
+                            </label>
+                            <label class="span3" for="endTime">Until
+                                <input
+                                    id="endTime"
+                                    class="datepick span3"
+                                    type="text"
+                                    name="endTime"
+                                    value="<?php echo $endTime; ?>">
+                            </label>
+                        </div>
+                        <br>
+                        <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
+                        <input type="hidden" name="z" value="<?php echo $params['z']; ?>">
+                    </form>
+                </div>
             </div>
 
 <?php
