@@ -51,12 +51,12 @@ $buildingName = $buildingNames['SysName'];
 $numRSMs = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSMs['NumofRSM'];
 
-if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
-    $zone = 'RSM';
-    $plotBandTable = 'SourceData1';
+if(isset($_GET['z']) && $_GET['z'] != 'main') {
+    $SourceID = intval($_GET['z']);
+    $table = "SourceData1";
 }else{
-    $zone = 'Main';
-    $plotBandTable = 'SourceData0';
+    $SourceID = 0;
+    $table = "SourceData0";
 }
 
 /* Get the default table.column values for the values to be graphed */
@@ -69,25 +69,18 @@ SELECT
     WebRefTable.SensorLabel
 FROM SysMap, WebRefTable
 WHERE (
-       (SysMap.SensorRefName = 'WaterIn'    AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'WaterOut'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'AirIn'      AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'AirOut'     AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'FlowRSM'    AND WebRefTable.WebSubPageName = '$zone')
+       (SysMap.SensorRefName = 'WaterIn'    AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'WaterOut'   AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'AirIn'      AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'AirOut'     AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'FlowMain'   AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'Pressure'   AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'FlowRSM'    AND SysMap.SourceID = '$SourceID')
 )
   AND SysMap.SensorRefName = WebRefTable.SensorName
         ";
-if($zone == 'Main') {
-    $query .= "
-  AND SysMap.SourceID != 1
-  AND SysMap.SourceID != 2
-  AND SysMap.SourceID != 3
-  AND SysMap.SourceID != 5
-    ";
-}
+
 $defaultSensors = $db->fetchAll($query . "AND DAMID = '000000000000'");
 
 /* Put all the defaults in an associative array */
@@ -133,12 +126,9 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 
 $startTime = $endTime - ($range*3600);
 
-$zoneTable = 'SourceData';
 if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
-    $zoneTable .= '1';
     $params['z'] = 'rsm';
 }else{
-    $zoneTable .= '0';
     $params['z'] = 'main';
 }
 
@@ -151,25 +141,22 @@ foreach($sensors as $sensor) {
      $query .= "SourceData" . $sensor['SourceID'] . "." . $sensor['SensorColName'] . ",
     ";
 }
+
 $query .=
-      $zoneTable.".DigIn01,
-    ".$zoneTable.".DigIn02,
-    ".$zoneTable.".DigIn03,
-    ".$zoneTable.".DigIn04,
-    ".$zoneTable.".DigIn05";
+      $table.".DigIn01,
+    ".$table.".DigIn02,
+    ".$table.".DigIn03,
+    ".$table.".DigIn04,
+    ".$table.".DigIn05";
 $query .= "
 FROM
-    SourceHeader";
-foreach($tablesUsed as $table) {
-    $query .= ", SourceData" . $table;
-}
+    SourceHeader, " . $table;
+
 $query .= "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
-foreach($tablesUsed as $table) {
-    $query .= "
-  AND SourceHeader.Recnum = ". $tablesIndex[$table].".HeadID";
-}
+
 $query .= "
+  AND SourceHeader.Recnum = " . $table . ".HeadID
   AND
 (
     (
@@ -412,25 +399,28 @@ foreach($result[0] as $key => $val) {
                 <span class="building-name">
                     <?php
                         echo $buildingName;
-                        if($_GET['z'] =='rsm') {
+                        if($_GET['z'] > 0) {
                             echo ' - RSM';
                         }
                     ?>
                 </span>
             </h1>
-            <div class="btn-group span3">
+            <div class="rsmToggle btn-group ">
                 <a
-                    class="btn btn-mini span1<?php if($_GET['z']!='rsm'){echo ' active';} ?>"
+                    class="btn btn-mini<?php if(!isset($_GET['z']) || $_GET['z'] == 'main'){echo ' active';} ?>"
                     href="./<?php
                         $params['z'] = 'main';
                         echo buildURLparameters($params);
                     ?>">
                     Main
                 </a>
+<?php
+for ($i=1; $i <= $numRSM; $i++) {
+?>
                 <a
-                    class="btn btn-mini span1<?php if($_GET['z']=='rsm'){echo ' active';} ?>"
+                    class="btn btn-mini<?php if($_GET['z']==$i){echo ' active';} ?>"
                     href="./<?php
-                        $params['z'] = 'rsm';
+                        $params['z'] = $i;
                         echo buildURLparameters($params);
                         if(isset($_GET['z'])) {
                             $params['z'] = $_GET['z'];
@@ -438,8 +428,11 @@ foreach($result[0] as $key => $val) {
                             unset($params['z']);
                         }
                     ?>">
-                    RSM
+                    RSM<?php if($numRSM > 1){echo '-'.$i;} ?>
                 </a>
+<?php
+}
+?>
             </div>
         </div>
 

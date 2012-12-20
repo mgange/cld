@@ -45,7 +45,7 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-$zone = 'Main';
+$SourceID = 99;
 
 /* Get the default table.column values for the values to be graphed */
 $query = "
@@ -57,20 +57,12 @@ SELECT
     WebRefTable.SensorLabel
 FROM SysMap, WebRefTable
 WHERE (
-       (SysMap.SensorRefName = 'SysCOP'     AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'HPCOP'      AND WebRefTable.WebSubPageName = '$zone')
+       (SysMap.SensorRefName = 'SysCOP'     AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'HPCOP'      AND SysMap.SourceID = '$SourceID')
     )
-  AND SysMap.SensorRefName = WebRefTable.SensorName";
-if($zone == 'Main') {
-    $query .= "
-  AND SysMap.SourceID != 1
-  AND SysMap.SourceID != 2
-  AND SysMap.SourceID != 3
-  AND SysMap.SourceID != 5
-    ";
-}
-$defaultSensors = $db->fetchAll($query . "
-    AND DAMID = '000000000000'");
+  AND SysMap.SensorRefName = WebRefTable.SensorName
+  ";
+$defaultSensors = $db->fetchAll($query . "AND DAMID = '000000000000'");
 
 /* Put all the defaults in an associative array */
 $sensors = array();
@@ -90,7 +82,7 @@ foreach($sensors as $key=>$value) {
 }
 
 /* An array of tables being used to buid the FROM part of a query */
-$tablesUsed = array('0');
+$tablesUsed = array('SourceData0');
 foreach($sensors as $sensor) {
     if(!in_array($sensor['SourceID'], $tablesUsed)) {
         array_push($tablesUsed, $sensor['SourceID']);
@@ -115,36 +107,28 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 
 $startTime = $endTime - ($range*3600);
 
-$zoneTable = 'SourceData0';
-
 $query = "SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
     ";
 foreach($sensors as $sensor) {
-     $query .= $tablesIndex[$sensor['SourceID']] . "." . $sensor['SensorColName'] . ",
+     $query .= "SensorCalc." . $sensor['SensorColName'] . ",
     ";
 }
 $query .=
-      $zoneTable.".DigIn01,
-    ".$zoneTable.".DigIn02,
-    ".$zoneTable.".DigIn03,
-    ".$zoneTable.".DigIn04,
-    ".$zoneTable.".DigIn05";
+   "SourceData0.DigIn01,
+    SourceData0.DigIn02,
+    SourceData0.DigIn03,
+    SourceData0.DigIn04,
+    SourceData0.DigIn05";
 $query .= "
 FROM
-    SourceHeader";
-foreach($tablesUsed as $table) {
-    $query .= ", " . $tablesIndex[$table];
-}
+    SourceHeader, SensorCalc, SourceData0";
 $query .= "
-WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
-foreach($tablesUsed as $table) {
-    $query .= "
-  AND SourceHeader.Recnum = ". $tablesIndex[$table].".HeadID";
-}
-$query .= "
+WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
+  AND SourceHeader.Recnum = SensorCalc.HeadID
+  AND SourceHeader.Recnum = SourceData0.HeadID
   AND
 (
     (
@@ -232,8 +216,7 @@ require_once('../../includes/header.php');
                           events: {
                             click: function(){
                               if(!Modernizr.touch) {
-                                window.location='../../status?id='+recnums[this.x]<?php if(isset($_GET['z'])){echo "+'&z=".$_GET['z']."'";} ?>;
-                               // loadStatus(recnums[this.x]);
+                                window.location='../../status?id='+recnums[this.x];
                               }
                             }
                           }

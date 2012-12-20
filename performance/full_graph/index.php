@@ -40,8 +40,6 @@ $db = new db($config);
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
-$zone = 'Main';
-
 /* Get the default table.column values for the values to be graphed */
 $query = "
 SELECT
@@ -52,25 +50,17 @@ SELECT
     WebRefTable.SensorLabel
 FROM SysMap, WebRefTable
 WHERE (
-       (SysMap.SensorRefName = 'WaterIn'    AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'WaterOut'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'AirIn'      AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'AirOut'     AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'OutsideAir' AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'FlowMain'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'Pressure'   AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'SysCOP'     AND WebRefTable.WebSubPageName = '$zone')
-    OR (SysMap.SensorRefName = 'HPCOP'      AND WebRefTable.WebSubPageName = '$zone')
+       SysMap.SensorRefName = 'WaterIn'
+    OR SysMap.SensorRefName = 'WaterOut'
+    OR SysMap.SensorRefName = 'AirIn'
+    OR SysMap.SensorRefName = 'AirOut'
+    OR SysMap.SensorRefName = 'OutsideAir'
+    OR SysMap.SensorRefName = 'FlowMain'
+    OR SysMap.SensorRefName = 'Pressure'
+    OR SysMap.SensorRefName = 'SysCOP'
+    OR SysMap.SensorRefName = 'HPCOP'
     )
-  AND SysMap.SensorRefName = WebRefTable.SensorName";
-if($zone == 'Main') {
-    $query .= "
-  AND SysMap.SourceID != 1
-  AND SysMap.SourceID != 2
-  AND SysMap.SourceID != 3
-  AND SysMap.SourceID != 5
-    ";
-}
+  AND SysMap.SensorRefName = WebRefTable.SensorName    ";
 $defaultSensors = $db->fetchAll($query . "
     AND DAMID = '000000000000'");
 
@@ -125,26 +115,46 @@ $query = "SELECT DISTINCT
     SourceHeader.TimeStamp,
     ";
 foreach($sensors as $sensor) {
-     $query .= $tablesIndex[$sensor['SourceID']] . "." . $sensor['SensorColName'] . ",
+    if($sensor['SourceID'] == 99) {
+        $query .= "SensorCalc";
+    }else{
+        $query .= "SourceData0";
+    }
+     $query .= "." . $sensor['SensorColName'] . ",
     ";
 }
-$query .=
-      $zoneTable.".DigIn01,
-    ".$zoneTable.".DigIn02,
-    ".$zoneTable.".DigIn03,
-    ".$zoneTable.".DigIn04,
-    ".$zoneTable.".DigIn05";
+$query .= "
+    SourceData0.DigIn01,
+    SourceData0.DigIn02,
+    SourceData0.DigIn03,
+    SourceData0.DigIn04,
+    SourceData0.DigIn05";
 $query .= "
 FROM
     SourceHeader";
 foreach($tablesUsed as $table) {
-    $query .= ", " . $tablesIndex[$table];
+    $query .= ", ";
+    if($table == 99) {
+        $query .= 'SensorCalc';
+    }elseif($table == 0){
+        $query .= 'SourceData0';
+    }else{
+        $query .= 'SourceData1';
+    }
 }
 $query .= "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
 foreach($tablesUsed as $table) {
     $query .= "
-  AND SourceHeader.Recnum = ". $tablesIndex[$table].".HeadID";
+  AND SourceHeader.Recnum = ";
+    if($table == 99) {
+        $query .= 'SensorCalc';
+    }elseif($table == 0){
+        $query .= 'SourceData0';
+    }else{
+        $query .= 'SourceData1';
+    }
+  $query .= ".HeadID";
 }
 $query .= "
   AND
@@ -234,7 +244,7 @@ require_once('../../includes/header.php');
                           events: {
                             click: function(){
                               if(!Modernizr.touch) {
-                               loadStatus(recnums[this.x]);
+                                window.location='../../status?id='+this.x;
                               }
                             }
                           }
