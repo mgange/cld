@@ -122,6 +122,22 @@ $sysMapUnique = $db -> fetchAll($query);
         }
     }
     function checkboxChange(sourceID,Recnum){
+        //new value is same as next inactives
+        if(sourceID == 4){  //only for power/therm
+            var all = document.forms["sensorMapping" + sourceID].getElementsByTagName("input");
+            var name = "Active" + Recnum;
+            for(var i=0;i<all.length;i++){
+                if(all[i].name == name){    //get index of the given checkbox
+                    for(var j=i+1;j<all.length;j++){
+                        if(all[j].type == "checkbox"){  //disable/enable for next checkboxes
+                            if(all[j].disabled == false) break; //stop loop once done with all inactive checkboxes
+                            all[j].checked = all[i].checked;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         //flag change to check on submit
         var mydiv = document.getElementsByName("sensorMapping" + sourceID + "onChange")[0];
         var newcontent = document.createElement('div');
@@ -135,13 +151,15 @@ $sysMapUnique = $db -> fetchAll($query);
 <form name="sensorMapping<?=$sourceID?>" action="./" method="post" onsubmit="return noErrors('sensorMapping<?=$sourceID?>')">
 	<div class="row">
 		<h4 class="span2" style="width:130px">Sensor</h4>
-        <h4 class="span1">Model</h4>
-        <h4 class="span1">Address</h4>
+        <?php if($sourceID == 4){ ?>
+            <h4 class="span1">Model</h4>
+            <h4 class="span1">Address</h4>
+        <?php } ?>
         <h4 class="span2">Channel</h4>
 		<h4 class="span2" style="width:100px">Low Limit</h4>
 		<h4 class="span2" style="width:100px">High Limit</h4>
-        <h4 class="span1" style="width:70px">Percent Threshold</h4>
-        <h4 class="span1" style="width:100px">Trigger Alarm After</h4>
+        <h4 <?=($sourceID == 4) ? "class=\"span1\" style=\"width:70px\"" : "class=\"span2\""?>>Percent Threshold</h4>
+        <h4 <?=($sourceID == 4) ? "class=\"span1\" style=\"width:100px\"" : "class=\"span2\""?>>Trigger Alarm After</h4>
         <h4 class="span1" style="width:10px;text-align:center">Active</h4>
 	</div>
     <hr>
@@ -162,8 +180,23 @@ $sysMapUnique = $db -> fetchAll($query);
 ?>
     <div class="row">
         <p class="span2" style="font-size:16px;font-weight:bold;width:130px;margin-top:10px"><strong><?=($resultRow['SensorType'] == 7) ? "Thermostat " . $resultRow['SysGroup'] : substr($resultRow['SensorName'],0,2)?></strong></p>
-        <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorModel'])){ ?><input type="text" style="max-width:50%" name="Model<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorModel']?>"><?php } ?></p>
-        <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorAddress'])){ ?><input type="text" style="max-width:50%" name="Address<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorAddress']?>"><?php } ?></p>
+        <?php if($sourceID == 4){ ?>
+            <p class="span1" style="margin-top:10px;text-align:absolute">
+                <?php
+                    if(isset($resultRow['SensorModel'])){
+                        $query = "SELECT * FROM SysConfigDefaults WHERE ConfigSubGroup = 'Therm' OR ConfigSubGroup = 'Power'";
+                        MySQL_Pull_Down($config,$query,"Model" . $resultRow['Recnum'],"ItemName","AssignedValue",$resultRow['SensorModel'],NULL,"span1");
+                    }
+                ?>
+            </p>
+            <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorAddress'])){ ?><input type="text" style="max-width:50%" name="Address<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorAddress']?>"><?php } ?></p>
+        <?php } ?>
+        <p class="span2">&nbsp;</p>
+        <p class="span2" style="width:100px">&nbsp;</p>
+        <p class="span2" style="width:100px">&nbsp;</p>
+        <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:70px\"" : "class=\"span2\""?>>&nbsp;</p>
+        <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:100px\"" : "class=\"span2\""?>>&nbsp;</p>
+        <p class="span1" style="width:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
     </div>
     <hr>
 <?php
@@ -190,24 +223,26 @@ $sysMapUnique = $db -> fetchAll($query);
 ?>
 	<div class="row over">
 		<p class="span2" style="width:130px;margin-top:10px"><strong><?=(!strncasecmp($resultRow['SensorColName'],"power",5)) ? substr($resultRow['SensorName'],2) : $resultRow['SensorName']?></strong></p>
-        <p class="span1" style="margin-top:10px;text-align:absolute">
-        <?php
-            if(isset($resultRow['SensorModel'])){
-                if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
-                else $inputType = "hidden";
-                echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Model" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorModel'] . "\">";
-            }
-        ?>
-        </p>
-        <p class="span1" style="margin-top:10px;text-align:absolute">
-        <?php
-            if(isset($resultRow['SensorAddress'])){
-                if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
-                else $inputType = "hidden";
-                echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Address" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorAddress'] . "\">";
-            }
-        ?>
-        </p>
+        <?php if($sourceID == 4){ ?>
+            <p class="span1" style="margin-top:10px;text-align:absolute">
+            <?php
+                if(isset($resultRow['SensorModel'])){
+                    if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
+                    else $inputType = "hidden";
+                    echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Model" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorModel'] . "\">";
+                }
+            ?>
+            </p>
+            <p class="span1" style="margin-top:10px;text-align:absolute">
+            <?php
+                if(isset($resultRow['SensorAddress'])){
+                    if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
+                    else $inputType = "hidden";
+                    echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Address" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorAddress'] . "\">";
+                }
+            ?>
+            </p>
+        <?php } ?>
         <p class="span2" style="margin-top:10px"><?php
             //Sensor Channel
             if(!strncasecmp($resultRow['SensorColName'],"senchan",7)){
@@ -295,14 +330,19 @@ $sysMapUnique = $db -> fetchAll($query);
         <p class="span2" style="width:100px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlarmUpLimit'])) { ?><input name="Hi<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Hi',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:60%;text-align:right;<?=(isset($hiErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$hiValue])) ? $_POST[$hiValue] : $resultRow['AlarmUpLimit']?>"> <?php echo $unit; } ?>
             <span name="Hi<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span1" style="width:70px;margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Percent',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($percentErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$percentValue])) ? $_POST[$percentValue] : $resultRow['AlertPercent']?>"> %<?php } ?>
+        <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:70px;" : "class=\"span2\" style=\""?>margin-top:10px;text-align:absolute"><?php if(isset($resultRow['AlertPercent'])) { ?><input name="Percent<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Percent',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($percentErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$percentValue])) ? $_POST[$percentValue] : $resultRow['AlertPercent']?>"> %<?php } ?>
             <span name="Percent<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
         </p>
-        <p class="span1" style="width:100px;margin-top:10px;text-align:absolute"><input name="Trigger<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Trigger',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($triggerErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$triggerValue])) ? $_POST[$triggerValue] : $resultRow['AlarmTrigger']?>"> mins
+        <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:100px\"" : "class=\"span2\""?>margin-top:10px;text-align:absolute"><input name="Trigger<?=$resultRow['Recnum']?>" type="text" class="span1" onkeyup="isNumeric('Trigger',<?=$sourceID?>,<?=$resultRow['Recnum']?>)" style="max-width:50%;text-align:right;<?=(isset($triggerErrFlag[$resultRow['Recnum']])) ? "border:red solid 2px" : ""?>" value="<?=(isset($_POST[$triggerValue])) ? $_POST[$triggerValue] : $resultRow['AlarmTrigger']?>"> mins
             <span name="Trigger<?=$resultRow['Recnum']?>Span" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             <span name="Trigger<?=$resultRow['Recnum']?>Span2" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Must be Greater than 5</span>
         </p>
-        <p class="span1" style="width:10px;margin-top:10px;text-align:absolute"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
+        <p class="span1" style="width:10px;margin-top:10px;text-align:absolute"><?php
+            if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){?>
+                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled="disabled"></p>
+            <?php }else{ ?>
+                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
+            <?php } ?>
 	</div>
 <?php
         }

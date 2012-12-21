@@ -41,7 +41,7 @@ if(isset($_POST['submitInfo'])){
     || ($_POST['LocofMain'] == "")
     || ($_POST['NumofRSMS'] == "") || ($_POST['NumofRSMS'] < 0) || ($_POST['NumofRSMS'] > 4)
     || ($_POST['NumofPower'] == "") || ($_POST['NumofPower'] < 0) || ($_POST['NumofPower'] > 7)){
-    //$infoErr = true;
+    $infoErr = true;
   }
 }
 
@@ -208,7 +208,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
 <?php } ?>
 <!-- SENSOR MAPPING INFORMATION  -->
 <?php if($_SESSION['SetupStep'] > 1){ ?>
-         <div class="accordion-group" style="border:0px">
+        <div class="accordion-group" style="border:0px">
              <div class="accordion-heading">
                 <a class="accordion-toggle"
                     data-toggle="collapse"
@@ -265,16 +265,8 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                   </div>
                 </div>
              </div>
-          </div>
-<?php   } else {?>
-
-            <div class="row"><font color="grey">
-                <h2 class="span8 offset3">&nbsp;&nbsp;Sensor Mapping</h2>
-               </font>
-            </div>
-<?php } ?>
+        </div>
 <!-- MAINTENANCE  -->
-<?php if($_SESSION['SetupStep'] > 2){ ?>
         <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle"
@@ -285,10 +277,30 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 </a>
             </div>
         </div>
+        <div class="accordion-group" style="border:0px">
+            <div class="accordion-heading">
+                <a class="accordion-toggle"
+                href="../dashboard/">
+                    <div class="row">
+                        <h2 class="span8 offset3">+ Dashboard</h2>
+                    </div>
+                </a>
+            </div>
+        </div>
 <?php   } else { ?>
         <div class="row">
             <font color="grey">
+                <h2 class="span8 offset3">&nbsp;&nbsp;Sensor Mapping</h2>
+            </font>
+        </div>
+        <div class="row">
+            <font color="grey">
                 <h2 class="span8 offset3">&nbsp;&nbsp;Maintenance</h2>
+            </font>
+        </div>
+        <div class="row">
+            <font color="grey">
+                <h2 class="span8 offset3">&nbsp;&nbsp;Dashboard</h2>
             </font>
         </div>
 <?php

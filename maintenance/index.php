@@ -7,6 +7,8 @@
  */
 require_once('../includes/pageStart.php');
 
+checkSystemSet($config);
+
 $db = new db($config);
 
 unset($_SESSION['buildingID']);

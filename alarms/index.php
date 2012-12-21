@@ -16,9 +16,6 @@ $db = new db($config);
 $SysID = $_SESSION['SysID'];
 $query = "SELECT SysName FROM SystemConfig WHERE SysID = " . $SysID;
 $sysConfig = $db -> fetchRow($query);
-
-$query = "UPDATE Alarms_Active SET Alarm_Duration = TIMEDIFF( NOW() , TimeStamp_Start )";
-$db -> execute($query);
 ?>
 
         <div class="row">
@@ -30,18 +27,18 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "datetime":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM Alarms_Active WHERE SysID = " . $SysID;
+                }else $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID;
                 $results = $db -> fetchAll($query);
                 if(!empty($results)){
         ?>
@@ -65,15 +62,6 @@ $db -> execute($query);
                         $dateTime = date_create($value['TimeStamp_Start']);
                         $date = date_format($dateTime, 'm/d/Y');
                         $time = date_format($dateTime, 'g:i:s A');
-
-                        $hour = substr($durationTime,0,(strripos($durationTime,':')));
-                        $min = substr($durationTime,(strripos($durationTime,':'))+1);
-                        $timeInMins = ($hour * 60) + $min;
-
-                        $query = "SELECT AlarmTrigger FROM SysMap WHERE SysID = " . $SysID . " AND SourceID = " . $value['SourceID'] . " AND SensorNo = " . $value['SensorNo'];
-                        $trigger = $db -> fetchRow($query);
-                        if($trigger['AlarmTrigger'] > $timeInMins) continue;
-
                         $query = "SELECT * FROM Alarm_Codes WHERE Alarm_Code = " . $value['Alarm_Code'];
                         $alarm = $db -> fetchRow($query);
                 ?>
@@ -94,17 +82,19 @@ $db -> execute($query);
                     ?>
                     </td>
                     <td><?php
-                        $query = "SELECT SensorRefName FROM SysMap WHERE SensorNo = " . $value['SensorNo'] . " AND SourceID = " . $value['SourceID'];
-                        $label = $db -> fetchRow($query);
-                        $query = "SELECT SensorLabel FROM WebRefTable WHERE SensorName = '" . $label['SensorRefName'] . "'";
-                        $name = $db -> fetchRow($query);
-                        echo $name['SensorLabel'];
+                        if(isset($value['SensorNo'])){
+                            $query = "SELECT SensorRefName FROM SysMap WHERE SensorNo = " . $value['SensorNo'] . " AND SourceID = " . $value['SourceID'];
+                            $label = $db -> fetchRow($query);
+                            $query = "SELECT SensorLabel FROM WebRefTable WHERE SensorName = '" . $label['SensorRefName'] . "'";
+                            $name = $db -> fetchRow($query);
+                            echo $name['SensorLabel'];
+                        }
                     ?>
                     </td>
                     <td><?=$durationTime?></td>
                     <td><?=$value['Resolution']?></td>
                     <td><?=$value['Notes']?></td>
-                    <td><?=(isset($value['Alarm_Email_Sent'])) ? "Yes" : "No"?></td>
+                    <td><?=($value['EMailSent'] == 1) ? "Yes" : "No"?></td>
                 </tr>
                 <?php
                         unset($value);
@@ -125,21 +115,21 @@ $db -> execute($query);
                 if(isset($_GET['group']) && isset($_GET['by'])){
                     switch ($_GET['group']){
                         case "started":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY TimeStamp_Start " . $_GET['by'];
                             break;
                         case "ended":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY TimeStamp_End " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY TimeStamp_End " . $_GET['by'];
                             break;
                         case "duration":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY Alarm_Duration " . $_GET['by'];
                             break;
                         case "sensor":
-                            $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
+                            $query = "SELECT * FROM Alarms_History WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY SensorNo " . $_GET['by'];
                             break;
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM Alarms_History WHERE SysID = " . $SysID;
+                }else $query = "SELECT * FROM Alarms_History WHERE WebEnabled = 1 AND SysID = " . $SysID;
                 //ini_set('memory_limit','120M');
                 $results = $db -> fetchAll($query);
         ?>
@@ -189,17 +179,19 @@ $db -> execute($query);
                     ?>
                     </td>
                     <td><?php
-                        $query = "SELECT SensorRefName FROM SysMap WHERE SensorNo = " . $value['SensorNo'] . " AND SourceID = " . $value['SourceID'];
-                        $label = $db -> fetchRow($query);
-                        $query = "SELECT SensorLabel FROM WebRefTable WHERE SensorName = '" . $label['SensorRefName'] . "'";
-                        $name = $db -> fetchRow($query);
-                        echo $name['SensorLabel'];
+                        if(isset($value['SensorNo'])){
+                            $query = "SELECT SensorRefName FROM SysMap WHERE SensorNo = " . $value['SensorNo'] . " AND SourceID = " . $value['SourceID'];
+                            $label = $db -> fetchRow($query);
+                            $query = "SELECT SensorLabel FROM WebRefTable WHERE SensorName = '" . $label['SensorRefName'] . "'";
+                            $name = $db -> fetchRow($query);
+                            echo $name['SensorLabel'];
+                        }
                     ?>
                     </td>
                     <td><?=$durationTime?></td>
                     <td><?=$value['Resolution']?></td>
                     <td><?=$value['Notes']?></td>
-                    <td><?=(isset($value['Alarm_Email_Sent'])) ? "Yes" : "No"?></td>
+                    <td><?=($value['EMailSent'] == 1) ? "Yes" : "No"?></td>
                 </tr>
                 <?php
                         unset($value);

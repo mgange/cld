@@ -44,7 +44,7 @@
             <label for="maintainerName"><span style="color:red">*</span>&nbsp;Maintainer Name<br>
                 <select name="maintainerName" onchange="maintainerChange('Edit<?=$result['Recnum']?>')">
                     <?php
-                        $query="SELECT Name FROM MaintainResource WHERE Category = 'Maintainer'";
+                        $query = "SELECT Name FROM MaintainResource WHERE Category = 'Maintainer'";
                         $maintainerList = $db -> fetchAll($query);
                         foreach($maintainerList as $list){
                             echo "<option value=\"" . $list['Name'] . "\"";
@@ -57,7 +57,7 @@
             <label for="maintainerCompany">Maintainer Company<br>
                 <input type="text" name="maintainerCompany" value="<?=$result['MaintainerCompany']?>" readonly="readonly">
                 <?php
-                    $query="SELECT Name,Company FROM MaintainResource WHERE Category = 'Maintainer'";
+                    $query = "SELECT Name,Company FROM MaintainResource WHERE Category = 'Maintainer'";
                     $maintainerList = $db -> fetchAll($query);
                     foreach($maintainerList as $list) echo "<input type=\"hidden\" name=\"" . $list['Name'] . "\" value=\"" . $list['Company'] . "\" style=\"visibility:hidden\">";
                 ?>

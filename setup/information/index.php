@@ -166,12 +166,13 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
     .$NumofThermsSel.",".$NumofPowerSel.",".$NumofRSMSSel.")";
 
     try {
-      $response = $db -> execute($Inquery);
-      $DBUpdateok=$response;
-    $_SESSION['SetupStep'] = 2;
+        $response = $db -> execute($Inquery);
+        $DBUpdateok=$response;
+        $_SESSION['SetupStep'] = 2;
+        $_SESSION['SysID'] = $_SESSION['NewID'];
     }catch (Exception $e){
-      throw new Exception;
-      echo  " Error = ",0,$e;
+        throw new Exception;
+        echo  " Error = ",0,$e;
     }
   }
 }else{  // new system set up before a post only
