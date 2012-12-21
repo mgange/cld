@@ -58,8 +58,12 @@ require_once('../includes/header.php');
         case 3:
           $zone = 3;
           break;
-        default : $zone= $_GET['z']+1;
+
+        case 4:
+          $zone = 5;
           break;
+       // default : $zone= $_GET['z']+1;
+         // break;
       }
     }
       else {$zone=0;
