@@ -487,17 +487,6 @@ class db extends PDO
     }
 }
 
-/* A map of SourceIDs and the database table they refer to */
-$tablesIndex = array(
-// 'z' => 'table name'
-    0  => 'SourceData0',
-    1  => 'SourceData1',
-    2  => 'SourceData2',
-    3  => 'SourceData3',
-    4  => 'SourceData4',
-    99 => 'SensorCalc'
-);
-
 /* Array of system status' and their display name/color */
 $statusIndex = array(
 'System Off' => array(
@@ -615,10 +604,10 @@ function SelectPD($DBValue,$SelValue)
  * $SelValue - Value of selected item
  * $DefMess - true if showing inputname as first entty
  * $Class - Style class of input box
- * $Submit - file to execute onsubmit (not implemented as yet
+ * $SelectTitle - Header test for $DefMess   Optional "" uses $InputName
  *
  */
-function MySQL_Pull_Down($config,$query,$InputName,$DisplayField,$SelField,$SelValue,$DefMess,$Class,$Submit)
+function MySQL_Pull_Down($config,$query,$InputName,$DisplayField,$SelField,$SelValue,$DefMess,$Class,$SelectTitle)
 {
     // first get data
   $dbpd = new db($config);
@@ -626,7 +615,9 @@ function MySQL_Pull_Down($config,$query,$InputName,$DisplayField,$SelField,$SelV
   $PDList = $dbpd -> fetchAll($query);
   $dropdown = "<select name='".$InputName."' class='".$Class."'>";
 
-  if($DefMess==true) {$dropdown .= "\r\n<option value='-'>Select a ".$InputName."</option>";}
+  if ($SelectTitle=="") {$STitle=$InputName;} else {$STitle=$SelectTitle;}
+
+  if($DefMess==true) {$dropdown .= "\r\n<option value='-'>Select a ".$STitle."</option>";}
 foreach ($PDList as $row) {
   //  echo($row[$SelField]."||".$SelValue);
     $Sel= SelectPD($row[$SelField],$SelValue);
