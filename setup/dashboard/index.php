@@ -63,20 +63,20 @@ require_once('../../includes/header.php');
             echo "</div>";
         ?>
         <?php
-            $query = "SELECT A.SensorLabel,A.PageLocX,A.PageLocY,B.SensorColName,B.WebSensRefNum
-                    FROM WebRefTable AS A, SysMap AS B
-                    WHERE A.WebSensRefNum = B.WebSensRefNum AND A.Inhibit = 0 AND B.SysID = 0";
-            if(!strcasecmp($zone,"Main")) $query .= " AND A.WebSubPageName = 'Main'";
-            else $query .= " AND A.WebSubPageName = 'RSM'";
+            $query = "SELECT SensorLabel,PageLocX,PageLocY,WebSensRefNum
+                    FROM WebRefTable
+                    WHERE Inhibit = 0 AND SysID = 0";
+            if(!strcasecmp($zone,"Main")) $query .= " AND WebSubPageName = 'Main'";
+            else $query .= " AND WebSubPageName = 'RSM'";
 
             $ref = $db -> fetchAll($query);
             foreach($ref as $result){
                 //check uniques and use if possible
-                $query = "SELECT A.SensorLabel,A.PageLocX,A.PageLocY,B.SensorColName,B.WebSensRefNum
-                        FROM WebRefTable AS A, SysMap AS B
-                        WHERE A.SensorLabel = '" . $result['SensorLabel'] . "' AND A.WebSensRefNum = B.WebSensRefNum AND A.Inhibit = 0 AND B.SysID = " . $systemID;
-                if(!strcasecmp($zone,"Main")) $query .= " AND A.WebSubPageName = 'Main'";
-                else $query .= " AND A.WebSubPageName = 'RSM'";
+                $query = "SELECT SensorLabel,PageLocX,PageLocY,WebSensRefNum
+                        FROM WebRefTable
+                        WHERE SensorLabel = '" . $result['SensorLabel'] . "' AND Inhibit = 0 AND SysID = " . $systemID;
+                if(!strcasecmp($zone,"Main")) $query .= " AND WebSubPageName = 'Main'";
+                else $query .= " AND WebSubPageName = 'RSM'";
                 $unique = $db -> fetchRow($query);
                 if($db -> numRows($query) != 0) $result = $unique;
                 $xpos = $result['PageLocX'];
