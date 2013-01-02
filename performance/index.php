@@ -75,8 +75,13 @@ WHERE (
     OR (SysMap.SensorRefName = 'AirOut'     AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'FlowMain'   AND SysMap.SourceID = '$SourceID')
-    OR (SysMap.SensorRefName = 'Pressure'   AND SysMap.SourceID = '$SourceID')
-    OR (SysMap.SensorRefName = 'FlowRSM'    AND SysMap.SourceID = '$SourceID')
+    OR (SysMap.SensorRefName = 'Pressure'   AND SysMap.SourceID = '$SourceID')";
+if($_GET['z'] > 0) {
+$query .= "
+    OR (SysMap.SensorRefName = 'FlowRSM')
+";
+}
+$query .= "
 )
   AND SysMap.SensorRefName = WebRefTable.SensorName
         ";
@@ -116,6 +121,7 @@ if(isset($_GET['range']) && withinRange($_GET['range'], 0, 25)) {
     $range = 4;
 }
 
+/* The end of the date/time range that will be selected */
 if(isset($_GET['date']) && isset($_GET['time'])) {
     $endTime = strtotime($_GET['date'] . ' ' . $_GET['time']);
     $params['date'] = date('Y-m-d', $endTime);
@@ -123,9 +129,10 @@ if(isset($_GET['date']) && isset($_GET['time'])) {
 }else{
     $endTime = strtotime('now');
 }
+/* The beginning of the date/time range that will be selected */
+$startTime = $endTime - ($range*3600); // 3600 seconds in an hour
 
-$startTime = $endTime - ($range*3600);
-
+/* The zone that will be selected */
 if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
     $params['z'] = 'rsm';
 }else{
@@ -150,13 +157,18 @@ $query .=
     ".$table.".DigIn05";
 $query .= "
 FROM
-    SourceHeader, " . $table;
+    SourceHeader";
+foreach($tablesUsed as $table) {
+    $query .= " , SourceData" . $table;
+}
 
 $query .= "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
-
+foreach($tablesUsed as $table) {
+    $query .="
+  AND SourceHeader.Recnum = SourceData" . $table . ".HeadID";
+}
 $query .= "
-  AND SourceHeader.Recnum = " . $table . ".HeadID
   AND
 (
     (
