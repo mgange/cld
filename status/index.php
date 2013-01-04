@@ -622,7 +622,7 @@ require_once('../includes/header.php');
                         $dt = strtotime($ValA[0]);
                         echo '?date=' . date('Y-m-d', $dt);
                         echo '&time=' . date('H:i:s', $dt);
-                        if(isset($_GET['z'])) echo "&z=rsm";
+                        if(isset($_GET['z'])) echo "&z=".intval($_GET['z']);
                       }else if(isset($_GET['z'])) echo "?z=rsm";
                       echo "'>Performance</a>";
                       echo "<BR>";
