@@ -73,12 +73,15 @@ WHERE (
     OR (SysMap.SensorRefName = 'WaterOut'   AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'AirIn'      AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'AirOut'     AND SysMap.SourceID = '$SourceID')
-    OR (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'FlowMain'   AND SysMap.SourceID = '$SourceID')
     OR (SysMap.SensorRefName = 'Pressure'   AND SysMap.SourceID = '$SourceID')";
 if($_GET['z'] > 0) {
 $query .= "
     OR (SysMap.SensorRefName = 'FlowRSM')
+";
+}else{
+$query .= "
+    OR (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
 ";
 }
 $query .= "
