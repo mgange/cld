@@ -42,9 +42,44 @@ $params['end']   = $endTime;
 
 if(isset($_GET['z']) && $_GET['z'] != 'main') {
     $zoneTable = '1';
+    $SourceID = intval($_GET['z']);
 }else{
     $zoneTable = '0';
+    $SourceID = 0;
 }
+if($SourceID == 4) { $SourceID++; }
+
+$query = "
+SELECT
+    SysMap.SensorColName,
+    SysMap.SensorRefName
+FROM SysMap
+WHERE
+    (
+        (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
+     OR (SysMap.SensorRefName = 'SysCOP'     AND SysMap.SourceID = 99)
+    )
+";
+
+$defaultSensors = $db->fetchAll($query . "AND SysMap.DAMID = '000000000000'");
+
+/* Put all the defaults in an associative array */
+$sensors = array();
+foreach($defaultSensors as $sensor) {
+    $sensors[$sensor['SensorRefName']] = $sensor;
+}
+
+/* Get the custom table.column values specific to the current SysID */
+$systemSensors = $db->fetchAll($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
+/* Override the default table.column value if there is a custom value to replace it */
+foreach($sensors as $key=>$value) {
+    foreach($systemSensors as $custom) {
+        if($key == $custom['SensorRefName']) {
+            $sensors[$key] = $custom;
+        }
+    }
+}
+
 
 $daysToDisplay = floor((strtotime($endTime) - strtotime($startTime))/(60*60*24));
 
@@ -60,14 +95,17 @@ SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
+    SensorCalc." . $sensors['SysCOP']['SensorColName'] . ",
+    SourceData".$zoneTable."." . $sensors['OutsideAir']['SensorColName'] . ",
     SourceData".$zoneTable.".DigIn01,
     SourceData".$zoneTable.".DigIn02,
     SourceData".$zoneTable.".DigIn03,
     SourceData".$zoneTable.".DigIn04,
     SourceData".$zoneTable.".DigIn05
 FROM
-    SourceHeader, SourceData" . $zoneTable . "
+    SourceHeader, SensorCalc, SourceData" . $zoneTable . "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
+  AND SourceHeader.Recnum = SensorCalc.HeadID
   AND SourceHeader.Recnum = SourceData".$zoneTable.".HeadID
   AND SourceHeader.DateStamp = '" . date('Y-m-d', strtotime($endTime."- ".$i." day")) . "'
 ORDER BY
@@ -97,10 +135,16 @@ ORDER BY
             0
         );
         $data[$res['DateStamp']][$stage]++;
+        $outsideAir[$res['DateStamp']] += $res[$sensors['OutsideAir']['SensorColName']]/100;
+        $calcResult[$res['DateStamp']] += $res[$sensors['SysCOP']['SensorColName']];
     }
+    $outsideAir[$result[0]['DateStamp']] = round($outsideAir[$result[0]['DateStamp']]/count($result), 2);
+    $calcResult[$result[0]['DateStamp']] = round($calcResult[$result[0]['DateStamp']]/count($result), 2);
 }
 
 $data = array_reverse($data);
+$outsideAir = array_reverse($outsideAir);
+$calcResult = array_reverse($calcResult);
 
 require_once('../includes/header.php');
 ?>
@@ -109,30 +153,52 @@ require_once('../includes/header.php');
         var legend = {enabled: 1};
         var zoomType = 'xy';
         var plotOptions = {
+            line: {
+                stacking: 'normal'
+            },
             area: {
-                    stacking: 'percent',
+                stacking: 'percent',
+                lineWidth: 1,
+                marker: {
                     lineWidth: 1,
-                    marker: {
-                        lineWidth: 1,
-                        radius: 3
-                    }
+                    radius: 3
                 }
+            }
         };
         var tooltip = {
             enabled: 1,
             formatter: function() {
-                    return this.x+'<br>'+
-                    this.series.name+' <strong>'+Highcharts.numberFormat(this.percentage, 1) +'%</strong>'
+                    if(this.series.name == 'Outside Air') {
+                        return this.x+'<br><strong>'+this.y+'°</strong>'
+                    }
+                    if(this.series.name == 'System COP') {
+                        return this.x+'<br><strong>'+this.y+'</strong>'
+                    }else{
+                        return this.x+'<br>'+
+                        this.series.name+' <strong>'+Highcharts.numberFormat(this.percentage, 1) +'%</strong>'
+                    }
             }
         }
         var yAxisData = [
-            {
-                title: {text: '% Time in Each Stage'}
-              }];
-        var xAxisOptions = [
-            {
-                title: {text: 'Stages'}
-            }];
+            { // Primary Axis
+                max:100,
+                opposite: true,
+                title: {text: 'Average Daily Temperature'},
+                type: 'line'
+
+            },
+            { // Secondary Axis
+                max: 100,
+                title: {text: '% Time in Each Stage'},
+                type: 'area'
+            },
+
+            { // Third-iary Axis
+                opposite: true,
+                title: {text: 'System COP'},
+                type: 'line'
+            }
+        ];
         var categories = [<?php
             $i = 1;
             foreach($data as $date => $vals) {
@@ -144,6 +210,38 @@ require_once('../includes/header.php');
             }
         ?>];
         var data = [
+            {
+                name: 'Outside Air',
+                type: 'line',
+                yAxis: 0,
+                zIndex: 10,
+                data: [<?php
+                $i = 1;
+                foreach($outsideAir as $date => $temp) {
+                    echo $temp;
+                    if($i < count($outsideAir)) {
+                        echo ', ';
+                    }
+                    $i++;
+                }
+                ?>]
+            },
+            {
+                name: 'System COP',
+                type: 'line',
+                yAxis: 2,
+                zIndex: 10,
+                data: [<?php
+                $i = 1;
+                foreach($calcResult as $date => $temp) {
+                    echo $temp;
+                    if($i < count($calcResult)) {
+                        echo ', ';
+                    }
+                    $i++;
+                }
+                ?>]
+            },
 <?php
 $i = 1;
 foreach(end($data) as $stage => $val) {
@@ -151,6 +249,7 @@ foreach(end($data) as $stage => $val) {
             {
                 name: <?php echo "'" . $stage . "'"; ?>,
                 color: '<?php echo $statusIndex[$stage]['color'] ?>',
+                yAxis: 1,
                 data: [<?php
                 $j = 1;
                 foreach($data as $date => $arr) {
