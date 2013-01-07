@@ -70,6 +70,7 @@ if(count($_POST)){
                      . ", AlarmUpLimit = " . (($_POST['highLimit'] == "") ? "NULL" : $_POST['highLimit'])
                      . ", AlarmLoLimit = " . (($_POST['lowLimit'] == "") ? "NULL" : $_POST['lowLimit'])
                      . ", AlertPercent = " . $_POST['percentWarn'] . ", AlarmTrigger = " . $_POST['alarmTrigger']
+                     . ", SensorStatus = " . $_POST['sensorStatus']
                      . " WHERE Recnum = " . $lastinsert;
             $db -> execute($query);
         }else{
@@ -78,6 +79,7 @@ if(count($_POST)){
                      . ", AlarmUpLimit = " . (($_POST['highLimit'] == "") ? "NULL" : $_POST['highLimit'])
                      . ", AlarmLoLimit = " . (($_POST['lowLimit'] == "") ? "NULL" : $_POST['lowLimit'])
                      . ", AlertPercent = " . $_POST['percentWarn'] . ", AlarmTrigger = " . $_POST['alarmTrigger']
+                     . ", SensorStatus = " . $_POST['sensorStatus']
                      . " WHERE SysID = " . $systemID . " AND WebSensRefNum = " . $_POST['WebSensRefNum'];
             $db -> execute($query);
         }

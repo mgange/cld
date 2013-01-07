@@ -32,13 +32,6 @@ if(isset($_GET['z'])){
 require_once('../../includes/header.php');
 ?>
 
-<script type="text/javascript">
-    function selectSource(name,value){
-        document.getElementById(name).innerHTML = "<input type=\"hidden\" name=\"" + name + "\" value=\"" + value + "\">" + value;
-        alert(document.getElementById(name).innerHTML);
-    }
-</script>
-
 <div class="row">
     <h1 class="span6 offset2">Dashboard - <span class="building-name">System - <?=$systemName." - ".$zone ?></span></h1>
 </div>
