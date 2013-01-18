@@ -614,9 +614,9 @@ require_once('../includes/header.php');
                 <p class="align-center">
                     <?php
                       if ($CurrFlag!=true) {
-                        echo "<a href='./?id=0";
+                        echo "<a href='./";
                         if(isset($_GET['z'])) {
-                            echo "&z=" . $_GET['z'];
+                            echo "?z=" . $_GET['z'];
                         }
                         echo "'>Current Status</a>";
                       }
