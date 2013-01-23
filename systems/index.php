@@ -132,6 +132,15 @@ foreach($buildings as $building) {
                     Performance
                 </a>
             </div>
+            <div class="row">
+                <div class="span4 offset5">
+                    <?php
+                        $query = "SELECT DateStamp,TimeStamp FROM SourceHeader WHERE SysID = " . $sysConfig['SysID'] . " ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
+                        $result = $db -> fetchRow($query);
+                    ?>
+                    <span style="color:red">Last Update: <?=$result['DateStamp'] . " " . $result['TimeStamp']?></span>
+                </div>
+            </div>
 
 <?php
         $numSystems++;
