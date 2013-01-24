@@ -51,7 +51,7 @@ $buildingName = $buildingNames['SysName'];
 $numRSMs = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSMs['NumofRSM'];
 
-if(isset($_GET['z']) && $_GET['z'] != 'main') {
+if(isset($_GET['z']) && $_GET['z'] != 0) {
     $SourceID = intval($_GET['z']);
     $table = "SourceData1";
 }else{
@@ -139,7 +139,7 @@ $startTime = $endTime - ($range*3600); // 3600 seconds in an hour
 if(isset($_GET['z']) && $_GET['z'] == 'rsm') {
     $params['z'] = 'rsm';
 }else{
-    $params['z'] = 'main';
+    $params['z'] = 0;
 }
 
 $query = "SELECT DISTINCT
@@ -422,9 +422,9 @@ foreach($result[0] as $key => $val) {
             </h1>
             <div class="rsmToggle btn-group ">
                 <a
-                    class="btn btn-mini<?php if(!isset($_GET['z']) || $_GET['z'] == 'main'){echo ' active';} ?>"
+                    class="btn btn-mini<?php if(!isset($_GET['z']) || $_GET['z'] == 0){echo ' active';} ?>"
                     href="./<?php
-                        $params['z'] = 'main';
+                        $params['z'] = 0;
                         echo buildURLparameters($params);
                     ?>">
                     Main
@@ -517,7 +517,7 @@ if($range == $i) {
                         </div>
                         <br>
                         <input class="btn btn-info btn-large btn-block" type="submit" value="Submit">
-                        <input type="hidden" name="z" value="<?php echo ($_GET['z']=='rsm')?'rsm':'main'; ?>">
+                        <input type="hidden" name="z" value="<?php echo ($_GET['z']=='rsm')?'rsm':0; ?>">
                     </form>
                 </div>
                 <div class="span3">
