@@ -133,12 +133,14 @@ foreach($buildings as $building) {
                 </a>
             </div>
             <div class="row">
-                <div class="span4 offset5">
+                <br>
+                <div class="span4 offset4">
                     <?php
                         $query = "SELECT DateStamp,TimeStamp FROM SourceHeader WHERE SysID = " . $sysConfig['SysID'] . " ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
                         $result = $db -> fetchRow($query);
+                        $dateTime = new DateTime($result['DateStamp'] . $result['TimeStamp']);
                     ?>
-                    <span style="color:red">Last Update: <?=$result['DateStamp'] . " " . $result['TimeStamp']?></span>
+                    <span style="color:red">Last Update: <?=date_format($dateTime,'F jS, Y @ h:i A')?></span>
                 </div>
             </div>
 
@@ -151,7 +153,6 @@ foreach($buildings as $building) {
             }
         }
 ?>
-            <br>
         </div>
 <?php
     }
