@@ -253,7 +253,7 @@ foreach(end($data) as $stage => $val) {
                 data: [<?php
                 $j = 1;
                 foreach($data as $date => $arr) {
-                    echo $arr[$stage];
+                    echo intval($arr[$stage]);
                     if($j < count($data)) {
                         echo ', ';
                     }
