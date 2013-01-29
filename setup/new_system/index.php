@@ -24,6 +24,7 @@ if(isset($_POST['submitNewBuilding'])){
     || ($_POST['zip'] == "") || (!is_numeric($_POST['zip']))){
     $buildingErr = true;
   }
+  $buildingID = "new";
 }
 //System Information
 if(isset($_POST['submitInfo'])){

@@ -7,27 +7,26 @@
  *
 **/
 if(isset($_POST['submitNewBuilding'])){
-  if($_POST['address2'] != ""){
-    $query = "INSERT INTO buildings 
-    (buildingName,address1,address2,city,state,zip,CustomerID) 
-    VALUES(:buildingName, :addr1, :addr2, :city, :state, :zip, :customerID)";
-  }else $query = "INSERT INTO buildings 
-    (buildingName,address1,city,state,zip,CustomerID) 
-    VALUES(:buildingName, :addr1, :city, :state, :zip, :customerID)";
+    $query = "INSERT INTO buildings(
+            buildingName,address1,address2,city,state,zip,CustomerID
+            )VALUES(
+            :buildingName, :addr1, :addr2, :city, :state, :zip, :customerID)";
 
-  $bind[':buildingName'] = $_POST['name'];
-  $bind[':addr1']  = $_POST['address1'];
-  $bind[':addr2'] = $_POST['address2'];
-  $bind[':city']   = $_POST['city'];
-  $bind[':state']  = $_POST['state'];
-  $bind[':zip']    = $_POST['zip'];
-  $bind[':customerID'] = $_SESSION['customerID'];
+  $bind[':buildingName']    = $_POST['name'];
+  $bind[':addr1']           = $_POST['address1'];
+  $bind[':addr2']           = ($_POST['address2'] == NULL) ? NULL : $_POST['address2'];
+  $bind[':city']            = $_POST['city'];
+  $bind[':state']           = $_POST['state'];
+  $bind[':zip']             = $_POST['zip'];
+  $bind[':customerID']      = $_SESSION['customerID'];
 
   if($db -> execute($query, $bind)){
     $buildingID = $db -> lastInsertId();
     $_SESSION['buildingID'] = $buildingID;
   }
 }
+
+if($buildingID == "new"){
 ?>
 
 <script type="text/javascript">
@@ -105,3 +104,5 @@ function validate(){
         </div>
     </div>
 </form>
+
+<?php } ?>
