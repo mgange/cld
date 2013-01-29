@@ -117,7 +117,10 @@ if(isset($_POST['submitSensorMap'])){
   }
 }
 
-if(isset($_POST['buildingID'])) $buildingID = $_POST['buildingID'];
+if(isset($_POST['buildingID'])){
+    $buildingID = $_POST['buildingID'];
+    $_SESSION['buildingID'] = $_POST['buildingID'];
+}
 
 if(isset($buildingID)){
   $_SESSION['SetupStep'] = 1;
