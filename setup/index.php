@@ -7,7 +7,7 @@
  */
 require_once('../includes/pageStart.php');
 
-checkSystemSet($config);
+//checkSystemSet($config);
 
 require_once('../includes/header.php');
 
