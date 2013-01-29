@@ -35,12 +35,13 @@ foreach ($PDList as $row) {
 
 }
 */
-
+echo $update;
 checkSystemSet($config);
 // goes to home page if trying to set up new system without proper authorization
 //if($_SESSION['authLevel'] < 3 && $NewSystem==false) { //already in parent page
     //gtfo($config);
 //}
+echo $update;
 if(!$update){
   //clear session valuables for RSM etc
   $_SESSION['SetupRSM']=0;
@@ -159,14 +160,34 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
       echo  "Error = ",0,$e;
     }
   }else{ //New
-    $Inquery = "Insert into SystemConfig (SysID,SysName,SystemDescription,BuildingID,PlatformID,DAMID,Systype,Configuration,HeatExchanger,LocationMainSystem,InstallDate,Installer,
-    Maintainer,NumofTherms,NumofPowers,NumofRSM)
-    Values (".$_SESSION['NewID'].",'".$SysNameSel."','".$SysDescrpSel."',".$buildingID.",".$PlatformIDSel.",'".$DAMIDSel."','".$SysTypeSel."',"
-    .$ConfigSel.",'".$HeatExchangerSel."','".$LocofMainSel."','".$InstallDateSel."','".$InstallerSel."','".$MaintainerSel."',"
-    .$NumofThermsSel.",".$NumofPowerSel.",".$NumofRSMSSel.")";
+    $Inquery = "INSERT INTO SystemConfig(
+            SysID,SysName,SystemDescription,BuildingID,PlatformID,DAMID,
+            Systype,Configuration,HeatExchanger,LocationMainSystem,
+            InstallDate,Installer,Maintainer,NumofTherms,NumofPowers,NumofRSM
+            )VALUES(
+            :sysID,:sysName,:sysDescription,:buildingID,:platformID,:DAMID,
+            :sysType,:config,:heatExchanger,:locMain,:install,:installer,
+            :maintainer,:numOfTherms,:numOfPowers,:numOfRSM)";
+
+    $bind[':sysID'] = $_SESSION['NewID'];
+    $bind[':sysName'] = $SysNameSel;
+    $bind[':sysDescription'] = $SysDescrpSel;
+    $bind[':buildingID'] = $buildingID;
+    $bind[':platformID'] = $PlatformIDSel;
+    $bind[':DAMID'] = $DAMIDSel;
+    $bind[':sysType'] = $SysTypeSel;
+    $bind[':config'] = $ConfigSel;
+    $bind[':heatExchanger'] = $HeatExchangerSel;
+    $bind[':locMain'] = $LocofMainSel;
+    $bind[':install'] = $InstallDateSel;
+    $bind[':installer'] = $InstallerSel;
+    $bind[':maintainer'] = $MaintainerSel;
+    $bind[':numOfTherms'] = $NumofThermsSel;
+    $bind[':numOfPowers'] = $NumofPowerSel;
+    $bind[':numOfRSM'] = $NumofRSMSSel;
 
     try {
-        $response = $db -> execute($Inquery);
+        $response = $db -> execute($Inquery,$bind);
         $DBUpdateok=$response;
         $_SESSION['SetupStep'] = 2;
         $_SESSION['SysID'] = $_SESSION['NewID'];
