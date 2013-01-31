@@ -139,7 +139,7 @@ $sysMapUnique = $db -> fetchAll($query);
             }
         }
         //flag change to check on submit
-        $('[name=sensorMapping' + sourceID + 'onChange').after("<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">");
+        $('[name=sensorMapping' + sourceID + 'onChange]').after("<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">");
     }
 </script>
 
