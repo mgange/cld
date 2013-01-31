@@ -66,7 +66,6 @@ switch($_SESSION['authLevel']) {
 
 
 if(count($_POST) > 0) {
-    pprint($_POST);
 
     if($_POST['pass'] != $_POST['repass']) {
         header('Location: ../?id=' . intval($_POST['userID']) . '&a=pm');

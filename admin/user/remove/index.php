@@ -14,7 +14,6 @@ $query = 'SELECT userID, customerID, authLevel FROM users WHERE userID = :userID
 $bind[':userID'] = intval($_GET['id']);
 $user = $db -> fetchRow($query, $bind);
 
-pprint($user);
 
 switch($_SESSION['authLevel']) {
     case 1:
