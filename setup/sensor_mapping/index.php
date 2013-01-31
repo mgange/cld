@@ -139,12 +139,7 @@ $sysMapUnique = $db -> fetchAll($query);
             }
         }
         //flag change to check on submit
-        var mydiv = document.getElementsByName("sensorMapping" + sourceID + "onChange")[0];
-        var newcontent = document.createElement('div');
-        newcontent.innerHTML = "<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">";
-        while (newcontent.firstChild) {
-            mydiv.appendChild(newcontent.firstChild);
-        }
+        $('[name=sensorMapping' + sourceID + 'onChange').after("<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">");
     }
 </script>
 
