@@ -30,7 +30,7 @@ if(count($_POST) > 0) {
             VALUES(:customerID, :username, :password, :email, :firstName, :lastName, :authLevel)';
         $bind[':customerID'] = $_POST['customerID'];
         $bind[':username'] = $_POST['username'];
-        $bind[':password'] = hashPassword($_POST['password']);
+        $bind[':password'] = hashPassword($config, $_POST['pass']);
         $bind[':email'] = $_POST['email'];
         $bind[':firstName'] = $_POST['firstName'];
         $bind[':lastName'] = $_POST['lastName'];
