@@ -9,10 +9,7 @@ require_once('../../../includes/pageStart.php');
 
 $db = new db($config);
 
-/**
- * Only site admins are allowed to add new users(??).
- */
-if($_SESSION['authLevel'] != 3) {
+if($_SESSION['authLevel'] < 3) {
     gtfo($config);
 }
 

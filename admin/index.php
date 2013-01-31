@@ -21,6 +21,10 @@ require_once('../includes/pageStart.php');
 
 $db = new db($config);
 
+if($_SESSION['authLevel'] < 2) {
+    gtfo($config);
+}
+
 switch($_SESSION['authLevel']) {
     case 1:
         header('Location: ../?a=ua'); // a = Alert  ua = Unauthorized Access

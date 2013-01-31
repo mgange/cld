@@ -10,6 +10,10 @@ require_once('../../includes/pageStart.php');
 
 $db = new db($config);
 
+if($_SESSION['customerID'] != intval($_GET['id']) && $_SESSION['authLevel'] < 3) {
+    gtfo($config);
+}
+
 if(count($_POST) > 0) {
     $query = 'UPDATE customers SET
         addr1  = :addr1,
