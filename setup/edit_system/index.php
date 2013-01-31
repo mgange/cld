@@ -133,7 +133,6 @@ if(isset($_POST['submitSensorMap'])){
         $bind[':address'] = $_POST[$addressValue];
         $bind[':model'] = $_POST[$modelValue];
         $db -> execute($query, $bind);
-        //die($query);
     }
   }
 }

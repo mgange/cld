@@ -121,7 +121,7 @@ $sysMapUnique = $db -> fetchAll($query);
             }
         }
     }
-    function checkboxChange(sourceID,Recnum){
+    function checkboxChange(sourceID,Recnum,type,group){
         //new value is same as next inactives
         if(sourceID == 4){  //only for power/therm
             var all = document.forms["sensorMapping" + sourceID].getElementsByTagName("input");
@@ -137,9 +137,20 @@ $sysMapUnique = $db -> fetchAll($query);
                     break;
                 }
             }
+            $('[id^=CheckboxTypeGroup' + type + group + ']').each(function(){
+                $(this).after("<input type=\"hidden\" name=\"Change" + $(this).attr('name').substr(6,$(this).attr('name').length) +"\" value=\"true\">");
+            });
         }
         //flag change to check on submit
         $('[name=sensorMapping' + sourceID + 'onChange]').after("<input type=\"hidden\" name=\"Change" + Recnum +"\" value=\"true\">");
+    }
+    function ChangeAddress(Recnum,sourceID,type,group,value){
+        //change address for next ones in group
+        $('[id^=AddressTypeGroup' + type + group + ']').val(value);
+        //flag change to check on submit
+        $('[id^=AddressTypeGroup' + type + group + ']').each(function(){
+            $(this).after("<input type=\"hidden\" name=\"Change" + $(this).attr('name').substr(7,$(this).attr('name').length) +"\" value=\"true\">");
+        });
     }
 </script>
 
@@ -184,14 +195,14 @@ $sysMapUnique = $db -> fetchAll($query);
                     }
                 ?>
             </p>
-            <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorAddress'])){ ?><input type="text" style="max-width:50%" name="Address<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorAddress']?>"><?php } ?></p>
+            <p class="span1" style="margin-top:10px;text-align:absolute"><?php if(isset($resultRow['SensorAddress'])){ ?><input type="text" style="max-width:50%" name="Address<?=$resultRow['Recnum']?>" id="Address<?=$resultRow['Recnum']?>" value="<?=$resultRow['SensorAddress']?>" onchange="ChangeAddress(<?=$resultRow['Recnum']?>,<?=$sourceID?>,<?=$resultRow['SensorType']?>,<?=$resultRow['SysGroup']?>,this.value)"><?php } ?></p>
         <?php } ?>
         <p class="span2">&nbsp;</p>
         <p class="span2" style="width:100px">&nbsp;</p>
         <p class="span2" style="width:100px">&nbsp;</p>
         <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:70px\"" : "class=\"span2\""?>>&nbsp;</p>
         <p <?=($sourceID == 4) ? "class=\"span1\" style=\"width:100px\"" : "class=\"span2\""?>>&nbsp;</p>
-        <p class="span1" style="width:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
+        <p class="span1" style="width:10px;text-align:center"><input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>,<?=$resultRow['SensorType']?>,<?=$resultRow['SysGroup']?>)"></p>
     </div>
     <hr>
 <?php
@@ -233,7 +244,7 @@ $sysMapUnique = $db -> fetchAll($query);
                 if(isset($resultRow['SensorAddress'])){
                     if(strncasecmp($resultRow['SensorColName'],"power",5) && ($resultRow['SensorType'] != 7)) $inputType = "text";
                     else $inputType = "hidden";
-                    echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Address" . $resultRow['Recnum'] . "\" value=\"" . $resultRow['SensorAddress'] . "\">";
+                    echo "<input type=\"" . $inputType . "\" style=\"max-width:50%\" name=\"Address" . $resultRow['Recnum'] . "\" id=\"AddressTypeGroup" . $resultRow['SensorType'] . $resultRow['SysGroup'] . "\" value=\"" . $resultRow['SensorAddress'] . "\">";
                 }
             ?>
             </p>
@@ -334,7 +345,7 @@ $sysMapUnique = $db -> fetchAll($query);
         </p>
         <p class="span1" style="width:10px;margin-top:10px;text-align:absolute"><?php
             if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){?>
-                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled="disabled"></p>
+                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> id="CheckboxTypeGroup<?=$resultRow['SensorType'] . $resultRow['SysGroup']?>" onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled="disabled"></p>
             <?php }else{ ?>
                 <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
             <?php } ?>
