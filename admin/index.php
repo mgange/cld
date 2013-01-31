@@ -105,7 +105,7 @@ if($_SESSION['authLevel'] == 3) {
 ?>
                         <div class="span5">
                             <br>
-                            <a href="new/building?id=<?php echo $cust['customerID']; ?>" class="btn btn-small btn-success">
+                            <a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>setup/new_system" class="btn btn-small btn-success">
                                 <i class="icon-plus icon-white"></i>
                                 Add Building
                             </a>
