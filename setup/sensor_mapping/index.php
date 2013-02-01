@@ -139,6 +139,7 @@ $sysMapUnique = $db -> fetchAll($query);
             }
             $('[id^=CheckboxTypeGroup' + type + group + ']').each(function(){
                 $(this).after("<input type=\"hidden\" name=\"Change" + $(this).attr('name').substr(6,$(this).attr('name').length) +"\" value=\"true\">");
+                $(this).after("<input type=\"hidden\" name=\"" + $(this).attr('name') +"\" value=\"true\">");
             });
         }
         //flag change to check on submit
@@ -345,7 +346,7 @@ $sysMapUnique = $db -> fetchAll($query);
         </p>
         <p class="span1" style="width:10px;margin-top:10px;text-align:absolute"><?php
             if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){?>
-                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> id="CheckboxTypeGroup<?=$resultRow['SensorType'] . $resultRow['SysGroup']?>" onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled="disabled"></p>
+                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> id="CheckboxTypeGroup<?=$resultRow['SensorType'] . $resultRow['SysGroup']?>" onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled></p>
             <?php }else{ ?>
                 <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
             <?php } ?>

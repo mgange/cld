@@ -100,9 +100,9 @@ if(isset($_POST['submitSensorMap'])){
         $exists = $db ->numRows($query);
         if($exists) continue;
         //check if unique value exists to determine update or insert
-        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorName = '" . $_POST[$resultRow['SensorColName']] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
         $exists = $db -> numRows($query);
-        if($exists) $query = "UPDATE SysMap SET SensorName = :sensorName, AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        if($exists) $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
         else{
           //duplicate row first then update
           $query = "SELECT * FROM SysMap WHERE Recnum = " . $resultRow['Recnum'];
@@ -117,14 +117,14 @@ if(isset($_POST['submitSensorMap'])){
           //grab system info
           $query = "SELECT DAMID,PlatformID,Configuration FROM SystemConfig WHERE SysID = " . $_SESSION['SysID'];
           $result = $db -> fetchRow($query);
-          $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config, SensorName = :sensorName, AlarmUpLimit = :hiValue,
+          $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config, AlarmUpLimit = :hiValue,
           AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE Recnum = " . $lastinsert;
           $bind[':sysID'] = $_SESSION['SysID'];
           $bind[':DAMID'] = $result['DAMID'];
           $bind[':platformID'] = $result['PlatformID'];
           $bind[':config'] = $result['Configuration'];
         }
-        $bind[':sensorName'] = $_POST[$resultRow['SensorColName']];
+        //$bind[':sensorName'] = $_POST[$resultRow['SensorColName']];
         $bind[':hiValue'] = $_POST[$hiValue];
         $bind[':loValue'] = $_POST[$loValue];
         $bind[':percent'] = $_POST[$percentValue];
