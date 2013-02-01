@@ -495,31 +495,31 @@ $statusIndex = array(
     ),
 'Fan Only' => array(
     'text'  => 'Fan Only',
-    'color' => 'rgba(137, 255, 93, 0.2)'
+    'color' => 'rgba(137, 255, 93, 0.5)'
     ),
 'Stage 1 Heat' => array(
     'text'  => 'Stage 1 Heat',
-    'color' => 'rgba(232, 193, 6, 0.2)'
+    'color' => 'rgba(232, 193, 6, 0.5)'
     ),
 'Stage 2 Heat' => array(
     'text'  => 'Stage 2 Heat',
-    'color' => 'rgba(255, 131, 7, 0.2)'
+    'color' => 'rgba(255, 131, 7, 0.5)'
     ),
 'Emerg. Heat' => array(
     'text'  => 'Emerg. Heat',
-    'color' => 'rgba(255, 0, 0, 0.2)'
+    'color' => 'rgba(255, 0, 0, 0.5)'
     ),
 'Stage 3 Heat' => array(
     'text'  => 'Stage 3 Heat',
-    'color' => 'rgba(232, 88, 35, 0.2)'
+    'color' => 'rgba(232, 88, 35, 0.5)'
     ),
 'Stage 1 Cool' => array(
     'text'  => 'Stage 1 Cool',
-    'color' => 'rgba(30, 155, 255, 0.2)'
+    'color' => 'rgba(30, 155, 255, 0.5)'
     ),
 'Stage 2 Cool' => array(
     'text'  => 'Stage 2 Cool',
-    'color' => 'rgba(15, 72, 232, 0.2)'
+    'color' => 'rgba(15, 72, 232, 0.5)'
     ),
 'Invalid State' => array(
     'text'  => 'Invalid State',
