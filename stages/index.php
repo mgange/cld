@@ -55,10 +55,7 @@ SELECT
     SysMap.SensorRefName
 FROM SysMap
 WHERE
-    (
-        (SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID')
-     OR (SysMap.SensorRefName = 'SysCOP'     AND SysMap.SourceID = 99)
-    )
+    SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID'
 ";
 
 $defaultSensors = $db->fetchAll($query . "AND SysMap.DAMID = '000000000000'");
@@ -95,7 +92,6 @@ SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
-    SensorCalc." . $sensors['SysCOP']['SensorColName'] . ",
     SourceData".$zoneTable."." . $sensors['OutsideAir']['SensorColName'] . ",
     SourceData".$zoneTable.".DigIn01,
     SourceData".$zoneTable.".DigIn02,
@@ -103,9 +99,8 @@ SELECT DISTINCT
     SourceData".$zoneTable.".DigIn04,
     SourceData".$zoneTable.".DigIn05
 FROM
-    SourceHeader, SensorCalc, SourceData" . $zoneTable . "
+    SourceHeader, SourceData" . $zoneTable . "
 WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
-  AND SourceHeader.Recnum = SensorCalc.HeadID
   AND SourceHeader.Recnum = SourceData".$zoneTable.".HeadID
   AND SourceHeader.DateStamp = '" . date('Y-m-d', strtotime($endTime."- ".$i." day")) . "'
 ORDER BY
@@ -136,33 +131,32 @@ ORDER BY
         );
         $data[$res['DateStamp']][$stage]++;
         $outsideAir[$res['DateStamp']] += $res[$sensors['OutsideAir']['SensorColName']]/100;
-        $calcResult[$res['DateStamp']] += $res[$sensors['SysCOP']['SensorColName']];
+        $datapoints[$res['DateStamp']]++;
     }
-    $outsideAir[$result[0]['DateStamp']] = round($outsideAir[$result[0]['DateStamp']]/count($result), 2);
-    $calcResult[$result[0]['DateStamp']] = round($calcResult[$result[0]['DateStamp']]/count($result), 2);
+    // $outsideAir[$result[0]['DateStamp']] = round($outsideAir[$result[0]['DateStamp']]/count($result), 2);
+}
+foreach($outsideAir as $k => $v) {
+    $outsideAir[$k] = round( $v / $datapoints[$k] , 2);
 }
 
 $data = array_reverse($data);
 $outsideAir = array_reverse($outsideAir);
-$calcResult = array_reverse($calcResult);
 
 require_once('../includes/header.php');
 ?>
         <script>
-        var chartType = 'area';
+        var chartType = 'column';
         var legend = {enabled: 1};
         var zoomType = 'xy';
         var plotOptions = {
             line: {
                 stacking: 'normal'
             },
-            area: {
-                stacking: 'percent',
-                lineWidth: 1,
-                marker: {
-                    lineWidth: 1,
-                    radius: 3
-                }
+            column: {
+                borderColor: '#999',
+                borderWidth: 1,
+                shadow: 0,
+                stacking: 'percent'
             }
         };
         var tooltip = {
@@ -171,7 +165,7 @@ require_once('../includes/header.php');
                     if(this.series.name == 'Outside Air') {
                         return this.x+'<br><strong>'+this.y+'°</strong>'
                     }
-                    if(this.series.name == 'System COP') {
+                    if(this.series.name == 'Degree Days') {
                         return this.x+'<br><strong>'+this.y+'</strong>'
                     }else{
                         return this.x+'<br>'+
@@ -180,23 +174,16 @@ require_once('../includes/header.php');
             }
         }
         var yAxisData = [
-            { // Primary Axis
-                max:100,
-                opposite: true,
-                title: {text: 'Average Daily Temperature'},
-                type: 'line'
-
-            },
-            { // Secondary Axis
+            {
                 max: 100,
                 title: {text: '% Time in Each Stage'},
-                type: 'area'
             },
-
-            { // Third-iary Axis
-                opposite: true,
-                title: {text: 'System COP'},
-                type: 'line'
+            {
+                max: 100,
+                opposite: 1,
+                title: {
+                    text: 'Temperature'
+                },
             }
         ];
         var categories = [<?php
@@ -210,46 +197,12 @@ require_once('../includes/header.php');
             }
         ?>];
         var data = [
-            {
-                name: 'Outside Air',
-                type: 'line',
-                yAxis: 0,
-                zIndex: 10,
-                data: [<?php
-                $i = 1;
-                foreach($outsideAir as $date => $temp) {
-                    echo $temp;
-                    if($i < count($outsideAir)) {
-                        echo ', ';
-                    }
-                    $i++;
-                }
-                ?>]
-            },
-            {
-                name: 'System COP',
-                type: 'line',
-                yAxis: 2,
-                zIndex: 10,
-                data: [<?php
-                $i = 1;
-                foreach($calcResult as $date => $temp) {
-                    echo $temp;
-                    if($i < count($calcResult)) {
-                        echo ', ';
-                    }
-                    $i++;
-                }
-                ?>]
-            },
 <?php
-$i = 1;
 foreach(end($data) as $stage => $val) {
 ?>
             {
                 name: <?php echo "'" . $stage . "'"; ?>,
                 color: '<?php echo $statusIndex[$stage]['color'] ?>',
-                yAxis: 1,
                 data: [<?php
                 $j = 1;
                 foreach($data as $date => $arr) {
@@ -259,16 +212,28 @@ foreach(end($data) as $stage => $val) {
                     }
                     $j++;
                 }
-                ?>]
-            }<?php
-            if($i < count(end($data))) {
-                echo ",";
-            }
-            ?>
+                ?>],
+                // type: 'column'
+            },
 <?php
-    $i++;
 }
-?>];
+?>
+            {
+                name: 'Outside Air',
+                data: [<?php
+                $i = 1;
+                foreach($outsideAir as $date => $temp) {
+                    echo $temp;
+                    if($i < count($outsideAir)) {
+                        echo ', ';
+                    }
+                    $i++;
+                }
+                ?>],
+                type: 'line',
+                yAxis: 1
+            }
+];
         </script>
 
 
