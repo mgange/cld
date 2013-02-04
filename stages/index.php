@@ -165,7 +165,7 @@ require_once('../includes/header.php');
                     if(this.series.name == 'Outside Air') {
                         return this.x+'<br><strong>'+this.y+'°</strong>'
                     }
-                    if(this.series.name == 'Degree Days') {
+                    if(this.series.name == 'Heating Degree Days' || this.series.name == 'Cooling Degree Days') {
                         return this.x+'<br><strong>'+this.y+'</strong>'
                     }else{
                         return this.x+'<br>'+
@@ -176,14 +176,23 @@ require_once('../includes/header.php');
         var yAxisData = [
             {
                 max: 100,
-                title: {text: '% Time in Each Stage'},
+                maxPadding: 0,
+                title: {text: '% Time in Each Stage'}
             },
             {
-                max: 100,
+                maxPadding: 0,
                 opposite: 1,
                 title: {
                     text: 'Temperature'
-                },
+                }
+            },
+            {
+                max: 100,
+                min: 0,
+                opposite: 1,
+                title: {
+                    text: 'Degree Days'
+                }
             }
         ];
         var categories = [<?php
@@ -233,6 +242,54 @@ foreach(end($data) as $stage => $val) {
                 type: 'line',
                 yAxis: 1
             }
+<?php
+if(min($outsideAir) < 65) {
+?>
+            ,{
+                name: 'Heating Degree Days',
+                data: [<?php
+                $i = 1;
+                foreach($outsideAir as $date => $temp) {
+                    if($temp < 65) {
+                        echo 65 - $temp;
+                    }else{
+                        echo 'null';
+                    }
+                    if($i < count($outsideAir)) {
+                        echo ', ';
+                    }
+                    $i++;
+                }
+                ?>],
+                type: 'line',
+                yAxis: 2
+            }
+<?php
+}
+if(max($outsideAir) > 65) {
+?>
+            ,{
+                name: 'Cooling Degree Days',
+                data: [<?php
+                $i = 1;
+                foreach($outsideAir as $date => $temp) {
+                    if($temp > 65) {
+                        echo $temp - 65;
+                    }else{
+                        echo 'null';
+                    }
+                    if($i < count($outsideAir)) {
+                        echo ', ';
+                    }
+                    $i++;
+                }
+                ?>],
+                type: 'line',
+                yAxis: 2
+            }
+<?php
+}
+?>
 ];
         </script>
 
