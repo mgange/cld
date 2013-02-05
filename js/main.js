@@ -59,6 +59,16 @@ if($('.refresh').length) {
   window.setTimeout("window.location=window.location", 300000);
 }
 
+// Check/Uncheck all checkboxes in a form
+$('.check-all').click(function(){
+    $(this).parents('form').find('input[type="checkbox"]').prop('checked', true);
+    return false;
+});
+$('.uncheck-all').click(function(){
+    $(this).parents('form').find('input[type="checkbox"]').prop('checked', false);
+    return false;
+});
+
 // Initiate Chart
 /**
  * I'm using putting a lot of the chart data/options into variables an then

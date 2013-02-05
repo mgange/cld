@@ -23,244 +23,258 @@
  * SourceData4
  * SensorCalc
  */
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+/**
+ * Silly Functions
+ */
+function pickTable($SourceID)
+{
+    switch ($SourceID) {
+        case '0':
+            $table = 'SourceData0';
+            break;
+        case '4':
+            $table = 'SourceData4';
+            break;
+        case '99':
+            $table = 'SensorCalc';
+            break;
+        default:
+            $table = 'SourceData1';
+            break;
+    }
+    return $table;
+}
+function sourceName($SourceID)
+{
+    switch ($SourceID) {
+        case '0':
+            $name = 'DAM';
+            break;
+        case '4':
+            $name = 'Modbus';
+            break;
+        case '99':
+            $name = 'Sensor Calculations';
+            break;
+        default:
+            $name = 'RSM ';
+            if($SourceID > 4) {
+                $SourceID--;
+            }
+            $name .= $SourceID;
+            break;
+    }
+    return $name;
+}
+
+
+
 require_once('../includes/pageStart.php');
-
-checkSystemSet($config);
-
-$dataTables = array("SourceData0", "SourceData1", "SourceData4", "SensorCalc");
 
 $db = new db($config);
 
-if(isset($_POST['date'])) {
-    if(isset($_POST['source']) && withinRange(intval($_POST['source']), -1, 4)) {
-        $source = $dataTables[intval($_POST['source'])];
-        $query = "SELECT
-        SourceHeader.Recnum AS ID,
-        SourceHeader.DateStamp AS Date,
-        SourceHeader.TimeStamp AS Time,
-        " . $source . ".*
-        FROM SourceHeader, " . $source . "
-        WHERE SourceHeader.SysID = :SysID
-        AND SourceHeader.Recnum = " . $source . ".HeadID
-        AND SourceHeader.DateStamp = :date
-        ";
-        $bind[':SysID'] = $_SESSION['SysID'];
-        $bind[':date'] = $_POST['date'];
+$SysID = $_SESSION['SysID'];
 
-        $result = $db->fetchAll($query, $bind);
+checkSystemSet($config);
 
-        header("Content-type: text/csv");
-        header("Cache-Control: no-store, no-cache");
-        header('Content-Disposition: attachment; filename="Download.csv"');
+////////// Handle POST data ////////////////////////////////////////////////////
+if(count($_POST) > 0) {
+    // Keep an eye on the tables that are being queried
+    $tablesUsed = array('SourceHeader');
 
-        $outstream = fopen("php://output",'w');
+    $headings = array('Record ID', 'Date', 'Time');
 
-        foreach($result as $row) {
-            fputcsv($outstream, $row, ',', '"');
-        }
+    // Get the dates and get the out of the POST array
+    $from = $_POST['from'];
+    $until = $_POST['until'];
+    unset($_POST['from']);
+    unset($_POST['until']);
 
-        fclose($outstream);
-        die();
-    }elseif (isset($_POST['fileType']) && $_POST['fileType'] == 'xls') {
-
-        require_once('class.excelXML.php');
-
-        $bind[':SysID'] = $_SESSION['SysID'];
-        $bind[':date'] = date('Y-m-d', strtotime($_POST['date']));
-
-        ini_set('memory_limit','200M');
-        ini_set('max_execution_time','60');
-
-        // Create new object
-        $excel = new excel_xml();
-
-        //Define styles for header rows
-        $header_style = array(
-            'size'       => '12',
-            'color'      => '#ffffff',
-            'bgcolor'    => '#aaaaff'
-        );
-        $excel->add_style('header', $header_style);
-
-        // MAIN VALUES
-        $query = "SELECT
-        SourceHeader.Recnum AS ID,
-        SourceHeader.DateStamp AS Date,
-        SourceHeader.TimeStamp AS Time,
-        SourceData0.*
-        FROM SourceHeader, SourceData0
-        WHERE SysID = :SysID
-        AND SourceHeader.Recnum = SourceData0.HeadID
-        AND SourceHeader.DateStamp = :date
-        ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
-        ";
-        $main = $db->fetchAll($query, $bind);
-        // Create an empty array for header row values
-        $headers = array();
-
-        // Added the key names to the header row
-        foreach($main[0] as $key => $val) {
-            array_push($headers, $key);
-        }
-        $excel->add_row($headers, 'header');
-
-        // Write each DB record as a spreadsheet row
-        foreach($main as $row) {
-            $excel->add_row($row);
-        }
-        unset($main);
-
-        // Put all those rows in a worksheet
-        $excel->create_worksheet('Main');
-
-        // RSM VALUES
-        $query = "SELECT
-        SourceHeader.Recnum AS ID,
-        SourceHeader.DateStamp AS Date,
-        SourceHeader.TimeStamp AS Time,
-        SourceData1.*
-        FROM SourceHeader, SourceData1
-        WHERE SysID = :SysID
-        AND SourceHeader.Recnum = SourceData1.HeadID
-        AND SourceHeader.DateStamp = :date
-        ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
-        ";
-        $rsm = $db->fetchAll($query, $bind);
-        // Create an empty array for header row values
-        unset($headers);
-        $headers = array();
-
-        // Added the key names to the header row
-        foreach($rsm[0] as $key => $val) {
-            array_push($headers, $key);
-        }
-        $excel->add_row($headers, 'header');
-
-        // Write each DB record as a spreadsheet row
-        foreach($rsm as $row) {
-            $excel->add_row($row);
-        }
-        unset($rsm);
-        $excel->create_worksheet('RSM');
-
-        // MODBUS GATEWAY VALUES
-        $query = "SELECT
-        SourceHeader.Recnum AS ID,
-        SourceHeader.DateStamp AS Date,
-        SourceHeader.TimeStamp AS Time,
-        SourceData4.*
-        FROM SourceHeader, SourceData4
-        WHERE SysID = :SysID
-        AND SourceHeader.Recnum = SourceData4.HeadID
-        AND SourceHeader.DateStamp = :date
-        ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
-        ";
-        $modbus = $db->fetchAll($query, $bind);
-        // Create an empty array for header row values
-        unset($headers);
-        $headers = array();
-
-        // Added the key names to the header row
-        foreach($modbus[0] as $key => $val) {
-            array_push($headers, $key);
-        }
-        $excel->add_row($headers, 'header');
-
-        // Write each DB record as a spreadsheet row
-        foreach($modbus as $row) {
-            $excel->add_row($row);
-        }
-        unset($modbus);
-        $excel->create_worksheet('Modbus Gateway');
-
-        // SENSOR CALC VALUES
-        $query = "SELECT
-        SourceHeader.Recnum AS ID,
-        SourceHeader.DateStamp AS Date,
-        SourceHeader.TimeStamp AS Time,
-        SensorCalc.*
-        FROM SourceHeader, SensorCalc
-        WHERE SourceHeader.SysID = :SysID
-        AND SourceHeader.Recnum = SensorCalc.HeadID
-        AND SourceHeader.DateStamp = :date
-        ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
-        ";
-        $calc = $db->fetchAll($query, $bind);
-        // Create an empty array for header row values
-        unset($headers);
-        $headers = array();
-
-        // Added the key names to the header row
-        foreach($calc[0] as $key => $val) {
-            array_push($headers, $key);
-        }
-        $excel->add_row($headers, 'header');
-
-        // Write each DB record as a spreadsheet row
-        foreach($calc as $row) {
-            $excel->add_row($row);
-        }
-        unset($calc);
-        $excel->create_worksheet('Sensor Calc');
-
-
-        $xml = $excel->generate();
-        $excel->download('Download.xls');
-
+    if(count($_POST) == 0) {
+        header('Location: ./?a=e');
     }
-}
 
+    $query = "
+SELECT DISTINCT
+    SourceHeader.Recnum,
+    SourceHeader.DateStamp,
+    SourceHeader.TimeStamp,
+    ";
+    $i = 1;
+    foreach($_POST as $k => $v) { // Select all the fields from the POST
+        $query .= str_replace('_', '.', $k);
+        if($i < count($_POST)) { // Add commas, except at the end
+            $query .= ",
+    ";
+        }
+        $i++;
+        // While we're looping over these check which tables are used and keep track of them
+        if(!in_array( preg_replace('/_.*/', '', $k), $tablesUsed )) {
+            array_push($tablesUsed, preg_replace('/_.*/', '', $k));
+        }
+        array_push($headings, $v);
+    }
+    $query .= "
+FROM
+    ";
+    $i = 1;
+    foreach ($tablesUsed as $table) { // List the tables we're selecting from
+        $query .= $table;
+        if($i < count($tablesUsed)) { // Add commas, except at the end
+            $query .= ", ";
+        }
+        $i++;
+    }
+    $query .= "
+WHERE SourceHeader.SysID = $SysID";
+    array_shift($tablesUsed);
+    foreach ($tablesUsed as $table) { // Join all the tables being used to SourceHeader
+        $query .= "
+  AND SourceHeader.Recnum = " . $table . ".HeadID";
+    }
+    // Only get records in the date range
+    $query .= "
+  AND SourceHeader.DateStamp >= '$from'
+  AND SourceHeader.DateStamp <= '$until'
+LIMIT 10";
+
+    header("Content-type: text/csv");
+    header("Cache-Control: no-store, no-cache");
+    header('Content-Disposition: attachment; filename="Download.csv"');
+
+    $outstream = fopen("php://output",'w');
+
+    try{
+        $results = $db->fetchAll($query);
+    }catch(Exception $e) {
+        header('Location: ./?a=e');
+    }
+    array_unshift($results, $headings);
+
+    foreach($results as $row) {
+        fputcsv($outstream, $row, ',', '"');
+    }
+
+    fclose($outstream);
+    die();
+
+////////// End of POST hondling ////////////////////////////////////////////////
+}
 require_once('../includes/header.php');
 
-$date = date("Y-m-d", time() - 60 * 60 * 24);
+
+
+$numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$numRSM = $numRSM['NumofRSM'];
+
 ?>
-
-        <div class="row">
-            <h1 class="span8 offset2">Data Download</h1>
-        </div>
-
-        <form class="validate" action="./" method="POST">
+        <h1 class="span10 offset1">Data Download</h1>
+        <form action="./test.php" method="POST">
             <div class="row">
-                <div class="span4 offset4">
-                    <label for="date"><h4 class="pull-left">Date</h4>
-                        <input class="datepick text span4 offset1" id="date" type="text" name="date" value="<?php echo $date; ?>">
+                <div class="span4 offset2">
+                    <label class="span3">
+                        <h4 class="pull-left">From</h4>
+                        <input
+                            class="datepick text span3 "
+                            type="text"
+                            name="from"
+                            value="<?php echo date('Y-m-d', strtotime('-1 day')); ?>">
+                    </label>
+                </div>
+
+                <div class="span4">
+                    <label class="span3">
+                        <h4 class="pull-left">Until</h4>
+                        <input
+                            class="datepick text span3 "
+                            type="text"
+                            name="until"
+                            value="<?php echo date('Y-m-d'); ?>">
                     </label>
                 </div>
             </div>
 
-            <br><br>
+            <br>
 
-            <div class="row">
-                <div class="dropdown span2 offset4">
-                    <button class="btn btn-info btn-large btn-block dropdown-toggle" data-toggle="dropdown">
-                        .CSV &nbsp;&nbsp;
-                        <b class="caret"></b>
-                    </button>
-                    <ul class="dropdown-menu span2" role="menu" aria-labelledby="dLabel">
-                        <li>
-                            <button class="btn btn-block" type="submit" name="source" value="0">Main</button>
-                        </li>
-                        <li>
-                            <button class="btn btn-block" type="submit" name="source" value="1">RSM</button>
-                        </li>
-                        <li>
-                            <button class="btn btn-block" type="submit" name="source" value="2">Modbus</button>
-                        </li>
-                        <li>
-                            <button class="btn btn-block" type="submit" name="source" value="3">Calculations</button>
-                        </li>
-                    </ul>
-                </div>
-
-                <button class="btn btn-info btn-large span2"  type="submit" name="fileType" value="xls">
-                    .XLS
-                </button>
+            <div class="btn-group pull-right">
+                <button class="check-all btn btn-mini"><i class="icon-ok-circle"></i> Check All</button>
+                <button class="uncheck-all btn btn-mini"><i class="icon-remove-circle"></i> Uncheck All</button>
             </div>
 
+<?php
+for ($i=0; $i < 100; $i++) {
+if($i == 0 || $i == 4 || $i == 99 || $i <= $numRSM) {
 
+    /* Get the default table.column values for the values to be graphed */
+    $query = "
+    SELECT
+        SysMap.SourceID,
+        SysMap.SysID,
+        SysMap.SensorColName,
+        SysMap.SensorName,
+        SysMap.SensorRefName,
+        WebRefTable.SensorLabel,
+        WebRefTable.WebSubPageName
+    FROM SysMap, WebRefTable
+    WHERE SysMap.SensorRefName = WebRefTable.SensorName
+      AND SysMap.SourceID = $i
+    ";
+
+    /* Put all the defaults in an associative array */
+    $sensors = array();
+    foreach($db->fetchAll($query . "AND DAMID = '000000000000'") as $sensor) {
+        $sensors[$sensor['SourceID'] . $sensor['SensorRefName']] = $sensor;
+    }
+
+    /* Get the custom table.column values specific to the current SysID */
+    /* Override the default table.column value if there is a custom value to replace it */
+    foreach($db->fetchAll($query . "AND SysMap.SysID = " . $SysID) as $k => $v) {
+        $sensors[$v['SourceID'] . $v['SensorRefName']] = $v;
+    }
+
+    if(count($sensors) > 0) {
+?>
+            <div class="row">
+                <h3 class="span9 offset2"><?php echo sourceName($i); ?></h3>
+<?php
+        foreach($sensors as $sensor) {
+            $table = pickTable($sensor['SourceID']);
+?>
+                <label class="span3" style="margin-bottom: 10px;">
+                    <input
+                        type="checkbox"
+                        name="<?php echo $table.'_'.$sensor['SensorColName']; ?>"
+                        value="<?php echo $sensor['SensorName']; ?>"
+                    >
+                    <?php
+                    echo $sensor['SensorName'];
+                    if($sensor['SysID'] > 0) {
+                        echo '-'.$sensor['WebSubPageName'];
+                    }
+                    ?>
+
+                </label>
+<?php
+
+        }
+?>
+            </div>
+            <br>
+<?php
+    }
+}
+}
+
+?>
+            <div class="row">
+                <button class="btn btn-large btn-info span6 offset3">
+                    Download
+                </button>
+            </div>
         </form>
-
-
 <?php
 require_once('../includes/footer.php');
 ?>
