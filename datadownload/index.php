@@ -221,6 +221,7 @@ if($i == 0 || $i == 4 || $i == 99 || $i <= $numRSM) {
     FROM SysMap, WebRefTable
     WHERE SysMap.SensorRefName = WebRefTable.SensorName
       AND SysMap.SourceID = $i
+      AND WebRefTable.Inhibit = 0
     ";
 
     /* Put all the defaults in an associative array */
