@@ -5,6 +5,35 @@
  *------------------------------------------------------------------------------
  *
  */
+/**
+ * Silly Functions
+ */
+function pickTable($SourceID)
+{
+    switch ($SourceID) {
+        case '0':
+            $table = 'SourceData0';
+            break;
+        case '4':
+            $table = 'SourceData4';
+            break;
+        case '99':
+            $table = 'SensorCalc';
+            break;
+        default:
+            $table = 'SourceData1';
+            break;
+    }
+    return $table;
+}
+function pageName($zone)
+{
+    if($zone == 0) {
+        return 'Main';
+    }else{
+        return 'RSM';
+    }
+}
 
 require_once('../includes/pageStart.php');
 
@@ -30,6 +59,7 @@ $buildingName = $buildingNames['SysName'];
 $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSM['NumofRSM'];
 
+// Date Stuff
 if(isset($_GET['start']) && isset($_GET['end'])) {
     $endTime   = $_GET['end'];
     $startTime = $_GET['start'];
@@ -40,26 +70,32 @@ if(isset($_GET['start']) && isset($_GET['end'])) {
 $params['start'] = $startTime;
 $params['end']   = $endTime;
 
-if(isset($_GET['z']) && $_GET['z'] != 'main') {
-    $zoneTable = '1';
-    $SourceID = intval($_GET['z']);
+// Zone Stuff
+if(isset($_GET['z'])) {
+    $zone = intval($_GET['z']);
 }else{
-    $zoneTable = '0';
-    $SourceID = 0;
+    $zone = 0;
 }
-if($SourceID == 4) { $SourceID++; }
+if($zone > 4){ $zone++; }
+
 
 $query = "
 SELECT
+    SysMap.SourceID,
+    SysMap.SysID,
     SysMap.SensorColName,
-    SysMap.SensorRefName
-FROM SysMap
-WHERE
-    SysMap.SensorRefName = 'OutsideAir' AND SysMap.SourceID = '$SourceID'
+    SysMap.SensorName,
+    SysMap.SensorRefName,
+    SysMap.*,
+    WebRefTable.SensorLabel,
+    WebRefTable.WebSubPageName
+FROM SysMap, WebRefTable
+WHERE WebRefTable.WebSubPageName = '" . pageName($zone) . "'
+  AND SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
+  AND SysMap.SensorRefName = 'OutsideAir'
 ";
 
 $defaultSensors = $db->fetchAll($query . "AND SysMap.DAMID = '000000000000'");
-
 /* Put all the defaults in an associative array */
 $sensors = array();
 foreach($defaultSensors as $sensor) {
@@ -69,11 +105,15 @@ foreach($defaultSensors as $sensor) {
 /* Get the custom table.column values specific to the current SysID */
 $systemSensors = $db->fetchAll($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
 /* Override the default table.column value if there is a custom value to replace it */
-foreach($sensors as $key=>$value) {
-    foreach($systemSensors as $custom) {
-        if($key == $custom['SensorRefName']) {
-            $sensors[$key] = $custom;
-        }
+foreach($systemSensors as $customSensor) {
+    $sensors[$customSensor['SensorRefName']] = $customSensor;
+}
+
+//Tables Stuff
+$tablesUsed = array(pickTable($zone));
+foreach($sensors as $sensor) {
+    if(!in_array(pickTable($sensor['SourceID']), $tablesUsed)) {
+        array_push($tablesUsed, pickTable($sensor['SourceID']));
     }
 }
 
@@ -92,16 +132,29 @@ SELECT DISTINCT
     SourceHeader.Recnum,
     SourceHeader.DateStamp,
     SourceHeader.TimeStamp,
-    SourceData".$zoneTable."." . $sensors['OutsideAir']['SensorColName'] . ",
-    SourceData".$zoneTable.".DigIn01,
-    SourceData".$zoneTable.".DigIn02,
-    SourceData".$zoneTable.".DigIn03,
-    SourceData".$zoneTable.".DigIn04,
-    SourceData".$zoneTable.".DigIn05
+    ";
+    foreach($sensors as $sensor){
+        $query .= pickTable($sensor['SourceID']) . '.' . $sensor['SensorColName'] . ",
+    ";
+    }
+    $query .=
+    pickTable($zone).".DigIn01,
+    ".pickTable($zone).".DigIn02,
+    ".pickTable($zone).".DigIn03,
+    ".pickTable($zone).".DigIn04,
+    ".pickTable($zone).".DigIn05
 FROM
-    SourceHeader, SourceData" . $zoneTable . "
-WHERE SourceHeader.SysID = " . $_SESSION['SysID'] . "
-  AND SourceHeader.Recnum = SourceData".$zoneTable.".HeadID
+    SourceHeader";
+foreach($tablesUsed as $table){
+    $query .= ", " . $table;
+}
+$query .= "
+WHERE SourceHeader.SysID = " . $_SESSION['SysID'];
+foreach($tablesUsed as $table) {
+    $query .= "
+  AND SourceHeader.Recnum = " . $table . ".HeadID";
+}
+$query .= "
   AND SourceHeader.DateStamp = '" . date('Y-m-d', strtotime($endTime."- ".$i." day")) . "'
 ORDER BY
     SourceHeader.DateStamp DESC,
@@ -303,7 +356,7 @@ if(max($outsideAir) > 65) {
                     ?>
                 </span>
                 <?php
-                    if(isset($_GET['z']) && $_GET['z'] != 'main') {
+                    if(isset($_GET['z']) && $_GET['z'] > 0) {
                         echo ' - RSM';
                         if($numRSM > 1){echo '-'.intval($_GET['z']);}
                     }
@@ -315,9 +368,9 @@ if($numRSM > 0) {
 ?>
             <div class="rsmToggle btn-group span3">
                 <a
-                    class="btn btn-mini <?php if(!isset($_GET['z']) || $_GET['z'] == 'main'){echo ' active';} ?>"
+                    class="btn btn-mini <?php if(!isset($_GET['z']) || $_GET['z'] == 0){echo ' active';} ?>"
                     href="./<?php
-                        $params['z'] = 'main';
+                        $params['z'] = 0;
                         echo buildURLparameters($params);
                     ?>">
                     Main
@@ -342,7 +395,7 @@ if($numRSM > 0) {
 if(isset($_GET['z'])) {
     $params['z'] = $_GET['z'];
 }else{
-    $params['z'] = 'main';
+    $params['z'] = 0;
 }
 ?>
             </div>
