@@ -139,7 +139,7 @@ WHERE SourceHeader.SysID = $SysID";
     $query .= "
   AND SourceHeader.DateStamp >= '$from'
   AND SourceHeader.DateStamp <= '$until'
-LIMIT 10";
+";
 
     header("Content-type: text/csv");
     header("Cache-Control: no-store, no-cache");
@@ -172,7 +172,7 @@ $numRSM = $numRSM['NumofRSM'];
 
 ?>
         <h1 class="span10 offset1">Data Download</h1>
-        <form action="./test.php" method="POST">
+        <form action="./" method="POST">
             <div class="row">
                 <div class="span4 offset2">
                     <label class="span3">
