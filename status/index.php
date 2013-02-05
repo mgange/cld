@@ -162,18 +162,22 @@ require_once('../includes/header.php');
 
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
-      $querypos="Select * from WebRefTable where WebPageName='StatusDB' and WebSubPageName='Main'";
+      $querypos="Select * from WebRefTable where WebPageName='StatusDB' and WebSubPageName='Main' order by SysID";
+     // echo($querypos);
       $Pageelem = $db -> numRows($querypos);
      // now get positions for main page
       $PosMain = $db -> fetchAll($querypos);
       // define pos Array
       $i=0;
+     // pprint($PosMain);
       foreach($PosMain as $resultRow) {
+
           $i=$resultRow['WebPagePosNo'];
           $PosAX[$i]=$resultRow['PageLocX'];
           $PosAY[$i]=$resultRow['PageLocY'];
           $LblA[$i] =$resultRow['SensorName'];
           $ForA[$i] =$resultRow['Format'];
+
 
      }
     // constants for label formatting
@@ -378,10 +382,16 @@ require_once('../includes/header.php');
         }
         else
         {
-         $ValA[29]="No Thermostat on RSM";
+         $ValA[29]="No Thermostat ";
         }
-
+ if ($ShwA[30] and $ShwA[31]and $ShwA[32] and $ShwA[33] and $ShwA[34] )
+ {
    $ValA[38]=Systemlogic($ValA[30],$ValA[31],$ValA[32],$ValA[33],$ValA[34],false);
+ }
+ else
+ {
+     $ValA[38]="No Control Monitor on System";
+ }
    $ValA[39]="";
  // cop reformat if null
  if ($ValA[40]=="") {$ValA[40]="--";}
