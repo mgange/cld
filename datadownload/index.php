@@ -23,8 +23,6 @@
  * SourceData4
  * SensorCalc
  */
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 
 /**
  * Silly Functions
@@ -76,9 +74,9 @@ require_once('../includes/pageStart.php');
 
 $db = new db($config);
 
-$SysID = $_SESSION['SysID'];
-
 checkSystemSet($config);
+
+$SysID = $_SESSION['SysID'];
 
 ////////// Handle POST data ////////////////////////////////////////////////////
 if(count($_POST) > 0) {
