@@ -137,7 +137,7 @@ WHERE SourceHeader.SysID = $SysID";
     $query .= "
   AND SourceHeader.DateStamp >= '$from'
   AND SourceHeader.DateStamp <= '$until'
-ORDER BY DateStamp ASC, TimeStamp ASC LIMIT 10";
+ORDER BY DateStamp ASC, TimeStamp ASC";
 
     header("Content-type: text/csv");
     header("Cache-Control: no-store, no-cache");
