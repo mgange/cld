@@ -237,7 +237,6 @@ require_once('../includes/header.php');
                           color: '#aaa'
                         }
                       },
-                max: 20,
                 opposite: true
               }
               ];

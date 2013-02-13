@@ -194,7 +194,6 @@ require_once('../../includes/header.php');
                           color: '#aaa'
                         }
                       },
-                max: 10,
                 opposite: true
               }
               ];
@@ -346,7 +345,7 @@ foreach($result[0] as $key => $val) {
 <?php } ?>
                     data: [<?php
                     if($key == 'CalcResult4' || $key == 'CalcResult5') {
-                        echoJSarray(eval('return $'. $key . ';'), null, 1, 10);
+                        echoJSarray(eval('return $'. $key . ';'), null, 1, 20);
                     }else{
                         echoJSarray(eval('return $'. $key . ';'), null, 100, 0);
                     }
