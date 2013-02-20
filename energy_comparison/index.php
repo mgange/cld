@@ -86,7 +86,6 @@ foreach($sensors as $sensor) {
 // Set defaults
 $start = date('Y-m-d', strtotime('-4 days'));
 $end = date('Y-m-d');
-$daysToDisplay = floor((strtotime($end) - strtotime($start)) / (60 * 60 * 24));
 $elec = 0.17;
 $oil = 3.75;
 $gas = 1.15;
@@ -101,6 +100,7 @@ if(count($_GET) > 0) {
 $elec1M = ($elec / (3412 * 1) * 1000000);
 $oil1M  = ($oil / (138690 * 0.82)) * 1000000;
 $gas1M  = ($gas / (100000 * 0.82)) * 1000000;
+$daysToDisplay = floor((strtotime($end) - strtotime($start)) / (60 * 60 * 24));
 
 // Get values from the database
 for ($i=0; $i <= $daysToDisplay; $i++) {
@@ -145,7 +145,7 @@ foreach($results as $result) {
 
     $datapoints[$result['DateStamp'] . $result['TimeStamp']]['Power01'] += $result['Power01'];
 
-    $data[$result['DateStamp']]['Air'] += $result[$sensors['OutsideAir']['SensorColName']];
+    $data[$result['DateStamp']]['Air'] += $result[$sensors['OutsideAir']['SensorColName']]/100;
     $data[$result['DateStamp']]['Points']++;
 }
 
@@ -164,7 +164,6 @@ foreach($data as $d) {
     $data[$d['DateStamp']]['OilCost']   = ($data[$d['DateStamp']]['AbsorbedBTU'] / 1000000) * $oil1M;
     $data[$d['DateStamp']]['GasCost']   = ($data[$d['DateStamp']]['AbsorbedBTU'] / 1000000) * $gas1M;
     $data[$d['DateStamp']]['ElectCost'] = ($data[$d['DateStamp']]['AbsorbedBTU'] / 1000000) * $elec1M;
-    $data[$d['DateStamp']]['Air'] = $d['Air'] / $d['Points'];
     unset($data[$d['DateStamp']]['CalcResult1']);
     unset($data[$d['DateStamp']]['Power01']);
     unset($data[$d['DateStamp']]['Count']);
@@ -242,7 +241,7 @@ require_once('../includes/header.php');
                 data: [<?php
                 $i = 1;
                 foreach($data as $date => $vals) {
-                    echo $vals['Air'] / 10;
+                    echo $vals['Air'] / $vals['Points'];
                     if($i < count($data)) {echo ', ';}
                     $i++;
                 }
