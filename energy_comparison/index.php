@@ -84,7 +84,7 @@ foreach($sensors as $sensor) {
 }
 
 // Set defaults
-$start = date('Y-m-d', strtotime('-4 days'));
+$start = date('Y-m-d', strtotime('-1 week'));
 $end = date('Y-m-d');
 $elec = 0.17;
 $oil = 3.75;
@@ -128,7 +128,6 @@ foreach($tablesUsed as $table) {
 }
 $query .= "
 ORDER BY SourceHeader.DateStamp ASC, SourceHeader.TimeStamp ASC
-LIMIT 10
 ";
 
 $bind[':SysID']  = $_SESSION['SysID'];
@@ -207,7 +206,7 @@ require_once('../includes/header.php');
                 data: [<?php
                 $i = 1;
                 foreach($data as $date => $vals) {
-                    echo $vals['OilCost'];
+                    echo round($vals['OilCost'], 2);
                     if($i < count($data)) {echo ', ';}
                     $i++;
                 }
@@ -218,7 +217,7 @@ require_once('../includes/header.php');
                 data: [<?php
                 $i = 1;
                 foreach($data as $date => $vals) {
-                    echo $vals['GasCost'];
+                    echo round($vals['GasCost'], 2);
                     if($i < count($data)) {echo ', ';}
                     $i++;
                 }
@@ -229,7 +228,7 @@ require_once('../includes/header.php');
                 data: [<?php
                 $i = 1;
                 foreach($data as $date => $vals) {
-                    echo $vals['ElectCost'];
+                    echo round($vals['ElectCost'], 2);
                     if($i < count($data)) {echo ', ';}
                     $i++;
                 }
@@ -241,7 +240,7 @@ require_once('../includes/header.php');
                 data: [<?php
                 $i = 1;
                 foreach($data as $date => $vals) {
-                    echo $vals['Air'] / $vals['Points'];
+                    echo round($vals['Air'] / $vals['Points'], 2);
                     if($i < count($data)) {echo ', ';}
                     $i++;
                 }
