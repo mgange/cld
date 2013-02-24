@@ -98,6 +98,9 @@ if(isset($_SESSION['userID'])) {
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>stages">System Stages</a>
                             </li>
+                            <li>
+                                <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>energy_comparison">Energy Comparison</a>
+                            </li>
 <?php if(isset($_SESSION['authLevel']) && (intval($_SESSION['authLevel']) == 3  or intval($_SESSION['authLevel']) == 2)){ ?>
                              <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>datadownload">Data Download</a>
