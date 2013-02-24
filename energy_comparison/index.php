@@ -313,8 +313,7 @@ require_once('../includes/header.php');
 
         <div
             id="chart"
-            class="chart-container data"
-            style="min-height: 500px; margin: 0 auto">
+            class="chart-container data">
         </div>
 
         <form action="./" method="POST">

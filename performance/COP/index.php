@@ -371,8 +371,7 @@ foreach($result[0] as $key => $val) {
 
             <div
                 id="chart"
-                class="chart-container data<?php if(!isset($_GET['date'])){echo ' refresh';} ?>"
-                style="min-width: 400px; min-height: 500px; margin: 0 auto">
+                class="chart-container data<?php if(!isset($_GET['date'])){echo ' refresh';} ?>">
             </div>
 
             <br>

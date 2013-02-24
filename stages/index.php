@@ -400,10 +400,11 @@ if(isset($_GET['z'])) {
 ?>
             </div>
 
-            <div
-                id="chart"
-                class="chart-container data"
-                style="min-width: 400px; min-height: 500px; margin: 0 auto">
+            <div class="row">
+                <div
+                    id="chart"
+                    class="chart-container data span12">
+                </div>
             </div>
 
             <div class="row">
