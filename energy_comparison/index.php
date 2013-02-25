@@ -381,7 +381,7 @@ require_once('../includes/header.php');
 
         <!-- Go Time -->
         <div class="row">
-            <button class="btn btn-primary btn-large btn-block span6 offset3">Submit</button>
+            <button class="btn btn-primary btn-large span6 offset3">Submit</button>
         </div>
         </form>
 
