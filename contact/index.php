@@ -14,11 +14,11 @@ require_once('../includes/header.php');
         </div>
         <div class="row">
             <h3 class="span10 offset1">
-                CLD Industries LLC
+                CLD Industries, LLC
                 <br> 315 East Kerley Corners Road,
                 <br> Tivoli, NY 12583
-                <br> Denis Collet Principle Owner
-                <br> Email&#58;dcollet&#64;frontiernet.net
+                <br> Denis Collet: Principle Owner
+                <br>  Email&#58; <a href="mailto:dcollet&#64;frontiernet.net">dcollet@frontiernet</a>
             </h3>
         </div>
 
