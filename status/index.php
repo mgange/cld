@@ -358,7 +358,9 @@ require_once('../includes/header.php');
              {
 
               // $ValA[$SPos]=number_format($GetValue*$resultRow[SenAdjFactor]/$resultRow[SenDBFactor],2);}  senadjfactor added to parser therefore not required here 12/8/12
-               $ValA[$SPos]=number_format($GetValue/$resultRow[SenDBFactor],2);
+
+                 if ($resultRow[SensorUnits]=="dF" or $resultRow[SensorUnits]=="dC") {$Prsc=0;} else {$Prsc=2;}
+               $ValA[$SPos]=number_format($GetValue/$resultRow[SenDBFactor],$Prsc);
              }
                  else {$ValA[$SPos]=$GetValue;}
            }
@@ -476,7 +478,7 @@ require_once('../includes/header.php');
 
          if ($size == "") {$size=1.2;}
 
-
+//    if (is_numeric($value)==true) {$value=number_format($value,0);}
 
        $labypos=$ypos-20;  // set label position above value
        $labxpos=$xpos+5;
