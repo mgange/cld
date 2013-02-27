@@ -5,6 +5,17 @@
  *------------------------------------------------------------------------------
  *
  */
+function percentage($val1, $val2, $precision=2)
+{
+    $division = $val1 / $val2;
+    $res = $division * 100;
+    $res = round($res, $precision);
+    if($res > 100){
+        return 100;
+    }else{
+        return $res;
+    }
+}
 function pickTable($SourceID)
 {
     switch ($SourceID) {
@@ -99,6 +110,9 @@ if(count($_GET) > 0) {
     $elec = $_GET['elec'];
     $oil = $_GET['oil'];
     $gas = $_GET['gas'];
+    $elecefficiency = percentage($_GET['elecefficiency'],1)/100;
+    $oilefficiency  = percentage($_GET['oilefficiency'],1)/100;
+    $gasefficiency  = percentage($_GET['gasefficiency'],1)/100;
 }
 $elec1M = ($elec / (3412 * $elecefficiency) * 1000000);
 $oil1M  = ($oil / (138690 * $oilefficiency)) * 1000000;
@@ -184,10 +198,6 @@ require_once('../includes/header.php');
         <script type="text/javascript">
         var chartType = 'column';
         var legend = {enabled: 1};
-        var plotOptions = {
-            column: {
-            }
-        };
         var yAxisData = [
             {
                 title: {text: 'BTUs'}
@@ -228,18 +238,6 @@ require_once('../includes/header.php');
                 yAxis: 0
             },
             {
-                name: 'Elect Usage',
-                data: [<?php
-                    $i = 1;
-                    foreach($data as $day) {
-                        echo round($day['KWH'], 2);
-                        if($i < count($data)){echo ', ';}
-                        $i++;
-                    }
-                ?>],
-                yAxis: 1
-            },
-            {
                 name: 'Cost of Operation',
                 data: [<?php
                     $i = 1;
@@ -249,7 +247,7 @@ require_once('../includes/header.php');
                         $i++;
                     }
                 ?>],
-                type: 'line',
+                type: 'column',
                 yAxis: 2
             },
             {
@@ -262,7 +260,7 @@ require_once('../includes/header.php');
                         $i++;
                     }
                 ?>],
-                type: 'line',
+                type: 'column',
                 yAxis: 2
             },
             {
@@ -275,7 +273,7 @@ require_once('../includes/header.php');
                         $i++;
                     }
                 ?>],
-                type: 'line',
+                type: 'column',
                 yAxis: 2
             },
             {
@@ -288,11 +286,12 @@ require_once('../includes/header.php');
                         $i++;
                     }
                 ?>],
-                type: 'line',
+                type: 'column',
                 yAxis: 2
             },
             {
-                name: 'OutsideAir',
+                color: '#77f',
+                name: 'Outside Air',
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
@@ -373,6 +372,40 @@ require_once('../includes/header.php');
                         type="text"
                         name="gas"
                         value="<?php echo $gas; ?>">
+                </label>
+            </div>
+        </div>
+
+        <!-- Efficiencies -->
+        <div class="row">
+            <div class="span2 offset3">
+                <label>
+                    Electricity Efficiency <br>
+                    <input
+                        class="span2"
+                        type="text"
+                        name="elecefficiency"
+                        value="<?php echo $elecefficiency; ?>">
+                </label>
+            </div>
+            <div class="span2">
+                <label>
+                    Oil Efficiency <br>
+                    <input
+                        class="span2"
+                        type="text"
+                        name="oilefficiency"
+                        value="<?php echo $oilefficiency; ?>">
+                </label>
+            </div>
+            <div class="span2">
+                <label>
+                    Gas Efficiency <br>
+                    <input
+                        class="span2"
+                        type="text"
+                        name="gasefficiency"
+                        value="<?php echo $gasefficiency; ?>">
                 </label>
             </div>
         </div>
