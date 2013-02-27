@@ -139,7 +139,14 @@ $sysMapUnique = $db -> fetchAll($query);
             }
             $('[id^=CheckboxTypeGroup' + type + group + ']').each(function(){
                 $(this).after("<input type=\"hidden\" name=\"Change" + $(this).attr('name').substr(6,$(this).attr('name').length) +"\" value=\"true\">");
-                $(this).after("<input type=\"hidden\" name=\"" + $(this).attr('name') +"\" value=\"true\">");
+                if($('[name=sensorMapping' + sourceID + ']').find('[name=' + $(this).attr('name') + ']:hidden').length){
+                    if($(this).attr('checked') == "checked") $('[name=sensorMapping' + sourceID + ']').find('[name=' + $(this).attr('name') + ']').val('1');
+                    else $('[name=sensorMapping' + sourceID + ']').find('[name=' + $(this).attr('name') + ']').val('0');
+                    console.log($(this).attr('name'));
+                }else{
+                    if($(this).attr('checked') == "checked") $(this).after("<input type=\"hidden\" name=\"" + $(this).attr('name') +"\" value=\"1\">");
+                    else $(this).after("<input type=\"hidden\" name=\"" + $(this).attr('name') +"\" value=\"0\">");
+                }
             });
         }
         //flag change to check on submit
@@ -156,23 +163,23 @@ $sysMapUnique = $db -> fetchAll($query);
 </script>
 
 <form name="sensorMapping<?=$sourceID?>" action="./" method="post" onsubmit="return noErrors('sensorMapping<?=$sourceID?>')">
-	<div class="row">
-		<h4 class="span2" style="width:130px">Sensor</h4>
+    <div class="row">
+        <h4 class="span2" style="width:130px">Sensor</h4>
         <?php if($sourceID == 4){ ?>
             <h4 class="span1">Model</h4>
             <h4 class="span1">Address</h4>
         <?php } ?>
         <h4 class="span2">Channel</h4>
-		<h4 class="span2" style="width:100px">Low Limit</h4>
-		<h4 class="span2" style="width:100px">High Limit</h4>
+        <h4 class="span2" style="width:100px">Low Limit</h4>
+        <h4 class="span2" style="width:100px">High Limit</h4>
         <h4 <?=($sourceID == 4) ? "class=\"span1\" style=\"width:70px\"" : "class=\"span2\""?>>Percent Threshold</h4>
         <h4 <?=($sourceID == 4) ? "class=\"span1\" style=\"width:100px\"" : "class=\"span2\""?>>Trigger Alarm After</h4>
         <h4 class="span1" style="width:10px;text-align:center">Active</h4>
-	</div>
+    </div>
     <hr>
 <?php
     $sysGroup = 0;
-	foreach ($sysMap as $resultRow){
+    foreach ($sysMap as $resultRow){
         //check for uniques and use if necessary
         foreach($sysMapUnique as $uniqueResult){
                 if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))
@@ -228,8 +235,8 @@ $sysMapUnique = $db -> fetchAll($query);
                     break;
             }
 ?>
-	<div class="row over">
-		<p class="span2" style="width:130px;margin-top:10px"><strong><?=(!strncasecmp($resultRow['SensorColName'],"power",5)) ? substr($resultRow['SensorName'],2) : $resultRow['SensorName']?></strong></p>
+    <div class="row over">
+        <p class="span2" style="width:130px;margin-top:10px"><strong><?=(!strncasecmp($resultRow['SensorColName'],"power",5)) ? substr($resultRow['SensorName'],2) : $resultRow['SensorName']?></strong></p>
         <?php if($sourceID == 4){ ?>
             <p class="span1" style="margin-top:10px;text-align:absolute">
             <?php
@@ -348,12 +355,12 @@ $sysMapUnique = $db -> fetchAll($query);
             if((!strncasecmp($resultRow['SensorColName'],"power",5)) || ($resultRow['SensorType'] == 7)){?>
                 <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> id="CheckboxTypeGroup<?=$resultRow['SensorType'] . $resultRow['SysGroup']?>" onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)" disabled></p>
             <?php }else{ ?>
-                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
+                <input type="checkbox" name="Active<?=$resultRow['Recnum']?>"<?=($resultRow['SensorActive']) ? " checked='checked'" : "" ?> value="1" onchange="checkboxChange(<?=$sourceID?>,<?=$resultRow['Recnum']?>)"></p>
             <?php } ?>
-	</div>
+    </div>
 <?php
         }
-	}
+    }
 ?>
     <div class="row">
         <br>
@@ -369,7 +376,7 @@ $sysMapUnique = $db -> fetchAll($query);
         </div>
     </div>
     <div name="sensorMapping<?=$sourceID?>onChange"></div>
-	<input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
+    <input type="hidden" name="customerID" value="<?=$customerInfo['customerID']?>">
     <input type="hidden" name="sourceID" value="<?=$sourceID?>">
     <input type="hidden" name="submitSensorMap" value="true">
 </form>

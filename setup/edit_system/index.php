@@ -93,7 +93,7 @@ if(isset($_POST['submitSensorMap'])){
         if(!$_POST[$changeFlag]) continue;
         //check if entry already exists by changing it back
         $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $resultRow['SysID' ] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SensorModel " . (isset($_POST[$modelValue]) ? "= " . $_POST[$modelValue] : "IS NULL") .
-              " AND SensorAddress " . (isset($_POST[$addressValue]) ? "= '" . $_POST[$addressValue] . "'" : "IS NULL") . " AND SensorActive = " . ($_POST[$activeValue] == on ? "1" : "0") .
+              " AND SensorAddress " . (isset($_POST[$addressValue]) ? "= '" . $_POST[$addressValue] . "'" : "IS NULL") . " AND SensorActive = " . ($_POST[$activeValue] == 1 ? "1" : "0") .
               " AND AlarmUpLimit " . (isset($_POST[$hiValue]) ? "= " . $_POST[$hiValue] : "IS NULL") . " AND AlarmLoLimit " . (isset($_POST[$loValue]) ? "= " . $_POST[$loValue] : "IS NULL") .
               " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL") . " AND AlarmTrigger =  " . $_POST[$triggerValue] .
               " AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'] . " AND SensorName = '" . $_POST[$resultRow['SensorColName']] . "'";
@@ -129,7 +129,7 @@ if(isset($_POST['submitSensorMap'])){
         $bind[':loValue'] = $_POST[$loValue];
         $bind[':percent'] = $_POST[$percentValue];
         $bind[':trigger'] = $_POST[$triggerValue];
-        $bind[':active'] = (isset($_POST[$activeValue]) ? "1" : "0");
+        $bind[':active'] = (!empty($_POST[$activeValue]) ? "1" : "0");
         $bind[':address'] = $_POST[$addressValue];
         $bind[':model'] = $_POST[$modelValue];
         $db -> execute($query, $bind);
