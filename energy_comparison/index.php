@@ -166,6 +166,7 @@ for ($i=0; $i <= $daysToDisplay; $i++) {
         WHERE SourceHeader.Recnum = ".pickTable($sens['SourceID']).".HeadID
           AND SourceHeader.SysID = :SysID
           AND SourceHeader.DateStamp = :date
+          AND ".pickTable($sens['SourceID']).".PwrSubAddress = ".$sens['SensorAddress']."
         ORDER BY SourceHeader.TimeStamp ";
         $endPower = $db->fetchRow($powerQuery."DESC LIMIT 0,1", $bind);
         $startPower = $db->fetchRow($powerQuery."ASC LIMIT 0,1", $bind);
