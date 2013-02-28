@@ -45,6 +45,8 @@ if(count($_POST) > 0) {
 
 $db = new db($config);
 
+$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$buildingName = $buildingNames['SysName'];
 
 // All this, just to see where OutsideAir comes from.
 $query = "
@@ -312,7 +314,14 @@ require_once('../includes/header.php');
         </script>
 
         <div class="row">
-            <h1 class="span10 offset1">Energy Comparison</h1>
+            <h1 class="span10 offset1">
+                Energy Comparison -
+                <span class="building-name">
+                    <?php
+                        echo $buildingName;
+                    ?>
+                </span>
+            </h1>
         </div>
 
         <div
