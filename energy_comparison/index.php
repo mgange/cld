@@ -45,6 +45,8 @@ if(count($_POST) > 0) {
 
 $db = new db($config);
 
+
+// All this, just to see where OutsideAir comes from.
 $query = "
 SELECT
     SysMap.SourceID,
@@ -57,42 +59,48 @@ WHERE WebRefTable.WebSubPageName = 'Main'
   AND SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
   AND SysMap.SensorRefName = 'OutsideAir'
 ";
-
-$defaultSensors = $db->fetchAll($query . "AND SysMap.DAMID = '000000000000'");
-
-/* Put all the defaults in an associative array */
-$sensors = array();
-foreach($defaultSensors as $sensor) {
-    $sensors[$sensor['SensorRefName']] = $sensor;
-}
+$airDefault = $db->fetchRow($query . "AND SysMap.DAMID = '000000000000'");
+$airTable = pickTable($airDefault['SourceID']);
+$airCol = $airDefault['SensorColName'];
 
 /* Get the custom table.column values specific to the current SysID */
-$systemSensors = $db->fetchAll($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
-/* Override the default table.column value if there is a custom value to replace it */
-foreach($systemSensors as $customSensor) {
-    $sensors[$customSensor['SensorRefName']] = $customSensor;
+$airCustom = $db->fetchRow($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
+if(count($airCustom)) {
+    $airTable = pickTable($airCustom['SourceID']);
+    $airCol = $airCustom['SensorColName'];
 }
 
-// Add sensors that I know the location of and can't select from the SysMap
-$EnergySensor['SourceID'] = 4;
-$EnergySensor['SensorColName'] = 'Power01';
-$EnergySensor['SensorRefName'] = 'Power01';
-$EnergySensor['SensorLabel'] = 'Power01';
-$EnergySensor['WebSubPageName'] = 'Main';
 
-$sensors['CalcResult1']['SourceID'] = 99;
-$sensors['CalcResult1']['SensorColName'] = 'CalcResult1';
-$sensors['CalcResult1']['SensorRefName'] = 'CalcResult1';
-$sensors['CalcResult1']['SensorLabel'] = 'CalcResult1';
-$sensors['CalcResult1']['WebSubPageName'] = 'Main';
+$query = "
+SELECT
+    SysMap.SourceID,
+    SysMap.SensorColName,
+    SysMap.SensorRefName,
+    SysMap.SensorAddress,
+    SysMap.SensorActive,
+    WebRefTable.SensorLabel,
+    WebRefTable.WebSubPageName
+FROM SysMap, WebRefTable
+WHERE WebRefTable.WebSubPageName = 'Main'
+  AND SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
+  AND (
+           SysMap.SensorRefName = 'EnergyHP'
+        OR SysMap.SensorRefName = 'EnergyWP'
+      )
+";
+$default = $db->fetchAll($query . "AND SysMap.DAMID = '000000000000'");
+foreach ($default as $key => $value) {
+    $powerSensors[$value['SensorRefName']] = $value;
+}
 
-//Tables Stuff
-$tablesUsed = array(pickTable(1));
-foreach($sensors as $sensor) {
-    if(!in_array(pickTable($sensor['SourceID']), $tablesUsed)) {
-        array_push($tablesUsed, pickTable($sensor['SourceID']));
+$custom = $db->fetchAll($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
+foreach ($custom as $key => $value) {
+    $powerSensors[$value['SensorRefName']] = $value;
+    if(!$value['SensorActive']) {
+        unset($powerSensors[$value['SensorRefName']]);
     }
 }
+
 
 // Set defaults
 $start = date('Y-m-d', strtotime('-1 week'));
@@ -100,9 +108,11 @@ $end = date('Y-m-d');
 $elec = 0.17;
 $oil = 3.75;
 $gas = 1.15;
+$prop = 2.40;
 $elecefficiency = 1;
 $oilefficiency = 0.82;
 $gasefficiency = 0.82;
+$propefficiency = 0.78;
 // Override defaults if possible
 if(count($_GET) > 0) {
     $start = $_GET['start'];
@@ -110,90 +120,76 @@ if(count($_GET) > 0) {
     $elec = $_GET['elec'];
     $oil = $_GET['oil'];
     $gas = $_GET['gas'];
+    $prop = $_GET['prop'];
     $elecefficiency = percentage($_GET['elecefficiency'],1)/100;
     $oilefficiency  = percentage($_GET['oilefficiency'],1)/100;
     $gasefficiency  = percentage($_GET['gasefficiency'],1)/100;
+    $propefficiency  = percentage($_GET['propefficiency'],1)/100;
 }
-$elec1M = ($elec / (3412 * $elecefficiency) * 1000000);
-$oil1M  = ($oil / (138690 * $oilefficiency)) * 1000000;
-$gas1M  = ($gas / (100000 * $gasefficiency)) * 1000000;
-$daysToDisplay = floor((strtotime($end) - strtotime($start)) / (60 * 60 * 24));
+$elec1M  = ($elec / (3412   * $elecefficiency) * 1000000);
+$oil1M   = ($oil  / (138690 * $oilefficiency)) * 1000000;
+$gas1M   = ($gas  / (100000 * $gasefficiency)) * 1000000;
+$prop1M  = ($prop / (91333  * $propefficiency)) * 1000000;
 
-$data = array(); // I'll store some data in here
+$daysToDisplay = floor((strtotime($end) - strtotime($start)) / (60 * 60 * 24));
+if($daysToDisplay > 10) {$daysToDisplay = 10;} // Limit days that can possibly be displayed
+
+$data = array();
+
+
+$query = "
+    SELECT
+        AVG(SourceData0.Senchan07) AS OutsideAir,
+        SUM(SensorCalc.CalcResult1) AS Absorbed,
+        AVG(SensorCalc.CalcResult1) AS BTU
+    FROM SourceData0, SourceData4, SensorCalc
+    WHERE DateStamp = :date
+      AND SysID = :SysID
+      AND SourceData0.HeadID = SensorCalc.HeadID
+      AND SourceData4.HeadID = SensorCalc.HeadID
+";
+$bind[':SysID'] = $_SESSION['SysID'];
 
 // Get values from the database
 for ($i=0; $i <= $daysToDisplay; $i++) {
 
-$thisDate = date('Y-m-d', strtotime($end.' - '.$i.' days'));
-$data[$thisDate] = array();
-
-$query = "
-SELECT
-    SourceHeader.Recnum,
-    SourceHeader.DateStamp,
-    SourceHeader.TimeStamp";
-foreach($sensors as $sensor) {
-    $query .= ",
-    " . pickTable($sensor['SourceID']) . "." . $sensor['SensorColName'];
-}
-    $query .= "
-FROM SourceHeader";
-foreach($tablesUsed as $table) {
-    $query .= ", " . $table;
-}
-$query .= "
-WHERE SourceHeader.SysID = :SysID
-  AND SourceHeader.DateStamp = :date";
-foreach($tablesUsed as $table) {
-    $query .= "
-  AND SourceHeader.Recnum = " . $table . ".HeadID";
-}
-$query .= "
-ORDER BY SourceHeader.DateStamp ASC, SourceHeader.TimeStamp ASC
-";
-
-$bind[':SysID']  = $_SESSION['SysID'];
-$bind[':date'] = $thisDate;
-
-$results = $db->fetchAll($query, $bind);
-
-foreach($results as $dataPoint) {
-    $data[$dataPoint['DateStamp']]['AbsorbedBTU'] += $dataPoint['CalcResult1'];
-    $data[$dataPoint['DateStamp']]['Air'] += $dataPoint[$sensors['OutsideAir']['SensorColName']] / 100;
-    $data[$dataPoint['DateStamp']]['count']++;
-}
-
-// Get HP and WP energy use at the begining and end of the day
-$q = "
-SELECT
-    SourceHeader.DateStamp,
-    SourceHeader.TimeStamp,
-    SourceData4.Power04
-FROM SourceHeader, SourceData4
-WHERE SourceHeader.Recnum = SourceData4.HeadID
-  AND SourceHeader.DateStamp = :date
-  AND SourceHeader.SysID = :SysID
-";
-$b[':SysID'] = $_SESSION['SysID'];
-$b[':date'] = date('Y-m-d', strtotime($end.' - '.$i.' days'));
-
-$HPEnergyEnd   = $db->fetchRow($q . "AND SourceData4.PwrSubAddress = 1 ORDER BY SourceHeader.TimeStamp DESC LIMIT 0,1", $b);
-$HPEnergyBegin = $db->fetchRow($q . "AND SourceData4.PwrSubAddress = 1 ORDER BY SourceHeader.TimeStamp  ASC LIMIT 0,1", $b);
-$WPEnergyEnd   = $db->fetchRow($q . "AND SourceData4.PwrSubAddress = 3 ORDER BY SourceHeader.TimeStamp DESC LIMIT 0,1", $b);
-$WPEnergyBegin = $db->fetchRow($q . "AND SourceData4.PwrSubAddress = 3 ORDER BY SourceHeader.TimeStamp  ASC LIMIT 0,1", $b);
+    $thisDate = date('Y-m-d', strtotime($end.' - '.$i.' days'));
+    $bind[':date'] = $thisDate;
 
 
-$data[$thisDate]['KWH'] = ( ($HPEnergyEnd['Power04'] - $HPEnergyBegin['Power04']) + ($WPEnergyEnd['Power04'] - $WPEnergyBegin['Power04']) );
-$data[$thisDate]['COO'] = $data[$thisDate]['KWH'] * $elec;
-$data[$thisDate]['OilEquiv'] = ($data[$thisDate]['AbsorbedBTU'] / 1000000) * $oil1M;
-$data[$thisDate]['GasEquiv'] = ($data[$thisDate]['AbsorbedBTU'] / 1000000) * $gas1M;
-$data[$thisDate]['ElecEquiv'] = ($data[$thisDate]['AbsorbedBTU'] / 1000000) * $elec1M;
+    foreach($powerSensors as $name => $sens) {
+        $powerQuery = "
+        SELECT ".pickTable($sens['SourceID']).".".$sens['SensorColName']."
+        FROM SourceHeader, ".pickTable($sens['SourceID'])."
+        WHERE SourceHeader.Recnum = ".pickTable($sens['SourceID']).".HeadID
+          AND SourceHeader.SysID = :SysID
+          AND SourceHeader.DateStamp = :date
+        ORDER BY SourceHeader.TimeStamp ";
+        $endPower = $db->fetchRow($powerQuery."DESC LIMIT 0,1", $bind);
+        $startPower = $db->fetchRow($powerQuery."ASC LIMIT 0,1", $bind);
 
+        $data[$thisDate]['KWH'] += $endPower[$sens['SensorColName']] - $startPower[$sens['SensorColName']];
+    }
+
+    $result = $db->fetchRow($query, $bind);
+
+    $data[$thisDate]['Absorbed'] = $result['Absorbed'];
+    $data[$thisDate]['BTU'] = $result['BTU'] * 24;
+    $data[$thisDate]['COO'] = ($data[$thisDate]['KWH']) * $elec;
+    $data[$thisDate]['GasEq']  = ($data[$thisDate]['BTU'] / 1000000) * $gas1M;
+    $data[$thisDate]['OilEq']  = ($data[$thisDate]['BTU'] / 1000000) * $oil1M;
+    $data[$thisDate]['PropEq'] = ($data[$thisDate]['BTU'] / 1000000) * $prop1M;
+    $data[$thisDate]['ElecEq'] = ($data[$thisDate]['BTU'] / 1000000) * $elec1M;
+    $data[$thisDate]['OutsideAir'] = $result['OutsideAir'];
+// die(pprint($data));
 } // Now Im done getting values from the database
+
 
 $data = array_reverse($data);
 
+
 require_once('../includes/header.php');
+// pprint($data);
 ?>
         <script type="text/javascript">
         var chartType = 'column';
@@ -203,14 +199,10 @@ require_once('../includes/header.php');
                 title: {text: 'BTUs'}
             },
             {
-                title: {text: 'Kilowatt Hours'}
-            },
-            {
                 opposite: 1,
                 title: {text: 'Dollars'}
             },
             {
-                opposite: 1,
                 title: {text: 'Temperature'}
             }
         ];
@@ -230,11 +222,12 @@ require_once('../includes/header.php');
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
-                        echo round($day['AbsorbedBTU'], 2);
+                        echo round($day['BTU'], 2);
                         if($i < count($data)){echo ', ';}
                         $i++;
                     }
                 ?>],
+                type: 'line',
                 yAxis: 0
             },
             {
@@ -242,66 +235,78 @@ require_once('../includes/header.php');
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
-                        echo round($day['COO'], 2);
+                        echo round($day['COO']/100, 2);
                         if($i < count($data)){echo ', ';}
                         $i++;
                     }
                 ?>],
                 type: 'column',
-                yAxis: 2
-            },
-            {
-                name: 'Oil Equiv Cost',
-                data: [<?php
-                    $i = 1;
-                    foreach($data as $day) {
-                        echo round($day['OilEquiv'], 2);
-                        if($i < count($data)){echo ', ';}
-                        $i++;
-                    }
-                ?>],
-                type: 'column',
-                yAxis: 2
+                yAxis: 1
             },
             {
                 name: 'Gas Equiv Cost',
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
-                        echo round($day['GasEquiv'], 2);
+                        echo round($day['GasEq'], 2);
                         if($i < count($data)){echo ', ';}
                         $i++;
                     }
                 ?>],
                 type: 'column',
-                yAxis: 2
+                yAxis: 1
+            },
+            {
+                name: 'Oil Equiv Cost',
+                data: [<?php
+                    $i = 1;
+                    foreach($data as $day) {
+                        echo round($day['OilEq'], 2);
+                        if($i < count($data)){echo ', ';}
+                        $i++;
+                    }
+                ?>],
+                type: 'column',
+                yAxis: 1
+            },
+            {
+                name: 'Propane Equiv Cost',
+                data: [<?php
+                    $i = 1;
+                    foreach($data as $day) {
+                        echo round($day['PropEq'], 2);
+                        if($i < count($data)){echo ', ';}
+                        $i++;
+                    }
+                ?>],
+                type: 'column',
+                yAxis: 1
             },
             {
                 name: 'Elec Equiv Cost',
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
-                        echo round($day['ElecEquiv'], 2);
+                        echo round($day['ElecEq'], 2);
                         if($i < count($data)){echo ', ';}
                         $i++;
                     }
                 ?>],
                 type: 'column',
-                yAxis: 2
+                yAxis: 1
             },
             {
-                color: '#77f',
                 name: 'Outside Air',
                 data: [<?php
                     $i = 1;
                     foreach($data as $day) {
-                        echo round($day['Air'] / $day['count'], 2);
+                        echo round($day['OutsideAir'] / 100, 2);
                         if($i < count($data)){echo ', ';}
                         $i++;
                     }
                 ?>],
                 type: 'line',
-                yAxis: 3
+                yAxis: 2
             }
         ];
         </script>
@@ -344,14 +349,14 @@ require_once('../includes/header.php');
 
         <!-- Prices -->
         <div class="row">
-            <div class="span2 offset3">
+            <div class="span2 offset2">
                 <label>
-                    Electricity Price <br>
+                    Gas Price <br>
                     <input
                         class="span2"
                         type="text"
-                        name="elec"
-                        value="<?php echo $elec; ?>">
+                        name="gas"
+                        value="<?php echo $gas; ?>">
                 </label>
             </div>
             <div class="span2">
@@ -366,26 +371,36 @@ require_once('../includes/header.php');
             </div>
             <div class="span2">
                 <label>
-                    Gas Price <br>
+                    Propane Price <br>
                     <input
                         class="span2"
                         type="text"
-                        name="gas"
-                        value="<?php echo $gas; ?>">
+                        name="prop"
+                        value="<?php echo $prop; ?>">
+                </label>
+            </div>
+            <div class="span2">
+                <label>
+                    Electricity Price <br>
+                    <input
+                        class="span2"
+                        type="text"
+                        name="elec"
+                        value="<?php echo $elec; ?>">
                 </label>
             </div>
         </div>
 
         <!-- Efficiencies -->
         <div class="row">
-            <div class="span2 offset3">
+            <div class="span2 offset2">
                 <label>
-                    Electricity Efficiency <br>
+                    Gas Efficiency <br>
                     <input
                         class="span2"
                         type="text"
-                        name="elecefficiency"
-                        value="<?php echo $elecefficiency; ?>">
+                        name="gasefficiency"
+                        value="<?php echo $gasefficiency; ?>">
                 </label>
             </div>
             <div class="span2">
@@ -400,12 +415,22 @@ require_once('../includes/header.php');
             </div>
             <div class="span2">
                 <label>
-                    Gas Efficiency <br>
+                    Propane Efficiency <br>
                     <input
                         class="span2"
                         type="text"
-                        name="gasefficiency"
-                        value="<?php echo $gasefficiency; ?>">
+                        name="propefficiency"
+                        value="<?php echo $propefficiency; ?>">
+                </label>
+            </div>
+            <div class="span2">
+                <label>
+                    Electricity Efficiency <br>
+                    <input
+                        class="span2"
+                        type="text"
+                        name="elecefficiency"
+                        value="<?php echo $elecefficiency; ?>">
                 </label>
             </div>
         </div>
