@@ -196,6 +196,11 @@ require_once('../includes/header.php');
         <script type="text/javascript">
         var chartType = 'column';
         var legend = {enabled: 1};
+        var plotOptions = {
+            line: {
+                zIndex: 100
+            }
+        };
         var yAxisData = [
             {
                 title: {text: 'BTUs'}
