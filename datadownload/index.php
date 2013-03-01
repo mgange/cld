@@ -161,6 +161,12 @@ ORDER BY DateStamp ASC, TimeStamp ASC";
 
 ////////// End of POST hondling ////////////////////////////////////////////////
 }
+
+$savedSetsQuery = 'SELECT * FROM SavedDownloads WHERE UserID = :UserID and SysID = :SysID';
+$savedSetsBind[':UserID'] = intval($_SESSION['userID']);
+$savedSetsBind[':SysID'] = intval($_SESSION['SysID']);
+$savedSets = $db->fetchAll($savedSetsQuery, $savedSetsBind);
+
 require_once('../includes/header.php');
 
 
@@ -197,10 +203,8 @@ $numRSM = $numRSM['NumofRSM'];
 
             <br>
 
-            <div class="btn-group pull-right">
-                <button class="check-all btn btn-mini"><i class="icon-ok-circle"></i> Check All</button>
-                <button class="uncheck-all btn btn-mini"><i class="icon-remove-circle"></i> Uncheck All</button>
-            </div>
+            <div class="row">
+                <div class="span10">
 
 <?php
 for ($i=0; $i < 100; $i++) {
@@ -237,12 +241,12 @@ if($i == 0 || $i == 4 || $i == 99 || $i <= $numRSM) {
     if(count($sensors) > 0) {
 ?>
             <div class="row">
-                <h3 class="span9 offset2"><?php echo sourceName($i); ?></h3>
+                <h3 class="span8 offset2"><?php echo sourceName($i); ?></h3>
 <?php
         foreach($sensors as $sensor) {
             $table = pickTable($sensor['SourceID']);
 ?>
-                <label class="span3" style="margin-bottom: 10px;">
+                <label class="span2" style="margin-bottom: 10px;">
                     <input
                         type="checkbox"
                         name="<?php echo $table.'_'.$sensor['SensorColName']; ?>"
@@ -268,12 +272,57 @@ if($i == 0 || $i == 4 || $i == 99 || $i <= $numRSM) {
 }
 
 ?>
+                </div>
+                <div class="span2">
+                    <div class="row">
+
+                        <br>
+
+                        <div class="btn-group pull-right span2">
+                            <button class="check-all btn btn-mini"><i class="icon-ok-circle"></i> Check All</button>
+                            <button class="uncheck-all btn btn-mini"><i class="icon-remove-circle"></i> Uncheck All</button>
+                        </div>
+
+                        <br><br>
+
+                        <h4 class="span2">Saved Downloads</h4>
+                        <div class="saved-set-list span2">
+<?php
+foreach($savedSets as $key => $set) {
+?>
+                        <div class="span2">
+                            <a class="delete-saved-set close" href="delete.php?id=<?php echo $set['Recnum'] ?>">&times;</a>
+                            <a class="saved-set" href="#<?php echo $key; ?>"><?php echo $set['Name']; ?></a>
+                        </div>
+<?php
+}
+?>
+                        </div>
+                        <div class="clearfix">
+                            <br>
+                            <button class="save-download-set btn btn-mini span2">Save Current Selection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <button class="btn btn-large btn-info span6 offset3">
                     Download
                 </button>
             </div>
         </form>
+        <script>
+            var SavedSets =
+            [<?php
+            $i = 1;
+            foreach($savedSets as $set){
+            echo '[' . $set['Fields'] .']';
+            if($i < count($savedSets)){echo',';}
+            $i++;
+            }
+            ?>]
+        </script>
 <?php
 require_once('../includes/footer.php');
 ?>
