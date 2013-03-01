@@ -69,6 +69,67 @@ $('.uncheck-all').click(function(){
     return false;
 });
 
+$('.saved-set').click(function(){
+    $('input[type="checkbox"]').prop('checked', false);
+    var set = $(this).attr('href').replace('#', '');
+    SavedSets[set].forEach(checkCheckBox);
+    return false;
+});
+$('.delete-saved-set').click(function(){
+    var x = $(this).parent('div');
+    $.ajax({
+        type: 'POST',
+        url: $(this).attr('href'),
+        success: function( response ) {
+            x.remove();
+        },
+        error: function( response ) {
+            $('.alerts').append('<div class="alert alert-error span8 offset2"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Whoops!</strong> Something went wrong deleting your saved download.</div>');
+        }
+    });
+
+    return false;
+});
+
+$('.save-download-set').click(function(){
+    var setName = window.prompt('What shall we call this selection?');
+    if(setName !== null) {
+        var chex = '';
+        $('input[type="checkbox"]').each(function(i) {
+           if (this.checked) {
+                if(chex !== ''){
+                    chex += ',';
+                }
+               chex += i;
+           }
+        });
+        if(chex.length){
+            var lastInsert = $.ajax({
+                type: 'POST',
+                url: 'save.php',
+                data: {
+                    Name   : setName,
+                    Fields : chex
+                },
+                success: function( response ){
+                    $('.alerts').append('<div class="alert alert-success span8 offset2"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Alright!</strong> Your '+setName+' set has been saved for later.</div>');
+                },
+                error: function( response ){
+                    $('.alerts').append('<div class="alert alert-error span8 offset2"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Whoops!</strong> Something went wrong saving your download set.</div>');
+                }
+            });
+        }else{
+            $('.alerts').append('<div class="alert alert-error span8 offset2"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Whoops!</strong> You have to check some boxes first.</div>');
+        }
+    }
+
+    return false;
+});
+
+function checkCheckBox(element, index, array) {
+    $('input[type="checkbox"]')[element].checked=true;
+}
+
 // Initiate Chart
 /**
  * I'm using putting a lot of the chart data/options into variables an then
