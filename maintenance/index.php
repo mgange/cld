@@ -7,7 +7,7 @@
  */
 require_once('../includes/pageStart.php');
 
-checkSystemSet($config);
+//checkSystemSet($config);
 
 $db = new db($config);
 

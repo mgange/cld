@@ -35,13 +35,13 @@ foreach ($PDList as $row) {
 
 }
 */
-echo $update;
+
 checkSystemSet($config);
 // goes to home page if trying to set up new system without proper authorization
 //if($_SESSION['authLevel'] < 3 && $NewSystem==false) { //already in parent page
     //gtfo($config);
 //}
-echo $update;
+
 if(!$update){
   //clear session valuables for RSM etc
   $_SESSION['SetupRSM']=0;
@@ -146,7 +146,7 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
   //Exists
   if(isset($_POST['systemID'])){
     $Upquery = "UPDATE SystemConfig SET
-    SysName ='".$SysNameSel."',SystemDescription='".SysDescrpSel."',BuildingID=".$buildingID.",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
+    SysName ='".$SysNameSel."',SystemDescription='".$SysDescrpSel."',BuildingID=".$buildingID.",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
     Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger=".$HeatExchangerSel.",InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
     Maintainer='".$MaintainerSel."',NumofTherms =".$NumofThermsSel.",NumofPowers =". $NumofPowerSel.",NumofRSM =". $NumofRSMSSel .
     " WHERE SysID =". $_SESSION['SysID'];
@@ -154,7 +154,7 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
     try {
       $response = $db -> execute($Upquery);
       $DBUpdateok=$response;
-      echo "<script type=\"text/javascript\">window.location.reload()</script>";
+      //echo "<script type=\"text/javascript\">window.location.reload()</script>";
     }catch (Exception $e){
       throw new Exception;
       echo  "Error = ",0,$e;
