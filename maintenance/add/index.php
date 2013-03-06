@@ -5,27 +5,9 @@
  *------------------------------------------------------------------------------
  *
  */
-/*
-function isValidDate($date){
-    $date = new DateTime($date);
-    $month = $date -> format('m');
-    $day = $date -> format('d');
-    $year = $date -> format('Y');
-    if(checkdate($month, $day, $year)) return true;
-    return false;
-}
-*/
 ?>
 
-<?php
-    $query = "SELECT * FROM MaintainReference WHERE SysID = " . $systemID;
-    $referenceList = $db -> fetchAll($query);
-    $cnt = 0;
-    if(count($referenceList) == 0) $referenceList = array(array());    //empty array to still pass through foreach
-    foreach($referenceList as $default){
-?>
-
-<form name="maintainForm<?=$cnt?>" action="./" method="post" id="validateForm" onsubmit="return validate(this.name)">
+<form class="validate" name="maintainForm" action="./" method="post">
     <div class="row">
         <span style="margin-left:50px;color:red">*</span> Required Fields<br><br>
         <div class="span5" style="margin-left:50px">
@@ -37,35 +19,43 @@ function isValidDate($date){
                 if($id['id']){
                     $orderNum = explode("-",$id['id']);
                     $orderNum[1]++;
-                    echo ($cnt + $orderNum[1]);
-                }else echo $cnt;
+                    echo ($orderNum[1]);
+                }else echo "0";
                 echo "\" readonly=\"readonly\">";
             ?>
             </label>
             <label for="sysComponent">System Component
-                <input class="span5" type="text" name="sysComponent" value="<?=$default['SystemComponent']?>" readonly="readonly">
+                <select class="span5" name="sysComponent" id="sysComponent">
+                <?php
+                    $query = "SELECT UnitName FROM SysComponents WHERE SysID = " . $systemID;
+                    $components = $db -> fetchAll($query);
+                    echo "<option>Select A Component...</option>";
+                    foreach($components as $result){
+                        echo "<option value=\"" . $result['UnitName'] . "\">" . $result['UnitName'] . "</option>";
+                    }
+                ?>
+                </select>
             </label>
             <label for="requiredAction"><span style="color:red">*</span> Required Action
-                <input class="span5" type="text" name="requiredAction" value="<?=$default['RequiredAction']?>">
+                <input class="span5 text" type="text" name="requiredAction">
             </label>
             <label for="dateRequired"><span style="color:red">*</span> Date Required<br>
-                <input class="datepick" type="text" name="dateRequired">
+                <input class="datepick date" type="text" name="dateRequired">
             </label>
             <label for="maintainCycle"><span style="color:red">*</span> Maintenance Cycle<br>
-                <input class="span1" style="text-align:right" type="text" name="maintainCycle" value="<?=$default['maintainCycle']?>" onkeyup="isNumeric(<?=$cnt?>)">&nbsp;days
-                <span id="maintainCycleSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
+                <input class="span1 text" style="text-align:right" type="text" name="maintainCycle">&nbsp;days
             </label>
             <label for="autoSch">Auto Schedule<br>
                 <select name="autoSch">
-                    <option value="1"<?=($default['AutoSchedule'] == 1) ? " selected=\"selected\"" : ""?>>On</option>
-                    <option value="0"<?=($default['AutoSchedule'] == 0) ? " selected=\"selected\"" : ""?>>Off</option>
+                    <option value="1">On</option>
+                    <option value="0">Off</option>
                 </select>
             </label>
         </div>
         <div class="span5" style="margin-left:50px">
             <label for="maintainerName"><span style="color:red">*</span> Maintainer Name<br>
-                <select name="maintainerName" onchange="maintainerChange(<?=$cnt?>)">
-                    <option value="-" selected="selected">Select A Maintainer
+                <select class="select" name="maintainerName" onchange="maintainerChange()">
+                    <option value="" selected="selected">Select A Maintainer
                     <?php
                         $query="SELECT Name FROM MaintainResource WHERE Category = 'Maintainer'";
                         $maintainerList = $db -> fetchAll($query);
@@ -82,10 +72,10 @@ function isValidDate($date){
                 ?>
             </label>
             <label for="notify">Notify Upon Alarm?&nbsp;&nbsp;
-                <input type="checkbox" name="notify" onclick="showNotifyName(<?=$cnt?>)"<?=($default['Alarm'] == 1) ? " checked=\"checked\"" : ""?>>
+                <input type="checkbox" name="notify" onclick="showNotifyName(this,'#whoToNotify')">
             </label>
-            <label for="notifyName[]"<?=($default['Alarm'] == 0) ? " style=\"visibility:hidden\"" : ""?>><span style="color:red">*</span> Who to Notify<br>
-                <select name="notifyName[]"<?=($default['Alarm'] == 0) ? " style=\"visibility:hidden\"" : ""?> multiple>
+            <label for="notifyName[]" id="whoToNotify" class="hide"><span style="color:red">*</span> Who to Notify<br>
+                <select name="notifyName[]" multiple>
 <?php
                 $query = "SELECT CustomerID FROM buildings WHERE buildingID = " . $buildingID;
                 $customer = $db -> fetchAll($query);
@@ -99,10 +89,10 @@ function isValidDate($date){
                 </select>
             </label>
             <label for="description">Description
-                <textarea class="span5" type="text" style="resize:none" name="description" rows="3"><?=$default['Description']?></textarea>
+                <textarea class="span5" type="text" style="resize:none" name="description" rows="3"></textarea>
             </label>
             <label for="comments">Comments
-                <textarea class="span5" type="text" style="resize:none" name="comments" rows="3"><?=$default['Comment']?></textarea>
+                <textarea class="span5" type="text" style="resize:none" name="comments" rows="3"></textarea>
             </label>
         </div>
     </div>
@@ -122,10 +112,3 @@ function isValidDate($date){
     <input type="hidden" name="systemID" value="<?=$_POST['systemID']?>">
     <input type="hidden" name="maintainNew" value="true">
 </form>
-<hr>
-<br>
-
-<?php
-        $cnt++;
-    }
-?>
