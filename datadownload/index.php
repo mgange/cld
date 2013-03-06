@@ -169,13 +169,21 @@ $savedSets = $db->fetchAll($savedSetsQuery, $savedSetsBind);
 
 require_once('../includes/header.php');
 
-
+$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
+$buildingName = $buildingNames['SysName'];
 
 $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSM['NumofRSM'];
 
 ?>
-        <h1 class="span10 offset1">Data Download</h1>
+        <h1 class="span10 offset1">
+            Data Download -
+            <span class="building-name">
+                <?php
+                    echo $buildingName;
+                ?>
+            </span>
+        </h1>
         <form action="./" method="POST">
             <div class="row">
                 <div class="span4 offset2">
