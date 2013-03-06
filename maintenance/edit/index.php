@@ -7,7 +7,7 @@
  */
 ?>
 
-<form name="maintainFormEdit<?=$result['Recnum']?>" action="./" method="post" id="validateForm" onsubmit="return validate(this.name)">
+<form class="validate" name="maintainFormEdit" action="./" method="post" id="validateForm" onsubmit="return validate(this.name)">
     <div class="row">
         <span style="margin-left:50px;color:red">*</span>&nbsp;Required Fields<br><br>
         <div class="span5" style="margin-left:50px">
@@ -18,13 +18,13 @@
                 <input class="span5" type="text" name="sysComponent" value="<?=$result['SystemComponent']?>" readonly="readonly">
             </label>
             <label for="requiredAction"><span style="color:red">*</span>&nbsp;Required Action
-                <input class="span5" type="text" name="requiredAction" value="<?=$result['RequiredAction']?>">
+                <input class="span5 text" type="text" name="requiredAction" value="<?=$result['RequiredAction']?>">
             </label>
             <label for="dateRequired"><span style="color:red">*</span>&nbsp;Date Required<br>
-                <input class="datepick" type="text" name="dateRequired" value="<?=$result['DateRequired']?>">
+                <input class="datepick date" type="text" name="dateRequired" value="<?=$result['DateRequired']?>">
             </label>
             <label for="maintainCycle"><span style="color:red">*</span>&nbsp;Maintenance Cycle<br>
-                <input class="span1" style="text-align:right" type="text" name="maintainCycle" value="<?=$result['MaintainCycle']?>" onkeyup="isNumeric('Edit<?=$result['Recnum']?>')">&nbsp;days
+                <input class="span1 text" style="text-align:right" type="text" name="maintainCycle" value="<?=$result['MaintainCycle']?>" onkeyup="isNumeric('Edit<?=$result['Recnum']?>')">&nbsp;days
                 <span id="maintainCycleSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
             <label for="autoSch">Auto Schedule<br>
@@ -42,7 +42,7 @@
         </div>
         <div class="span5" style="margin-left:50px">
             <label for="maintainerName"><span style="color:red">*</span>&nbsp;Maintainer Name<br>
-                <select name="maintainerName" onchange="maintainerChange('Edit<?=$result['Recnum']?>')">
+                <select class="select" name="maintainerName" onchange="maintainerChange()">
                     <?php
                         $query = "SELECT Name FROM MaintainResource WHERE Category = 'Maintainer'";
                         $maintainerList = $db -> fetchAll($query);
@@ -63,9 +63,9 @@
                 ?>
             </label>
             <label for="notify">Notify Upon Alarm?&nbsp;&nbsp;
-                <input type="checkbox" name="notify" onclick="showNotifyName('Edit<?=$result['Recnum']?>')"<?=($result['Alarm'] == 1) ? " checked=\"checked\"" : ""?>>
+                <input type="checkbox" name="notify" onclick="showNotifyName(this,'#whoToNotifyEdit')"<?=($result['Alarm'] == 1) ? " checked=\"checked\"" : ""?>>
             </label>
-            <label for="notifyName[]"<?=($result['Alarm'] == 0) ? " style=\"visibility:hidden\"" : ""?>><span style="color:red">*</span>&nbsp;Who to Notify (Notification<?=$result['NotificationSent'] ? " " : " Not "?>Sent)<br>
+            <label for="notifyName[]" id="whoToNotifyEdit"<?=($result['Alarm'] == 0) ? " style=\"visibility:hidden\"" : ""?>><span style="color:red">*</span>&nbsp;Who to Notify (Notification<?=$result['NotificationSent'] ? " " : " Not "?>Sent)<br>
                 <select name="notifyName[]"<?=($result['Alarm'] == 0) ? " style=\"visibility:hidden\"" : ""?> multiple>
 <?php
                 $query = "SELECT CustomerID FROM buildings WHERE buildingID = " . $buildingID;

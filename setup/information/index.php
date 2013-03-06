@@ -143,6 +143,27 @@ if(!$update){
 }
 
 if(isset($_POST['submitInfo'])){// and $CumErr==false) {
+    foreach($_POST as $key => $value){
+        if(preg_match("/unit/",$key)){
+            if(!empty($key)){
+                //insert new system component
+                $index = substr($key,4);
+                $bind[':sysID']         = $_SESSION['SysID'];
+                $bind[':unit']          = $_POST['unit' . $index];
+                $bind[':manufacturer']  = $_POST['manufacturer' . $index];
+                $bind[':model']         = $_POST['model' . $index];
+                $bind[':serial']        = $_POST['serial' . $index];
+                $query = "INSERT INTO SysComponents (
+                            SysID,      UnitName,       Manufacturer,
+                            Model,      SerialNumber
+                        ) VALUES (
+                            :sysID,     :unit,          :manufacturer,
+                            :model,     :serial
+                        )";
+                $db -> execute($query,$bind);
+            }
+        }
+    }
   //Exists
   if(isset($_POST['systemID'])){
     $Upquery = "UPDATE SystemConfig SET
@@ -260,6 +281,9 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
                  <?php if ($errflag[6]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter a valid Number of Thermostats between 0 and 5</b></font>");} ?>
                 <input name="NumofTherms" type="text" class="span5" value="<?=$NumofThermsSel?>">
             </label>
+            <div>
+                <a class="btn btn-link" id="addSysComponent" onclick="AddSysComponent(this.id)">+Add System Component</a>
+            </div>
         </div>
 
 
@@ -335,12 +359,11 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
 
 
     <div class="row">
-        <div class="span10 offset1">
+        <div class="span10 offset1" style="margin-top:20px">
             <button type="submit" class="btn btn-success">
                 <i class="icon-pencil icon-white"></i>
                 Update
             </button>
-            <div class="offset3">
                 <?php  if ($PostFlag==true)
 
                     if($DBUpdateok==true and $CumErr==false)   {
@@ -362,7 +385,7 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
             <a href="../" class="btn pull-right">
                 <i class="icon-remove"></i>
                 Cancel
-            </a></div>
+            </a>
         </div>
     </div>
  </div>
