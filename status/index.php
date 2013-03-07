@@ -110,7 +110,7 @@ require_once('../includes/header.php');
             FROM SourceHeader, SourceData0
             WHERE SourceHeader.SysID = " . $SysID . "
               AND SourceHeader.Recnum = SourceData0.HeadID
-              AND SourceHeader.DateStamp = " . $now . "
+              AND SourceHeader.DateStamp >= " . $now . "
             ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
             LIMIT 1";
         $query4 = "
@@ -118,7 +118,7 @@ require_once('../includes/header.php');
             FROM SourceHeader, SourceData4
             WHERE SourceHeader.SysID = " . $SysID . "
               AND SourceHeader.Recnum = SourceData4.HeadID
-              AND SourceHeader.DateStamp = " . $now . "
+              AND SourceHeader.DateStamp >= " . $now . "
             ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC
             LIMIT 5";
         $queryCalc = "
@@ -126,7 +126,7 @@ require_once('../includes/header.php');
             FROM SourceHeader, SensorCalc
             WHERE SourceHeader.SysID = " . $SysID . "
               AND SourceHeader.RecNum = SensorCalc.HeadID
-              AND SourceHeader.DateStamp = " . $now . "
+              AND SourceHeader.DateStamp >= " . $now . "
             ORDER BY SourceHeader.DateStamp Desc, SourceHeader.TimeStamp Desc
             LIMIT 1";
         if(isset($zone)) $query1 = "
@@ -135,7 +135,7 @@ require_once('../includes/header.php');
                 WHERE SourceHeader.SysID = " . $SysID . "
                   AND SourceHeader.Recnum = SourceData1.HeadID
                   AND SourceData1.SourceID = " . $zone . "
-              AND SourceHeader.DateStamp = " . $now . "
+              AND SourceHeader.DateStamp >= " . $now . "
                 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC
                 LIMIT 1";
     }
@@ -165,7 +165,7 @@ require_once('../includes/header.php');
           AND SourceHeader.Recnum = SourceData0.HeadID
           AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "'
           AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
-          AND SourceHeader.DateStamp = " . $now . "
+          AND SourceHeader.DateStamp >= " . $now . "
         ORDER BY DateStamp DESC,TimeStamp DESC
         LIMIT 1";
       $queryNext = "
@@ -174,7 +174,7 @@ require_once('../includes/header.php');
         WHERE SysID = " . $SysID . "
           AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "'
           AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
-          AND SourceHeader.DateStamp = " . $now . "
+          AND SourceHeader.DateStamp >= " . $now . "
         ORDER BY DateStamp ASC,TimeStamp ASC
         LIMIT 1";
       $result = $db -> fetchRow($queryPrev);
