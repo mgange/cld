@@ -7134,11 +7134,8 @@ body {
   margin: 0;
   padding: 5px 0 0 0;
 }
-.js .js-warning {
-  display: none;
-}
 .validate .validationError {
-  border: 1px solid #e49085;
+  border: 2px solid #c33;
 }
 .navbar .sign-in-form .submit {
   margin-top: 0;

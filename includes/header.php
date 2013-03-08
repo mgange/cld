@@ -145,13 +145,15 @@ if($config['breadcrumbs']) {
 
     <div class="container page-content">
         <div class="row alerts">
-            <div class="js-warning alert alert-error span8 offset2">
+            <noscript>
+            <div class="alert alert-error span8 offset2">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 <strong>Stop Everything!</strong> Javascript doesn't seem to be
                 working in your browser. This site does some really cooll stuff
                 that requires javascript, so please consider enabling it before
                 continuing on.
             </div>
+            </noscript>
 <?php
 /**
  * This switch statement will display alerts immediately below the navbar based
