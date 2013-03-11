@@ -67,7 +67,7 @@ $airCol = $airDefault['SensorColName'];
 
 /* Get the custom table.column values specific to the current SysID */
 $airCustom = $db->fetchRow($query . "AND SysMap.SysID = " . $_SESSION['SysID']);
-if(count($airCustom)) {
+if(gettype($airCustom) != 'boolean') {
     $airTable = pickTable($airCustom['SourceID']);
     $airCol = $airCustom['SensorColName'];
 }
@@ -141,14 +141,14 @@ $data = array();
 
 $query = "
     SELECT
-        AVG(SourceData0.Senchan07) AS OutsideAir,
+        AVG(".$airTable.".".$airCol.") AS OutsideAir,
         SUM(SensorCalc.CalcResult1) AS Absorbed,
         AVG(SensorCalc.CalcResult1) AS BTU
-    FROM SourceData0, SourceData4, SensorCalc
-    WHERE DateStamp = :date
-      AND SysID = :SysID
-      AND SourceData0.HeadID = SensorCalc.HeadID
-      AND SourceData4.HeadID = SensorCalc.HeadID
+    FROM SourceHeader, ".$airTable.", SensorCalc
+    WHERE SourceHeader.DateStamp = :date
+      AND SourceHeader.SysID = :SysID
+      AND SourceHeader.Recnum = ".$airTable.".HeadID
+      AND SourceHeader.Recnum = SensorCalc.HeadID
 ";
 $bind[':SysID'] = $_SESSION['SysID'];
 
@@ -184,7 +184,6 @@ for ($i=0; $i <= $daysToDisplay; $i++) {
     $data[$thisDate]['PropEq'] = ($data[$thisDate]['BTU'] / 1000000) * $prop1M;
     $data[$thisDate]['ElecEq'] = ($data[$thisDate]['BTU'] / 1000000) * $elec1M;
     $data[$thisDate]['OutsideAir'] = $result['OutsideAir'];
-// die(pprint($data));
 } // Now Im done getting values from the database
 
 
@@ -192,7 +191,6 @@ $data = array_reverse($data);
 
 
 require_once('../includes/header.php');
-// pprint($data);
 ?>
         <script type="text/javascript">
         var chartType = 'column';
