@@ -25,11 +25,6 @@ function stripTrailingSlash(str) {
   return str;
 }
 
-// Remove no-js warning
-if($('.no-js-alert').length) {
-  $('.no-js-alert').remove();
-}
-
 // Menu Handler
 $('.nav li a').each(function(){
   if(stripTrailingSlash(window.location.href) == stripTrailingSlash($(this).attr('href'))) {
