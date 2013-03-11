@@ -21,10 +21,12 @@ Form Validation
   $.fn.validate = function() {
     var types = {
 /*    "CLASS" :  REGEX     */
-      "text"  : /[a-zA-Z0-9]{3}/,
-      "email" : /.*\@.*/,
-      "phone" : /.{0,1}[0-9]{0,3}.{0,1}[0-9]{3}.{0,1}[0-9]{4}.*/,
-      "zip"   : /[0-9]{5}/
+      "text"    : /[a-zA-Z0-9]{3}/,
+      "email"   : /.*\@.*/,
+      "phone"   : /.{0,1}[0-9]{0,3}.{0,1}[0-9]{3}.{0,1}[0-9]{4}.*/,
+      "zip"     : /[0-9]{5}/,
+      "date"    : /[0-9]{4}-{1}[0-9]{2}-{1}[0-9]{2}/,
+      "select"  : /[^]/
     };
     var errorClass = 'validationError',
         errorFound = false;

@@ -7,7 +7,7 @@
  */
 require_once('../includes/pageStart.php');
 
-checkSystemSet($config);
+//checkSystemSet($config);
 
 $db = new db($config);
 
@@ -16,6 +16,8 @@ unset($_SESSION['SysID']);
 
 /** Insert New Work Order **/
 if(isset($_POST['maintainNew'])){
+        pprint($_POST);
+   // die();
     if(isset($_POST['notify'])){
         $query = "INSERT INTO MaintainLog (SysID,WorkOrder,SystemComponent,RequiredAction,DateRequired,MaintainCycle,AutoSchedule,MaintainerName,MaintainerCompany,Alarm,NotificationSent,NotifiedName,Description,Comments)
                             VALUES(:systemID,:workOrder,:sysComponent,:requiredAction,:dateRequired,:maintainCycle,:autoSch,:maintainerName,:maintainerCompany,1,0,:notifyName,:description,:comments)";
@@ -108,68 +110,24 @@ require_once('../includes/header.php');
 ?>
 
 <script type="text/javascript">
-    function showNotifyName(cnt){
-        var form = document.forms["maintainForm" + cnt];
-        var label = document.forms["maintainForm" + cnt].getElementsByTagName("label");
-        for(var i=0;i<label.length;i++){    //get index of associated label
-            if(label[i].htmlFor == "notifyName[]") break;
-        }
-        if(form["notify"].checked){
-            form["notifyName[]"].style.visibility = "visible";
-            form["notifyName[]"].style.display = "";
-            label[i].style.visibility = "visible";
-            label[i].style.display = "";
+    function showNotifyName(checkElement,showElement){
+        if($(checkElement).attr('checked') == 'checked'){
+            $(showElement).show();
+            if(!$(showElement).hasClass('validationError')){
+                $(showElement).addClass('validationError');
+            }
         }else{
-            form["notifyName[]"].style.visibility = "hidden";
-            form["notifyName[]"].style.display = "none";
-            label[i].style.visibility = "hidden";
-            label[i].style.display = "none";
-        }
-    }
-    function maintainerChange(cnt){
-        var name = document.forms["maintainForm" + cnt]["maintainerName"];
-        var company = document.forms["maintainForm" + cnt]["maintainerCompany"];
-        if(name.value == "-") company.value = "";
-        else company.value = document.getElementsByName(name.value)[0].value;
-    }
-    function isNumeric(cnt){
-        var element = document.forms["maintainForm" + cnt]["maintainCycle"];
-        var span = document.forms["maintainForm" + cnt].getElementsByTagName("span");
-        for(var i=0;i<span.length;i++){    //get index of associated span
-            if(span[i].id == "maintainCycleSpan") break;
-        }
-
-        var valid = (!isNaN(element.value) && parseInt(element.value));
-        if(element.value < 0) valid = false;
-        if(!valid){
-            element.style.border = "red solid 2px";
-            //span[i].innerHTML += "<br>test";
-            span[i].style.display = "block";
-            span[i].style.visibility = "visible";
-            span[i].style.fontSize = "14px";
-        }else{
-            element.style.border = "";
-            //span[i].innerHTML += span[i].innerHTML || "<br>test";
-            span[i].style.display = "";
-            span[i].style.visibility = "hidden";
-            span[i].style.fontSize = "0px";
-        }
-    }
-    function validate(formName){
-        var form = document.forms[formName];
-        var noError = true;
-        for(var i=0;i<form.length;i++){
-            if((form[i].name == "description") || (form[i].name == "comments")
-            || (form[i].name == "dateScheduled")) continue;    //not required
-            form[i].style.border = "";
-            if((form[i].style.visibility != "hidden") && (form[i].type != "submit") && (!form[i].readOnly)){
-                if((form[i].value == "") || (form[i].value == "-")){
-                    form[i].style.border = "red solid 2px";
-                    noError = false;
-                }
+            $(showElement).hide();
+            if($(showElement).hasClass('validationError')){
+                $(showElement).removeClass('validationError');
             }
         }
-        return noError;
+    }
+    function maintainerChange(){
+        var name = document.forms["maintainForm"]["maintainerName"];
+        var company = document.forms["maintainForm"]["maintainerCompany"];
+        if(name.value == "-") company.value = "";
+        else company.value = document.getElementsByName(name.value)[0].value;
     }
     function sortSubmit(title,order){
         document.forms["sortForm"].action = "?group=" + title + "&by=" + order;
@@ -256,12 +214,12 @@ require_once('../includes/header.php');
             <br>
             <div class="row" action="./">
                 <form name="sortForm" method="post">
-                    <h4 style="float:left;width:130px"><a type="submit" title="Sort By Work Order #" onclick="sortSubmit('order','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Work Order #</a>&nbsp;<?=($_GET['group'] == "order") ? $arrow : ""?></h4>
-                    <h4 class="span2"><a type="submit" title="Sort By Date Required" onclick="sortSubmit('dateReq','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Date Required</a>&nbsp;<?=($_GET['group'] == "dateReq") ? $arrow : ""?></h4>
-                    <h4 style="float:left;width:100px"><a type="submit" title="Sort By Component" onclick="sortSubmit('component','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">System Component</a>&nbsp;<?=($_GET['group'] == "component") ? $arrow : ""?></h4>
-                    <h4 class="span2"><a type="submit" title="Sort By Required Action" onclick="sortSubmit('actionReq','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Required Action</a>&nbsp;<?=($_GET['group'] == "actionReq") ? $arrow : ""?></h4>
-                    <h4 class="span2"><a type="submit" title="Sort By Maintainer Name" onclick="sortSubmit('mainName','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Maintainer Name</a>&nbsp;<?=($_GET['group'] == "mainName") ? $arrow : ""?></h4>
-                    <h4 class="span2"><a type="submit" title="Sort By Maintainer Company" onclick="sortSubmit('mainComp','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Maintainer Company</a>&nbsp;<?=($_GET['group'] == "mainComp") ? $arrow : ""?></h4>
+                    <h4 style="float:left;width:130px"><a type="submit" title="Sort By Work Order #" onclick="sortSubmit('order','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Work Order #</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "order")) ? $arrow : ""?></h4>
+                    <h4 class="span2"><a type="submit" title="Sort By Date Required" onclick="sortSubmit('dateReq','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Date Required</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "dateReq")) ? $arrow : ""?></h4>
+                    <h4 style="float:left;width:100px"><a type="submit" title="Sort By Component" onclick="sortSubmit('component','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">System Component</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "component")) ? $arrow : ""?></h4>
+                    <h4 class="span2"><a type="submit" title="Sort By Required Action" onclick="sortSubmit('actionReq','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Required Action</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "actionReq")) ? $arrow : ""?></h4>
+                    <h4 class="span2"><a type="submit" title="Sort By Maintainer Name" onclick="sortSubmit('mainName','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Maintainer Name</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "mainName")) ? $arrow : ""?></h4>
+                    <h4 class="span2"><a type="submit" title="Sort By Maintainer Company" onclick="sortSubmit('mainComp','<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "asc" : "desc"?>')">Maintainer Company</a>&nbsp;<?=(isset($_GET['group']) && ($_GET['group'] == "mainComp")) ? $arrow : ""?></h4>
                     <h4 style="float:left;width:40px">Action</h4>
                     <input type="hidden" name="buildingID" value="<?=$_POST['buildingID']?>">
                     <input type="hidden" name="systemID" value="<?=$_POST['systemID']?>">

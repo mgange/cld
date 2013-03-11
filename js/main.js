@@ -278,3 +278,24 @@ if(Modernizr.touch) {
     container.onmousemove = container.ontouchstart = container.ontouchmove = mouseMove;
   });
 }
+
+//add input box before given element
+function AddSysComponent(elementID,prevElement){
+    var element = '#' + elementID;
+    var count = ($(element).parent().find('input').length) / 4; //4 input boxes per component
+    var newElement = '<div class="span5" style="margin-left:0px">'
+    +       '<label class="span2" for="unit' + count + '" style="margin-left:0px">Unit Name'
+    +           '<input class="span2" type="text" name="unit' + count + '" id="unit' + count + '">'
+    +       '</label>'
+    +       '<label class="span1" for="manufacturer' + count + '">Manufacturer'
+    +           '<input class="span1" type="text" name="manufacturer' + count + '" id="manufacturer' + count + '">'
+    +       '</label>'
+    +       '<label class="span1" for="model' + count + '">Model'
+    +           '<input class="span1" type="text" name="model' + count + '" id="model' + count + '">'
+    +       '</label>'
+    +       '<label class="span1" for="serial' + count + '">Serial #'
+    +           '<input class="span1" type="text" name="serial' + count + '" id="serial' + count + '">'
+    +       '</label>'
+    +   '</div>';
+    $(element).before(newElement);
+}
