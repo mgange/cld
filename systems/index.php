@@ -136,11 +136,36 @@ foreach($buildings as $building) {
                 <br>
                 <div class="span4 offset4">
                     <?php
-                        $query = "SELECT DateStamp,TimeStamp FROM SourceHeader WHERE SysID = " . $sysConfig['SysID'] . " ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
-                        $result = $db -> fetchRow($query);
-                        $dateTime = new DateTime($result['DateStamp'] . $result['TimeStamp']);
+                        /**
+                         * Let's just look for a 'last update' in the last day
+                         * or so, and if that doesn't work then we'll look back
+                         * even longer.
+                         */
+                        $query = "
+                            SELECT DateStamp,TimeStamp
+                            FROM SourceHeader
+                            WHERE SysID = :SysID
+                              AND DateStamp >= :Date
+                            ORDER BY DateStamp DESC,TimeStamp DESC
+                            LIMIT 1";
+                        $bind[':SysID'] = $sysConfig['SysID'];
+                        $bind[':Date'] = date('Y-m-d');
+                        $result = $db -> fetchRow($query, $bind);
+                        if(!count($result)) {
+                            $bind[':Date'] = date('Y-m-d', strtotime('-1 month'));
+                            $result = $db -> fetchRow($query, $bind);
+                        }
+                        if(count($result)) {
+                            $dateTime = new DateTime($result['DateStamp'] . $result['TimeStamp']);
                     ?>
                     <span style="color:red">Last Update: <?=date_format($dateTime,'F jS, Y @ h:i A')?></span>
+                    <?php
+                        }else{
+                    ?>
+                    <span style="color:red"><b>SYSTEM IS INACTIVE</b></span>
+                    <?php
+                        }
+                    ?>
                 </div>
             </div>
 

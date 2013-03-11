@@ -11,6 +11,7 @@ checkSystemSet($config);
 
 require_once('../includes/header.php');
 
+    $now = "'" . date('Y-m-d', strtotime('-1 hour')) . "'";
     $dateTimeOffset = 5;
 
     $db = new db($config);
@@ -19,8 +20,17 @@ require_once('../includes/header.php');
     if (isset($_GET['id'])) {$CurrFlag=false;} else {$CurrFlag=true;}
 
     // first get DAMID for this System from SysMap
-    $query = "Select * from SystemConfig, buildings where
-              buildings.buildingID=SystemConfig.BuildingID and SystemConfig.SysID=".$SysID;
+    $query = "
+        SELECT
+            SysName,            SystemDescription,
+            address1,           address2,
+            city,               state,
+            Configuration,      NumofRSM,
+            HeatExchanger,      LocationMainSystem,
+            DAMID
+        FROM SystemConfig, buildings
+        WHERE buildings.buildingID = SystemConfig.BuildingID
+          AND SystemConfig.SysID = " . $SysID;
     $sysDAMID = $db -> fetchRow($query);
     $SysConfig=$sysDAMID['Configuration'];
     $openloop   = false;
@@ -95,30 +105,52 @@ require_once('../includes/header.php');
       // Query for RSMs 1, 2, 3, or 5
       if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceData1.SourceID = " . $zone . " AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
     }else{
-      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData4.HeadID ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC LIMIT 5";
-      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.HeadID ORDER BY SourceHeader.DateStamp Desc,SourceHeader.TimeStamp Desc limit 1";
-      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceData1.SourceID = " . $zone . " ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC LIMIT 1";
-      }
+        $query0 = "
+            SELECT *
+            FROM SourceHeader, SourceData0
+            WHERE SourceHeader.SysID = " . $SysID . "
+              AND SourceHeader.Recnum = SourceData0.HeadID
+              AND SourceHeader.DateStamp >= " . $now . "
+            ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
+            LIMIT 1";
+        $query4 = "
+            SELECT *
+            FROM SourceHeader, SourceData4
+            WHERE SourceHeader.SysID = " . $SysID . "
+              AND SourceHeader.Recnum = SourceData4.HeadID
+              AND SourceHeader.DateStamp >= " . $now . "
+            ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp  DESC
+            LIMIT 5";
+        $queryCalc = "
+            SELECT *
+            FROM SourceHeader, SensorCalc
+            WHERE SourceHeader.SysID = " . $SysID . "
+              AND SourceHeader.RecNum = SensorCalc.HeadID
+              AND SourceHeader.DateStamp >= " . $now . "
+            ORDER BY SourceHeader.DateStamp Desc, SourceHeader.TimeStamp Desc
+            LIMIT 1";
+        if(isset($zone)) $query1 = "
+                SELECT *
+                FROM SourceHeader, SourceData1
+                WHERE SourceHeader.SysID = " . $SysID . "
+                  AND SourceHeader.Recnum = SourceData1.HeadID
+                  AND SourceData1.SourceID = " . $zone . "
+              AND SourceHeader.DateStamp >= " . $now . "
+                ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC
+                LIMIT 1";
+    }
 //SourceData4.SysGroup=2 and
-      $NumGrpsin4 = $db -> numRows($query4);
-    //  echo("ROW".$NumGrpsin4);
       $sysStatus4 = $db -> fetchAll($query4);
-      $NumGrpscalc = $db -> numRows($queryCalc);
-    //   echo("E".$NumGrpscalc." ".$queryCalc);
       // get first row only which contains instantantious COP
       $sysCalc = $db -> fetchRow($queryCalc);
-  //   echo("E".$NumGrpsin4."<BR>"."GRP-".$sysStatus4[SysGroup]."<BR>");
 
 
      $sysStatus0 = $db -> fetchRow($query0);
-    // pprint($sysStatus0);
      if (isset($zone)) {
          $sysStatus1 = $db -> fetchRow($query1);
          $Row = $db -> numRows($query1);
 
           }
- //    sStatus4 = $db -> fetchRow($query4);
 
 
      // Not using Calculations for now
@@ -126,8 +158,25 @@ require_once('../includes/header.php');
   //  echo("0--".$sysStatus0[HeadID]);
   //   echo("<BR>4--".$sysStatus4[Recnum]);
      //get next and previous recnum's
-      $queryPrev = "SELECT SourceHeader.Recnum FROM SourceHeader,SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData0.HeadID AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp DESC,TimeStamp DESC LIMIT 1";
-      $queryNext = "SELECT Recnum FROM SourceHeader WHERE SysID = " . $SysID . " AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "' AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "' ORDER BY DateStamp ASC,TimeStamp ASC LIMIT 1";
+      $queryPrev = "
+        SELECT SourceHeader.Recnum
+        FROM SourceHeader,SourceData0
+        WHERE SourceHeader.SysID = " . $SysID . "
+          AND SourceHeader.Recnum = SourceData0.HeadID
+          AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "'
+          AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
+          AND SourceHeader.DateStamp >= " . $now . "
+        ORDER BY DateStamp DESC,TimeStamp DESC
+        LIMIT 1";
+      $queryNext = "
+        SELECT Recnum
+        FROM SourceHeader
+        WHERE SysID = " . $SysID . "
+          AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "'
+          AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
+          AND SourceHeader.DateStamp >= " . $now . "
+        ORDER BY DateStamp ASC,TimeStamp ASC
+        LIMIT 1";
       $result = $db -> fetchRow($queryPrev);
       $prev = $result['Recnum'];
       $result = $db -> fetchRow($queryNext);
@@ -163,13 +212,12 @@ require_once('../includes/header.php');
 // get positions and labels for this page from Web Reference table
      // first get total number of page positions
       $querypos="Select * from WebRefTable where WebPageName='StatusDB' and WebSubPageName='Main' order by SysID";
-     // echo($querypos);
-      $Pageelem = $db -> numRows($querypos);
+
      // now get positions for main page
       $PosMain = $db -> fetchAll($querypos);
+      $Pageelem = count($PosMain);
       // define pos Array
       $i=0;
-     // pprint($PosMain);
       foreach($PosMain as $resultRow) {
 
           $i=$resultRow['WebPagePosNo'];
