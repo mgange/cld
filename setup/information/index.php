@@ -35,7 +35,7 @@ foreach ($PDList as $row) {
 
 }
 */
-
+ini_set('display_errors','0');
 checkSystemSet($config);
 // goes to home page if trying to set up new system without proper authorization
 //if($_SESSION['authLevel'] < 3 && $NewSystem==false) { //already in parent page
@@ -150,15 +150,17 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
                 $index = substr($key,4);
                 $bind[':sysID']         = $_SESSION['SysID'];
                 $bind[':unit']          = $_POST['unit' . $index];
+                $bind[':function']      = $_POST['desc' . $index];
                 $bind[':manufacturer']  = $_POST['manufacturer' . $index];
                 $bind[':model']         = $_POST['model' . $index];
                 $bind[':serial']        = $_POST['serial' . $index];
+                $bind[':dateCode']      = $_POST['dateCode' . $index];
                 $query = "INSERT INTO SysComponents (
-                            SysID,      UnitName,       Manufacturer,
-                            Model,      SerialNumber
+                            SysID,          UnitName,       UnitFunction,
+                            Manufacturer,   Model,          SerialNumber,   DateCode
                         ) VALUES (
-                            :sysID,     :unit,          :manufacturer,
-                            :model,     :serial
+                            :sysID,         :unit,          :function,
+                            :manufacturer,  :model,         :serial,        :dateCode
                         )";
                 $db -> execute($query,$bind);
             }
@@ -168,7 +170,7 @@ if(isset($_POST['submitInfo'])){// and $CumErr==false) {
   if(isset($_POST['systemID'])){
     $Upquery = "UPDATE SystemConfig SET
     SysName ='".$SysNameSel."',SystemDescription='".$SysDescrpSel."',BuildingID=".$buildingID.",PlatformID=".$PlatformIDSel.",DAMID='".$DAMIDSel."',
-    Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger=".$HeatExchangerSel.",InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
+    Systype='".$SysTypeSel."',Configuration=".$ConfigSel.",HeatExchanger='".$HeatExchangerSel."',InstallDate='".$InstallDateSel."',Installer='".$InstallerSel."',
     Maintainer='".$MaintainerSel."',NumofTherms =".$NumofThermsSel.",NumofPowers =". $NumofPowerSel.",NumofRSM =". $NumofRSMSSel .
     " WHERE SysID =". $_SESSION['SysID'];
 
@@ -281,11 +283,7 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
                  <?php if ($errflag[6]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Enter a valid Number of Thermostats between 0 and 5</b></font>");} ?>
                 <input name="NumofTherms" type="text" class="span5" value="<?=$NumofThermsSel?>">
             </label>
-            <div>
-                <a class="btn btn-link" id="addSysComponent" onclick="AddSysComponent(this.id)">+Add System Component</a>
-            </div>
         </div>
-
 
 
         <div class="row" >
@@ -307,8 +305,8 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
              <label for="HeatExchanger">Heat Exchange Unit
                  <?php
                   if ($errflag[9]==true and $PostFlag==true)  {echo("<font color=red><b>Error - Select a HeatExchanger</b></font>");}
-                  $query="Select ItemName,AssignedValue from SysConfigDefaults where ConfigSubGroup='HeatExchanger' order by AssignedValue";
-                   MySQL_Pull_Down($config,$query,"HeatExchanger","ItemName","AssignedValue",$HeatExchangerSel,true,"span5","");
+                  $query="Select ItemName from SysConfigDefaults where ConfigSubGroup='HeatExchanger' order by AssignedValue";
+                   MySQL_Pull_Down($config,$query,"HeatExchanger","ItemName","ItemName",$HeatExchangerSel,true,"span5","");
                  ?>
             </label>
              <label for="Installer">Installer
@@ -356,6 +354,9 @@ $SysName="New SysID= ".$_SESSION['NewID']." ".$BuildName;
             <input type="hidden" name="submitInfo" value="true">
         </div>
        </div>
+    <div class="span12">
+        <a class="btn btn-link" id="addSysComponent" onclick="AddSysComponent(this.id)">+Add System Component</a>
+    </div>
 
 
     <div class="row">

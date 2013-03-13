@@ -283,9 +283,12 @@ if(Modernizr.touch) {
 function AddSysComponent(elementID,prevElement){
     var element = '#' + elementID;
     var count = ($(element).parent().find('input').length) / 4; //4 input boxes per component
-    var newElement = '<div class="span5" style="margin-left:0px">'
+    var newElement = '<div class="span11" style="margin-left:0px">'
     +       '<label class="span2" for="unit' + count + '" style="margin-left:0px">Unit Name'
     +           '<input class="span2" type="text" name="unit' + count + '" id="unit' + count + '">'
+    +       '</label>'
+    +       '<label class="span5" for="desc' + count + '">Unit Description'
+    +           '<input class="span5" type="text" name="desc' + count + '" id="desc' + count + '">'
     +       '</label>'
     +       '<label class="span1" for="manufacturer' + count + '">Manufacturer'
     +           '<input class="span1" type="text" name="manufacturer' + count + '" id="manufacturer' + count + '">'
@@ -295,6 +298,9 @@ function AddSysComponent(elementID,prevElement){
     +       '</label>'
     +       '<label class="span1" for="serial' + count + '">Serial #'
     +           '<input class="span1" type="text" name="serial' + count + '" id="serial' + count + '">'
+    +       '</label>'
+    +       '<label class="span1" for="dateCode' + count + '">Date Code'
+    +           '<input class="span1" type="text" name="dateCode' + count + '" id="dateCode' + count + '">'
     +       '</label>'
     +   '</div>';
     $(element).before(newElement);
