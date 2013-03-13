@@ -13,7 +13,17 @@
  *
  * PHP version 5.3.0
  */
-session_start();
+if(session_id() == '') {
+    session_start();
+}
+
+/* Try to load the site-wide configuration and utilitiees */
+if(! include_once(__DIR__ . '/../config/config.php')) {
+    die('The site\'s configuration could not be loaded.');
+}
+if(! require_once(__DIR__ . '/../general/util.php')) {
+    die('The site\'s utilities could not be loaded.');
+}
 
 /**
  * The base domain and directory are needed to build links to resources like
@@ -23,20 +33,13 @@ session_start();
  * the domain root.
  */
 if(!isset($_SESSION['base_domain']) || !isset($_SESSION['base_dir'])) {
-    header("Location: /");
+    $_SESSION['base_domain'] = $config['base_domain'];
+    $_SESSION['base_dir'] = $config['base_dir'];
 }
 
 /* Get rid of index.php in the URL so it doesn't interfere with breafcrumbs */
 if(!isset($_SESSION['userID']) && $_SERVER['SCRIPT_NAME'] !== '/' . $config['base_dir'] . 'index.php'){
     header('Location: ' . $config['base_domain'] . $config['base_dir']);
-}
-
-/* Try to load the site-wide configuration and utilitiees */
-if(! include_once(__DIR__ . '/../config/config.php')) {
-    die('The site\'s configuration could not be loaded.');
-}
-if(! require_once(__DIR__ . '/../general/util.php')) {
-    die('The site\'s utilities could not be loaded.');
 }
 
 /* Override default timezone if one is specified in config.php */
