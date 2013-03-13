@@ -9,7 +9,7 @@
  */
 
 $query = "SELECT customerID, username, authLevel, email, firstName, lastName FROM users WHERE userID = :userID";
-$bind[':userID'] = intval($_SESSION['userID']);
+$bind[':userID'] = (isset($_SESSION['userID'])) ? $_SESSION['userID'] : NULL;
 $db = new db($config);
 $results = $db -> fetchRow($query, $bind);
 if($results) {
