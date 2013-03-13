@@ -136,8 +136,8 @@ if(isset($_SESSION['userID']) and isset($_SESSION['authLevel']) && (intval($_SES
 
 <?php } ?>
 
- <?php
-if (intval($_SESSION['authLevel']) == 3)  {
+<?php
+    if(isset($_SESSION['authLevel']) && ($_SESSION['authLevel'] == 3)){
 ?>
                             <li>
                                 <a href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>config_setup">Setup Parameters</a>

@@ -13,7 +13,7 @@
  * '../../../config/config.php' all over the site.
  *
  */
-session_start();
+
 if(! require_once('config/config.php')) {
     die('Config file could not be loaded by index.');
 }

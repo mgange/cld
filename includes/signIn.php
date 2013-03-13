@@ -11,7 +11,7 @@
  */
 ?>
         <form
-        action="<?php echo $_SESSION['base_url']; ?>login/login.php"
+        action="<?=$config['base_domain'] . $config['base_dir']?>login/login.php"
         method="POST">
             <div class="row">
                 <div class="span8 offset2 well">
