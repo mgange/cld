@@ -47,11 +47,11 @@ $sysConfig = $db -> fetchRow($query);
             <table class="table span12">
                 <tr class="alarm-header">
                     <th>Date</th>
-                    <th><a title="Sort By Time" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=datetime&by=asc" : "?group=datetime&by=desc"?>">Time</a> <?=($_GET['group'] == "datetime") ? $arrow : ''?></th>
+                    <th><a title="Sort By Time" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=datetime&by=asc" : "?group=datetime&by=desc"?>">Time</a> <?=(isset($_GET['group']) && ($_GET['group'] == "datetime")) ? $arrow : ''?></th>
                     <th>Description</th>
                     <th>Zone</th>
-                    <th><a title="Sort By Sensor" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=sensor&by=asc" : "?group=sensor&by=desc"?>">Sensor</a> <?=($_GET['group'] == "sensor") ? $arrow : ''?></th>
-                    <th><a title="Sort By Duration" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=duration&by=asc" : "?group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=($_GET['group'] == "duration") ? $arrow : ''?></th>
+                    <th><a title="Sort By Sensor" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=sensor&by=asc" : "?group=sensor&by=desc"?>">Sensor</a> <?=(isset($_GET['group']) && ($_GET['group'] == "sensor")) ? $arrow : ''?></th>
+                    <th><a title="Sort By Duration" href="<?=(!isset($_GET['by']) || ($_GET['by'] == "desc")) ? "?group=duration&by=asc" : "?group=duration&by=desc"?>">Duration (Hrs:Mins)</a> <?=(isset($_GET['group']) && ($_GET['group'] == "duration")) ? $arrow : ''?></th>
                     <th>Resolution</th>
                     <th>Notes</th>
                     <th>Email Sent</th>
