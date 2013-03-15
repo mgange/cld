@@ -22,7 +22,11 @@ unset($_SESSION['SetupStep']);
 
         <div class="row">
             <h1 class="span8 offset2">System Setup</h1>
+            <h3 class="span2"><a href="../setup/help/CLD System Set Up Procedures.pdf">Help</a></h3>
+
         </div>
+
+
 
 <?php if(isset($_SESSION['authLevel']) && intval($_SESSION['authLevel']) == 3  ){ ?>
        <div class="row">
