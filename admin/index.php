@@ -55,6 +55,13 @@ require_once('../includes/header.php');
 
         <div class="row">
             <h1 class="span8 offset2">Site Administration</h1>
+<?php
+if($_SESSION['authLevel'] > 2) {
+?>
+            <h2 class="span8 offset2">Customers</h2>
+<?php
+}
+?>
         </div>
 
         <div id="accordion">
