@@ -151,11 +151,11 @@ foreach($buildings as $building) {
                         $bind[':SysID'] = $sysConfig['SysID'];
                         $bind[':Date'] = date('Y-m-d');
                         $result = $db -> fetchRow($query, $bind);
-                        if(!count($result)) {
+                        if(empty($result)){
                             $bind[':Date'] = date('Y-m-d', strtotime('-1 month'));
                             $result = $db -> fetchRow($query, $bind);
                         }
-                        if(count($result)) {
+                        if(!empty($result)) {
                             $dateTime = new DateTime($result['DateStamp'] . $result['TimeStamp']);
                     ?>
                     <span style="color:red">Last Update: <?=date_format($dateTime,'F jS, Y @ h:i A')?></span>
