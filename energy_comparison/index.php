@@ -157,6 +157,7 @@ for ($i=0; $i <= $daysToDisplay; $i++) {
 
     $thisDate = date('Y-m-d', strtotime($end.' - '.$i.' days'));
     $bind[':date'] = $thisDate;
+    $data[$thisDate] = array('KWH' => 0);
 
 
     foreach($powerSensors as $name => $sens) {
@@ -165,6 +166,7 @@ for ($i=0; $i <= $daysToDisplay; $i++) {
         FROM SourceHeader, ".pickTable($sens['SourceID'])."
         WHERE SourceHeader.Recnum = ".pickTable($sens['SourceID']).".HeadID
           AND SourceHeader.SysID = :SysID
+          AND ".pickTable($sens['SourceID']).".".$sens['SensorColName']." > 0
           AND SourceHeader.DateStamp = :date
           AND ".pickTable($sens['SourceID']).".PwrSubAddress = ".$sens['SensorAddress']."
         ORDER BY SourceHeader.TimeStamp ";
