@@ -334,6 +334,7 @@ function arrayRemoveEmpty($array)
  * @return string      Values formatted as url parameters
  */
 function buildURLparameters($arr) {
+    $url = '';
     if(count($arr) < 1) {
         return '';
     }else{
