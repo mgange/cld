@@ -228,6 +228,7 @@ require_once('../../includes/header.php');
         var categories = [<?php
             $half = 'AM';
             for ($i=0; $i < 24; $i++) {
+                if($i > 11){$half = 'PM';}
                 echo "'";
                 if($i == 0) {
                     echo 12;
