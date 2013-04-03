@@ -125,6 +125,10 @@ if(! withinRange($daysToDisplay, 1, $maxDays+1)) {
     $daysToDisplay = $maxDays;
 }
 
+$data = array();
+$outsideAir = array();
+$datapoints = array();
+
 for ($i=0; $i <= $daysToDisplay; $i++) {
 
     $query = "
@@ -164,15 +168,16 @@ ORDER BY
     $result = $db -> fetchAll($query);
 
     foreach($result as $res) {
+        if(!isset($data[$res['DateStamp']])) {$data[$res['DateStamp']] = array();}
         /* Touch all the system stages so they're created in the correct order */
-        $data[$res['DateStamp']]["System Off"]   += 0;
-        $data[$res['DateStamp']]["Fan Only"]     += 0;
-        $data[$res['DateStamp']]["Emerg. Heat"]  += 0;
-        $data[$res['DateStamp']]["Stage 3 Heat"] += 0;
-        $data[$res['DateStamp']]["Stage 2 Heat"] += 0;
-        $data[$res['DateStamp']]["Stage 1 Heat"] += 0;
-        $data[$res['DateStamp']]["Stage 2 Cool"] += 0;
-        $data[$res['DateStamp']]["Stage 1 Cool"] += 0;
+        if(!isset($data[$res['DateStamp']]["System Off"]   )) {$data[$res['DateStamp']]["System Off"]   = 0;}
+        if(!isset($data[$res['DateStamp']]["Fan Only"]     )) {$data[$res['DateStamp']]["Fan Only"]     = 0;}
+        if(!isset($data[$res['DateStamp']]["Emerg. Heat"]  )) {$data[$res['DateStamp']]["Emerg. Heat"]  = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 3 Heat"] )) {$data[$res['DateStamp']]["Stage 3 Heat"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 2 Heat"] )) {$data[$res['DateStamp']]["Stage 2 Heat"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 1 Heat"] )) {$data[$res['DateStamp']]["Stage 1 Heat"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 2 Cool"] )) {$data[$res['DateStamp']]["Stage 2 Cool"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 1 Cool"] )) {$data[$res['DateStamp']]["Stage 1 Cool"] = 0;}
 
         $stage = Systemlogic(
             $res['DigIn04'],
@@ -183,8 +188,8 @@ ORDER BY
             0
         );
         $data[$res['DateStamp']][$stage]++;
-        $outsideAir[$res['DateStamp']] += $res[$sensors['OutsideAir']['SensorColName']]/100;
-        $datapoints[$res['DateStamp']]++;
+        if(!isset($outsideAir[$res['DateStamp']])) {$outsideAir[$res['DateStamp']] = 0;} else{ $outsideAir[$res['DateStamp']] += $res[$sensors['OutsideAir']['SensorColName']]/100; }
+        if(!isset($datapoints[$res['DateStamp']])) {$datapoints[$res['DateStamp']] = 0;}else{$datapoints[$res['DateStamp']]++;}
     }
     // $outsideAir[$result[0]['DateStamp']] = round($outsideAir[$result[0]['DateStamp']]/count($result), 2);
 }
@@ -244,7 +249,9 @@ require_once('../includes/header.php');
                 title: {text: '% Time in Each Stage'}
             },
             {
+                max: 100,
                 maxPadding: 0,
+                min: 0,
                 opposite: 1,
                 title: {
                     text: 'Temperature'
@@ -252,6 +259,7 @@ require_once('../includes/header.php');
             },
             {
                 max: 100,
+                maxPadding: 0,
                 min: 0,
                 opposite: 1,
                 title: {
@@ -390,7 +398,7 @@ if($numRSM > 0) {
     for ($i=1; $i <= $numRSM; $i++) {
 ?>
                 <a
-                    class="btn btn-mini<?php if($_GET['z']==$i){echo ' active';} ?>"
+                    class="btn btn-mini<?php if(isset($_GET['z']) && $_GET['z']==$i){echo ' active';} ?>"
                     href="./<?php
                         $params['z'] = $i;
                         echo buildURLparameters($params);
