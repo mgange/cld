@@ -94,6 +94,14 @@ SELECT DISTINCT
         }
         array_push($headings, $v);
     }
+
+    // See if we're going to get duplicate rows because of the addresses in SourceData4
+    $dupes=0;if(in_array('SourceData4',$tablesUsed)){$dupes=1;}
+
+    if($dupes) {
+        $query .= ', SourceData4.PwrSubAddress, SourceData4.ThermSubAddress';
+    }
+
     $query .= "
 FROM
     ";
@@ -130,6 +138,24 @@ ORDER BY DateStamp ASC, TimeStamp ASC";
         header('Location: ./?a=e');
     }
     array_unshift($results, $headings);
+
+$pwrRegex   = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
+$thermRegex = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
+
+foreach($results as $row) {
+    if($dupes) {
+        foreach($row as $k => $v) {
+            if(preg_match($thermRegex, $k) && $row['ThermSubAddress'] != '') {
+                $data[$row['Recnum']][$k.'-'.$row['ThermSubAddress']] = $v;
+            }elseif(preg_match($pwrRegex, $k) && $row['PwrSubAddress'] != '') {
+                $data[$row['Recnum']][$k.'-'.$row['PwrSubAddress']] = $v;
+            }else{
+                $data[$row['Recnum']][$k] = $v;
+            }
+
+        }
+    }
+}
 
     foreach($results as $row) {
         fputcsv($outstream, $row, ',', '"');
