@@ -5,35 +5,6 @@
  *------------------------------------------------------------------------------
  *
  */
-/**
- * Silly Functions
- */
-function pickTable($SourceID)
-{
-    switch ($SourceID) {
-        case '0':
-            $table = 'SourceData0';
-            break;
-        case '4':
-            $table = 'SourceData4';
-            break;
-        case '99':
-            $table = 'SensorCalc';
-            break;
-        default:
-            $table = 'SourceData1';
-            break;
-    }
-    return $table;
-}
-function pageName($zone)
-{
-    if($zone == 0) {
-        return 'Main';
-    }else{
-        return 'RSM';
-    }
-}
 
 require_once('../includes/pageStart.php');
 

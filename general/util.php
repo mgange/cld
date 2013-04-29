@@ -349,6 +349,46 @@ function buildURLparameters($arr) {
 
 
 /**
+ * Return a table name based on a SourceID
+ * @param  int    $SourceID SourceID
+ * @return string           Table Name
+ */
+function pickTable($SourceID)
+{
+    switch ($SourceID) {
+        case '0':
+            $table = 'SourceData0';
+            break;
+        case '4':
+            $table = 'SourceData4';
+            break;
+        case '99':
+            $table = 'SensorCalc';
+            break;
+        default:
+            $table = 'SourceData1';
+            break;
+    }
+    return $table;
+}
+
+
+/**
+ * Determine if the page should display Main data or data from a RSM
+ * @param  int    $zone Zone number
+ * @return string       Type of page data to display
+ */
+function pageName($zone)
+{
+    if($zone == 0) {
+        return 'Main';
+    }else{
+        return 'RSM';
+    }
+}
+
+
+/**
  *------------------------------------------------------------------------------
  * PDO Wrapper Class
  *------------------------------------------------------------------------------
