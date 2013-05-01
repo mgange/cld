@@ -137,28 +137,45 @@ ORDER BY DateStamp ASC, TimeStamp ASC";
     }catch(Exception $e) {
         header('Location: ./?a=e');
     }
-    array_unshift($results, $headings);
+    $pwrRegex   = '/^(Power0[0-9]{1})$/';
+    $thermRegex = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
 
-$pwrRegex   = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
-$thermRegex = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
-
-foreach($results as $row) {
-    if($dupes) {
-        foreach($row as $k => $v) {
-            if(preg_match($thermRegex, $k) && $row['ThermSubAddress'] != '') {
-                $data[$row['Recnum']][$k.'-'.$row['ThermSubAddress']] = $v;
-            }elseif(preg_match($pwrRegex, $k) && $row['PwrSubAddress'] != '') {
-                $data[$row['Recnum']][$k.'-'.$row['PwrSubAddress']] = $v;
-            }else{
-                $data[$row['Recnum']][$k] = $v;
-            }
-
-        }
-    }
-}
+    $headings = array();
 
     foreach($results as $row) {
-        fputcsv($outstream, $row, ',', '"');
+        if($dupes) {
+            foreach($row as $k => $v) {
+                if($v !== null) {
+                    if(preg_match($thermRegex, $k) && $row['ThermSubAddress'] != '') {
+                        $data[$row['Recnum']][$k.'-'.$row['ThermSubAddress']] = $v;
+                    }elseif(preg_match($pwrRegex, $k) && $row['PwrSubAddress'] != '') {
+                        $data[$row['Recnum']][$k.'-'.$row['PwrSubAddress']] = $v;
+                    }else{
+                        $data[$row['Recnum']][$k] = $v;
+                    }
+                }
+            }
+        }
+    }
+    foreach($data as $arr) {
+        foreach($arr as $k=>$v) {
+            if(!in_array($k, $headings)) {array_push($headings, $k);}
+        }
+    }
+
+    if(in_array('PwrSubAddress', $headings)) {
+        unset($headings[array_search('PwrSubAddress', $headings)]);
+    }
+    if(in_array('ThermSubAddress', $headings)) {
+        unset($headings[array_search('ThermSubAddress', $headings)]);
+    }
+    fputcsv($outstream, $headings, ',', '"');
+    foreach($data as $datapoint) {
+        $d = array();
+        foreach($headings as $col) {
+            array_push($d, $datapoint[$col]);
+        }
+        fputcsv($outstream, $d, ',', '"');
     }
 
     fclose($outstream);
