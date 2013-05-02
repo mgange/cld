@@ -59,6 +59,32 @@ $SysID = $_SESSION['SysID'];
 
 ////////// Handle POST data ////////////////////////////////////////////////////
 if(count($_POST) > 0) {
+
+    /* Get Sensor names from SysMap */
+    $query = "
+    SELECT
+        SysMap.SourceID,
+        SysMap.SysID,
+        SysMap.SensorColName,
+        SysMap.SensorName,
+        SysMap.SensorRefName,
+        WebRefTable.SensorLabel,
+        WebRefTable.WebSubPageName
+    FROM SysMap, WebRefTable
+    WHERE SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
+      AND WebRefTable.Inhibit = 0
+    ";
+
+    /* Put all the defaults in an array */
+    $mappings = array();
+    foreach($db->fetchAll($query . "AND DAMID = '000000000000'") as $sensor) {
+        $mappings[pickTable($sensor['SourceID']) . '_' . $sensor['SensorColName']] = $sensor['SensorName'];
+    }
+    /* Get the custom table.column values specific to the current SysID */
+    foreach($db->fetchAll($query . "AND SysMap.SysID = " . $SysID) as $k => $v) {
+        $mappings[pickTable($sensor['SourceID']) . '_' . $sensor['SensorColName']] = $sensor['SensorName'];
+    }
+
     // Keep an eye on the tables that are being queried
     $tablesUsed = array('SourceHeader');
 
@@ -77,12 +103,12 @@ if(count($_POST) > 0) {
     $query = "
 SELECT DISTINCT
     SourceHeader.Recnum,
-    SourceHeader.DateStamp,
-    SourceHeader.TimeStamp,
+    SourceHeader.DateStamp AS Date,
+    SourceHeader.TimeStamp AS Time,
     ";
     $i = 1;
     foreach($_POST as $k => $v) { // Select all the fields from the POST
-        $query .= str_replace('_', '.', $k);
+        $query .= str_replace('_', '.', $k) . ' AS ' . $k;
         if($i < count($_POST)) { // Add commas, except at the end
             $query .= ",
     ";
@@ -99,7 +125,9 @@ SELECT DISTINCT
     $dupes=0;if(in_array('SourceData4',$tablesUsed)){$dupes=1;}
 
     if($dupes) {
-        $query .= ', SourceData4.PwrSubAddress, SourceData4.ThermSubAddress';
+        $query .= ',
+    SourceData4.PwrSubAddress,
+    SourceData4.ThermSubAddress';
     }
 
     $query .= "
@@ -169,7 +197,22 @@ ORDER BY DateStamp ASC, TimeStamp ASC";
     if(in_array('ThermSubAddress', $headings)) {
         unset($headings[array_search('ThermSubAddress', $headings)]);
     }
-    fputcsv($outstream, $headings, ',', '"');
+
+    /**
+     * Make an array of all the column titles, which I had to get earlier from
+     * the sysmap. I'll also have to strip out the PowerSubAddress and the
+     * ThermSubAddress to get the correct title.
+     */
+    $titles = array();
+    foreach($headings as $heading){
+        if(isset($mappings[$heading])) {
+            array_push($titles, $mappings[$heading]);
+        }else{
+            array_push($titles, $heading);
+        }
+    }
+    fputcsv($outstream, $titles, ',', '"');
+
     foreach($data as $datapoint) {
         $d = array();
         foreach($headings as $col) {
