@@ -3,25 +3,7 @@
  *------------------------------------------------------------------------------
  * Data Download page
  *------------------------------------------------------------------------------
- * Extracts Data from MySql Data table based on date range and sends data to excel
- * Choose Tables to include in excel
- * each table on Separate tab
- * SourceHeader
- * SourceData0
- * SourceData1
- * SourceData4
- * SensorCalc
  *
- * Accessible by System Admin or Building Manager authorization only
- *------------------------------------------------------------------------------
- * Extracts Data from MySql Data table based on date range and sends data to excel
- * Choose Tables to include in excel
- * each table on Separate tab
- * SourceHeader
- * SourceData0
- * SourceData1
- * SourceData4
- * SensorCalc
  */
 
 function sourceName($SourceID)
@@ -46,7 +28,14 @@ function sourceName($SourceID)
     }
     return $name;
 }
-
+function makeName($arr)
+{
+    $name = $arr['SourceID'].'_'.$arr['SensorColName'];
+    if($arr['SensorAddress'] != '' && $arr['SensorAddress'] != 'NA') {
+        $name .= '_' . $arr['SensorAddress'];
+    }
+    return $name;
+}
 
 
 require_once('../includes/pageStart.php');
@@ -57,102 +46,201 @@ checkSystemSet($config);
 
 $SysID = $_SESSION['SysID'];
 
-////////// Handle POST data ////////////////////////////////////////////////////
-if(count($_POST) > 0) {
 
-    /* Get Sensor names from SysMap */
+/* Get all of the saved download selections for the current system */
+$savedSetsQuery = 'SELECT * FROM SavedDownloads WHERE UserID = :UserID and SysID = :SysID';
+$savedSetsBind[':UserID'] = intval($_SESSION['userID']);
+$savedSetsBind[':SysID'] = intval($_SESSION['SysID']);
+$savedSets = $db->fetchAll($savedSetsQuery, $savedSetsBind);
+
+/**
+ * We need to get the number of thermostats and the number of power meters for
+ * the system in SystemConfig. Whichever of those numbers is largest is also the number of SysGroups somehow.
+ */
+$nsg = $db->fetchRow("SELECT NumOfTherms, NumOfPowers FROM SystemConfig WHERE SysID = " . $SysID);
+$numSysGroups = 1;
+
+foreach($nsg as $k => $v) {
+    if($v > $numSysGroups) { $numSysGroups = $v; }
+}
+
+/**
+ * Get the SensorAddresses for the default system, then the system specific
+ * ones that override the defaults. So I'll end p with an array in which the
+ * keys are SysGroups and the values are arrays of applicable addresses.
+ */
+$addresses = array();
+for($i=1; $i < $numSysGroups; $i++) {
+    $addresses[$i] = array();
     $query = "
+        SELECT SensorColName, SensorAddress
+        FROM SysMap
+        WHERE SysID = 0
+        AND (
+               SensorColName = 'Power01'
+            OR SensorColName = 'ThermStat01'
+        )
+        AND SysGroup = $i";
+    foreach($db->fetchAll($query) as $arr) {
+        array_push($addresses[$i], $arr['SensorAddress']);
+    }
+}
+/* Now for the addresses specific to $SysID, whatever that may be */
+for($i=1; $i < $numSysGroups; $i++) { // in which $i is the SysGroup
+    $query = "
+        SELECT SensorColName, SensorAddress, SensorActive
+        FROM SysMap
+        WHERE SysID = $SysID
+        AND (
+               SensorColName = 'Power01'
+            OR SensorColName = 'ThermStat01'
+        )
+        AND SysGroup = $i";
+    foreach($db->fetchAll($query) as $arr) {
+        if($arr['SensorActive'] == 0 && in_array($arr['SensorAddress'], $addresses[$i]) ) {
+            unset($addresses[$i][ array_search($arr['SensorAddress'], $addresses[$i]) ]);
+        }elseif(!in_array($arr['SensorAddress'], $addresses[$i])){
+            array_push($addresses[$i], $arr['SensorAddress']);
+        }
+    }
+}
+
+
+/* So now we're gonna get all the mapped sensors. Yeah, all of them */
+$sensors = array();
+$query = "
     SELECT
-        SysMap.SourceID,
-        SysMap.SysID,
-        SysMap.SensorColName,
-        SysMap.SensorName,
-        SysMap.SensorRefName,
-        WebRefTable.SensorLabel,
-        WebRefTable.WebSubPageName
+        SysMap.SourceID,                SysMap.SensorColName,SysMap.SysID,
+        SysMap.SensorAddress,           SysMap.SensorActive,
+        SysMap.SensorRefName,           SysMap.SensorName,
+        WebRefTable.SensorLabel
     FROM SysMap, WebRefTable
     WHERE SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
-      AND WebRefTable.Inhibit = 0
-    ";
+      AND SysMap.SysID = ";
+$defaults= $db->FetchAll($query . "0 AND SysMap.SensorActive = 1"); // Using "0" as the SysID indicates default values
+$customs = $db->FetchAll($query . $SysID);
 
-    /* Put all the defaults in an array */
-    $mappings = array();
-    foreach($db->fetchAll($query . "AND DAMID = '000000000000'") as $sensor) {
-        $mappings[pickTable($sensor['SourceID']) . '_' . $sensor['SensorColName']] = $sensor['SensorName'];
+/**
+ * Put all the default sensors into an array with the keys formatted as
+ * table_column_address, where the address is optional(only used if set in the
+ * sysmap). The address, if applicable, is padded to two characters.
+ */
+foreach($defaults as $def) {
+    $sensors[makeName($def)] = $def;
+}
+
+foreach ($customs as $def) {
+    if($def['SensorActive'] == 0 && in_array(makeName($def), $sensors)) {
+        unset($sensors[makeName($def)]);
+    }elseif($def['SensorActive'] == 1){
+        $sensors[makeName($def)] = $def;
     }
-    /* Get the custom table.column values specific to the current SysID */
-    foreach($db->fetchAll($query . "AND SysMap.SysID = " . $SysID) as $k => $v) {
-        $mappings[pickTable($sensor['SourceID']) . '_' . $sensor['SensorColName']] = $sensor['SensorName'];
-    }
+}
 
-    // Keep an eye on the tables that are being queried
-    $tablesUsed = array('SourceHeader');
 
-    $headings = array('Record ID', 'Date', 'Time');
+/*//////////////////////////////*/
+// die();
+/*//////////////////////////////*/
 
-    // Get the dates and get the out of the POST array
+
+////////////////////////////////////////////////////////////////////////////////
+/* Handle POST requests */
+if(count($_POST) > 0) {
+    /* Get the date range being downloaded and clean them out of the POST array */
     $from = $_POST['from'];
     $until = $_POST['until'];
     unset($_POST['from']);
     unset($_POST['until']);
 
-    if(count($_POST) == 0) {
-        header('Location: ./?a=e');
-    }
-
-    $query = "
-SELECT DISTINCT
-    SourceHeader.Recnum,
-    SourceHeader.DateStamp AS Date,
-    SourceHeader.TimeStamp AS Time,
-    ";
-    $i = 1;
-    foreach($_POST as $k => $v) { // Select all the fields from the POST
-        $query .= str_replace('_', '.', $k) . ' AS ' . $k;
-        if($i < count($_POST)) { // Add commas, except at the end
-            $query .= ",
-    ";
+    /* I need to declare these arrays before adding to them or PHP will yell at me  ;_;  */
+    $tablesUsed = array();
+    $cols = array();
+    $addrUsed = array();
+    /**
+     * Now we can add the distinct tables and table.col locations to their apropriate arrays
+     * They'll be formatted as table_col_address, so we can split the on the _ character
+     */
+    foreach($_POST as $key => $val) {
+        $place = explode('_', $key);
+        if(!in_array($place[0], $tablesUsed)) {
+            array_push($tablesUsed, $place[0]);
         }
-        $i++;
-        // While we're looping over these check which tables are used and keep track of them
-        if(!in_array( preg_replace('/_.*/', '', $k), $tablesUsed )) {
-            array_push($tablesUsed, preg_replace('/_.*/', '', $k));
+        if(!in_array($place[0].'.'.$place[1], $cols)) {
+            $cols[$key] = pickTable($place[0]).'.'.$place[1];
         }
-        array_push($headings, $v);
     }
 
-    // See if we're going to get duplicate rows because of the addresses in SourceData4
-    $dupes=0;if(in_array('SourceData4',$tablesUsed)){$dupes=1;}
+    /* Start building the query to dump all this data with some identifiers for each record */
+    $query = " SELECT
+  SourceHeader.Recnum AS RowNumber,
+  SourceHeader.DateStamp AS Date,
+  SourceHeader.TimeStamp AS Time";
 
-    if($dupes) {
-        $query .= ',
-    SourceData4.PwrSubAddress,
-    SourceData4.ThermSubAddress';
+    /* Add each table.column that we parsed out earlier */
+    foreach($cols as $key => $col) {
+        $query .= ",\n  " . $col . " AS " . preg_replace('/\_([0-9]{1,2}|NA)$/', '', $key);
     }
 
-    $query .= "
-FROM
-    ";
-    $i = 1;
-    foreach ($tablesUsed as $table) { // List the tables we're selecting from
-        $query .= $table;
-        if($i < count($tablesUsed)) { // Add commas, except at the end
-            $query .= ", ";
+    /**/
+    if(in_array('4', $tablesUsed)) {
+        $query .= ",\n  SourceData4.PwrSubAddress,\n  SourceData4.ThermSubAddress";
+    }
+
+    /* List the tables we've used */
+    $query .= "\n FROM SourceHeader";
+    foreach($tablesUsed as $table){
+        $query .= ", " . pickTable($table);
+    }
+
+    /* Now the conditions I guess */
+    $query .= "\n WHERE SourceHeader.SysID = :SysID";
+    foreach ($tablesUsed as $table) {
+        $query .= "\n   AND SourceHeader.Recnum = " . pickTable($table) . ".HeadID";
+    }
+    $query .= "\n   AND SourceHeader.DateStamp >= :from";
+    $query .= "\n   AND SourceHeader.DateStamp <= :until";
+
+    /* And now to wrap this thing up */
+    $query .= "\n ORDER BY SourceHeader.DateStamp ASC, SourceHeader.TimeStamp ASC";
+
+    $bind = array(
+        ":from"  => $from,
+        ":until" => $until,
+        ":SysID" => $SysID
+    );
+
+    /**
+     * These are the regular expressions that should identify the columns that
+     * depend on a PwrSubAddress or a ThermSubAddress.
+     */
+    $pwrRegex   = '/^[0-9]{1}\_(Power0[0-9]{1})/';
+    $thermRegex = '/^[0-9]{1}\_(ThermStat[0-9]{2}|ThermMode|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)/';
+
+
+    $data = array();
+    try{
+        $results = $db->fetchAll($query, $bind);
+    }catch(Exception $e) {
+        // Redirect to the DataDownload page with an error message if something goes wrong
+        die(header('Location: ./?a=e'));
+    }
+
+foreach($results as $res) {
+    if(!isset($data[$res['RowNumber']])) {
+        $data[$res['RowNumber']] = array();
+    }
+    $data[$res['RowNumber']]['Date'] = $res['Date'];
+    $data[$res['RowNumber']]['Time'] = $res['Time'];
+    foreach($res as $key => $val) {
+        if(preg_match($pwrRegex, $key)) {
+            $data[$res['RowNumber']][$key.'_'.$res['PwrSubAddress']] = $val;
+        }elseif(preg_match($thermRegex, $key)) {
+            $data[$res['RowNumber']][$key.'_'.$res['ThermSubAddress']] = $val;
+        }else{
+            $data[$res['RowNumber']][$key] = $val;
         }
-        $i++;
     }
-    $query .= "
-WHERE SourceHeader.SysID = $SysID";
-    array_shift($tablesUsed);
-    foreach ($tablesUsed as $table) { // Join all the tables being used to SourceHeader
-        $query .= "
-  AND SourceHeader.Recnum = " . $table . ".HeadID";
-    }
-    // Only get records in the date range
-    $query .= "
-  AND SourceHeader.DateStamp >= '$from'
-  AND SourceHeader.DateStamp <= '$until'
-ORDER BY SourceHeader.DateStamp ASC, SourceHeader.TimeStamp ASC";
+}
 
     header("Content-type: text/csv");
     header("Cache-Control: no-store, no-cache");
@@ -160,86 +248,41 @@ ORDER BY SourceHeader.DateStamp ASC, SourceHeader.TimeStamp ASC";
 
     $outstream = fopen("php://output",'w');
 
-    try{
-        $results = $db->fetchAll($query);
-    }catch(Exception $e) {
-        header('Location: ./?a=e');
-    }
-    $pwrRegex   = '/^(Power0[0-9]{1})$/';
-    $thermRegex = '/^(ThermStat[0-9]{2}|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint)$/';
-
-    $headings = array();
-
-    foreach($results as $row) {
-        if($dupes) {
-            foreach($row as $k => $v) {
-                if($v !== null) {
-                    if(preg_match($thermRegex, $k) && $row['ThermSubAddress'] != '') {
-                        $data[$row['Recnum']][$k.'-'.$row['ThermSubAddress']] = $v;
-                    }elseif(preg_match($pwrRegex, $k) && $row['PwrSubAddress'] != '') {
-                        $data[$row['Recnum']][$k.'-'.$row['PwrSubAddress']] = $v;
-                    }else{
-                        $data[$row['Recnum']][$k] = $v;
-                    }
-                }
-            }
+    $titles = array('Date', 'Time');
+    foreach($_POST as $k => $v) {
+        $title = $sensors[$k]['SensorName'];
+        if(preg_match('/Power0[0-9]{1}/', $k)) {
+            $title .= ' Addr. ' . $sensors[$k]['SensorAddress'];
+        }elseif(preg_match('/.*(ThermStat[0-9]{2}|ThermMode|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint).*/', $k)) {
+            $title .= ' Addr. ' . $sensors[$k]['SensorAddress'];
         }
-    }
-    foreach($data as $arr) {
-        foreach($arr as $k=>$v) {
-            if(!in_array($k, $headings)) {array_push($headings, $k);}
-        }
-    }
-
-    if(in_array('PwrSubAddress', $headings)) {
-        unset($headings[array_search('PwrSubAddress', $headings)]);
-    }
-    if(in_array('ThermSubAddress', $headings)) {
-        unset($headings[array_search('ThermSubAddress', $headings)]);
-    }
-
-    /**
-     * Make an array of all the column titles, which I had to get earlier from
-     * the sysmap. I'll also have to strip out the PowerSubAddress and the
-     * ThermSubAddress to get the correct title.
-     */
-    $titles = array();
-    foreach($headings as $heading){
-        if(isset($mappings[$heading])) {
-            array_push($titles, $mappings[$heading]);
-        }else{
-            array_push($titles, $heading);
-        }
+        array_push($titles, $title);
     }
     fputcsv($outstream, $titles, ',', '"');
 
-    foreach($data as $datapoint) {
-        $d = array();
-        foreach($headings as $col) {
-            array_push($d, $datapoint[$col]);
+    foreach($data as $d) {
+        $row = array($d['Date'], $d['Time']);
+        foreach($_POST as $k => $v) {
+            array_push($row, $d[$k]);
         }
-        fputcsv($outstream, $d, ',', '"');
+        fputcsv($outstream, $row, ',', '"');
     }
 
-    fclose($outstream);
-    die();
+/*//////////////////////////////*/
+die();
+/*//////////////////////////////*/
 
-////////// End of POST hondling ////////////////////////////////////////////////
-}
 
-$savedSetsQuery = 'SELECT * FROM SavedDownloads WHERE UserID = :UserID and SysID = :SysID';
-$savedSetsBind[':UserID'] = intval($_SESSION['userID']);
-$savedSetsBind[':SysID'] = intval($_SESSION['SysID']);
-$savedSets = $db->fetchAll($savedSetsQuery, $savedSetsBind);
+} // End of POST handling
 
-require_once('../includes/header.php');
-
+/* Let's see what building we're looking at */
 $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $buildingName = $buildingNames['SysName'];
 
 $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
 $numRSM = $numRSM['NumofRSM'];
 
+require_once('../includes/header.php');
 ?>
         <h1 class="span10 offset1">
             Data Download -
@@ -249,16 +292,17 @@ $numRSM = $numRSM['NumofRSM'];
                 ?>
             </span>
         </h1>
-        <form action="./" method="POST">
+        <form class="form-inline" action="./" method="POST">
             <div class="row">
                 <div class="span4 offset2">
                     <label class="span3">
                         <h4 class="pull-left">From</h4>
                         <input
-                            class="datepick text span3 "
+                            class="datepick text span3"
                             type="text"
                             name="from"
-                            value="<?php echo date('Y-m-d', strtotime('-1 day')); ?>">
+                            value="<?php echo date('Y-m-d', strtotime('-1 day')); ?>"
+                        >
                     </label>
                 </div>
 
@@ -266,86 +310,103 @@ $numRSM = $numRSM['NumofRSM'];
                     <label class="span3">
                         <h4 class="pull-left">Until</h4>
                         <input
-                            class="datepick text span3 "
+                            class="datepick text span3"
                             type="text"
                             name="until"
-                            value="<?php echo date('Y-m-d'); ?>">
+                            value="<?php echo date('Y-m-d'); ?>"
+                        >
                     </label>
                 </div>
             </div>
 
-            <br>
-
             <div class="row">
                 <div class="span10">
-
+                    <div class="row">
+                        <h3 class="span10">DAM</h3>
 <?php
-for ($i=0; $i < 100; $i++) {
-if($i == 0 || $i == 4 || $i == 99 || $i <= $numRSM) {
-
-    /* Get the default table.column values for the values to be graphed */
-    $query = "
-    SELECT
-        SysMap.SourceID,
-        SysMap.SysID,
-        SysMap.SensorColName,
-        SysMap.SensorName,
-        SysMap.SensorRefName,
-        WebRefTable.SensorLabel,
-        WebRefTable.WebSubPageName
-    FROM SysMap, WebRefTable
-    WHERE SysMap.WebSensRefNum = WebRefTable.WebSensRefNum
-      AND SysMap.SourceID = $i
-      AND WebRefTable.Inhibit = 0
-    ";
-
-    /* Put all the defaults in an associative array */
-    $sensors = array();
-    foreach($db->fetchAll($query . "AND DAMID = '000000000000'") as $sensor) {
-        $sensors[$sensor['SourceID'] . $sensor['SensorRefName']] = $sensor;
-    }
-
-    /* Get the custom table.column values specific to the current SysID */
-    /* Override the default table.column value if there is a custom value to replace it */
-    foreach($db->fetchAll($query . "AND SysMap.SysID = " . $SysID) as $k => $v) {
-        $sensors[$v['SourceID'] . $v['SensorRefName']] = $v;
-    }
-
-    if(count($sensors) > 0) {
+foreach($sensors as $sensor) {
+    if($sensor['SourceID'] == 0) { // SourceID of 0 indicates DAM
 ?>
-            <div class="row">
-                <h3 class="span8 offset2"><?php echo sourceName($i); ?></h3>
+                        <label class="span2 checkbox" style="margin-bottom: 14px;">
+                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
+                            <?=$sensor['SensorName']?>
+                        </label>
 <?php
-        foreach($sensors as $sensor) {
-            $table = pickTable($sensor['SourceID']);
+    }
+}
 ?>
-                <label class="span2" style="margin-bottom: 10px;">
-                    <input
-                        type="checkbox"
-                        name="<?php echo $table.'_'.$sensor['SensorColName']; ?>"
-                        value="<?php echo $sensor['SensorName']; ?>"
-                    >
-                    <?php
-                    echo $sensor['SensorName'];
-                    if($sensor['SysID'] > 0) {
-                        echo '-'.$sensor['WebSubPageName'];
-                    }
-                    ?>
+                    </div>
 
-                </label>
+
 <?php
-
+for ($i=1; $i <= $numRSM; $i++) {
+    $sid = $i;
+    if($i >= 4){$sid++;} // Since SourceID of 4 is reserved for the Modbus gateway we'll have to skip over it
+?>
+                    <div class="row">
+                        <h3 class="span10">RSM
+<?php
+    if($numRSM > 1 && $i > 1) {
+        echo ' - ' . $i;
+    }
+?>
+                        </h3>
+<?php
+    foreach($sensors as $name => $sensor) {
+        if($sensor['SourceID'] == $sid) {
+?>
+                        <label class="span2 checkbox" style="margin-bottom: 14px;">
+                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
+                            <?=$sensor['SensorName']?>
+                        </label>
+<?php
         }
+    }
 ?>
-            </div>
-            <br>
+                    </div>
+<?php
+}
+?>
+
+                    <div class="row">
+                        <h3 class="span10">Modbus</h3>
+<?php
+foreach($sensors as $name => $sensor) {
+    if($sensor['SourceID'] == 4) { // SourceID of 4 indicates Modbus Gateway
+?>
+                        <label class="span2 checkbox" style="margin-bottom: 14px;">
+                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
+                            <?php
+                                echo $sensor['SensorName'];
+                                if($sensor['SensorAddress'] != '' && $sensor['SensorAddress'] != 'NA') {
+                                    echo " <sup><em> Addr. ".$sensor['SensorAddress']."</em></sup>";
+                                }
+                            ?>
+                        </label>
 <?php
     }
 }
-}
-
 ?>
+                    </div>
+
+                    <div class="row">
+                        <h3 class="span10">Sensor Calculations</h3>
+<?php
+foreach($sensors as $name => $sensor) {
+    if($sensor['SourceID'] == 99) { // SourceID of 99 indicates SensorCalc
+?>
+                        <label class="span2 checkbox" style="margin-bottom: 14px;">
+                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
+                            <?=$sensor['SensorName']?>
+                        </label>
+<?php
+    }
+}
+?>
+                    </div>
+
                 </div>
+
                 <div class="span2">
                     <div class="row">
 
