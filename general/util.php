@@ -158,17 +158,19 @@ function checkSystemSet($config)
  * @param bool   $Y1 SourceData0.DigIn01 or SourceData4.ThermStat04
  * @param bool   $Y2 SourceData0.DigIn02 or SourceData4.ThermStat02
  * @param bool   $O  SourceData0.DigIn03 or SourceData4.ThermStat03
- * @param bool   $W  SourceData0.DigIn05 or SourceData4.ThermStat01
+ * @param bool   $W  SourceData0.DigIn05 or SourceData4.ThermStat05
  * @param bool   $T  sourceData4.ThermMode
  * @return string    Description of the system status
  */
 function Systemlogic($G, $Y1, $Y2, $O, $W, $T)
-{
+{   //added Fan only Cool logic and changed outher famonly label to Fan only Heat
     $SState="Invalid State";
    // if ($TMode==5){$T=1;} else {$T=0;}  // inhibits stages when in emer heat mode
    // Echo($TMode."++".$T);
     if ( !$O and !$W and !$Y2 and  !$Y1 and !$G) {$SState="System Off";}
-    if ( !$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only";}
+    if (  $O and !$W and !$Y2 and  !$Y1 and !$G) {$SState="System Off- Cool";}
+    if ( !$O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only Heat";}
+    if (  $O and !$W and !$Y2 and  !$Y1 and  $G) {$SState="Fan Only Cool";}
     if ( !$O and !$W and !$Y2 and   $Y1 and  $G and !$T) {$SState="Stage 1 Heat";}
     if ( !$O and !$W and  $Y2 and   $Y1 and  $G and !$T) {$SState="Stage 2 Heat";}
     if ((!$O and  $W and !$Y2 and  !$Y1 and  $G) or $T)  {$SState="Emerg. Heat"; }
