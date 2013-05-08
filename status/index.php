@@ -434,7 +434,7 @@ require_once('../includes/header.php');
    if ($EM==1) {$ValA[25]=1;}
    if ($ShwA[21] and $ShwA[22]and $ShwA[23] and $ShwA[24] and $ShwA[25] )
         {
-         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[25],$ValA[24],$EM);
+         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);
         }
         else
         {
@@ -459,7 +459,7 @@ require_once('../includes/header.php');
 // code for system image selection here
       // heat mode is default need logic here to switch graphic between modes
       // mode controlled by digin03 from source 0 $ValA[32])
-       if ($ValA[32]==1) {$exchangermode = 1;}
+       if ($ValA[33]==1) {$exchangermode = 1;}
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
        $Wellimage="../status/image/WebOpenLoop.png";
        $DryWellimage="../status/image/WebOpenLoopDryWell.png";
