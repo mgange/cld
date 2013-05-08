@@ -2,19 +2,25 @@
 /**
  *------------------------------------------------------------------------------
  * Status Index Page
+ * Displays system status for each unique system based on the systemmap  as
+ * defined in the sysmap and webreftables
+ * Sensor display- Title, Position, Format are controlled by values in these
+ * tables. Page queries default system first and then replaces elements based
+ * on unique rows defined for each system
  *------------------------------------------------------------------------------
  *
  */
 require_once('../includes/pageStart.php');
-
+// Finds configuration information
 checkSystemSet($config);
-
+// sets page Header
 require_once('../includes/header.php');
-
+// Time function
     $now = "'" . date('Y-m-d', strtotime('-1 hour')) . "'";
     $dateTimeOffset = 5;
-
+// Condigures Database
     $db = new db($config);
+// defines system of interest to display
     $SysID=$_SESSION["SysID"];
     // set currflag if displaying most current status
     if (isset($_GET['id'])) {$CurrFlag=false;} else {$CurrFlag=true;}
@@ -37,7 +43,7 @@ require_once('../includes/header.php');
     $openloopdw = false;
     $closedloop = false;
     $FourthConfig= false;
-    // selects which system diagram to display
+// selects which system diagram to display based on configuration
    switch  ($SysConfig)
    {
     case 1:
@@ -55,7 +61,7 @@ require_once('../includes/header.php');
    }
 
 
-
+// zone is used to determine which sourcedata table from which to get the data
 
     if(isset($_GET['z'])){
       switch($_GET['z']){
@@ -421,14 +427,14 @@ require_once('../includes/header.php');
    if ($ValA[41]==5) {$EM=1;} else {$EM=0;}
 
 
-   $ValA[22]=Emerglogic($ValA[22],$EM);
-   $ValA[23]=Emerglogic($ValA[23],$EM);
-   $ValA[24]=Emerglogic($ValA[24],$EM);
+  $ValA[22]=Emerglogic($ValA[22],$EM);
+  $ValA[23]=Emerglogic($ValA[23],$EM);
+  $ValA[24]=Emerglogic($ValA[24],$EM);
 
    if ($EM==1) {$ValA[25]=1;}
    if ($ShwA[21] and $ShwA[22]and $ShwA[23] and $ShwA[24] and $ShwA[25] )
         {
-         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[24],$ValA[25],$EM);
+         $ValA[29]=Systemlogic($ValA[21],$ValA[22],$ValA[23],$ValA[25],$ValA[24],$EM);
         }
         else
         {
@@ -452,18 +458,23 @@ require_once('../includes/header.php');
 
 // code for system image selection here
       // heat mode is default need logic here to switch graphic between modes
-       $exchangermode = 0;
+      // mode controlled by digin03 from source 0 $ValA[32])
+       if ($ValA[32]==1) {$exchangermode = 1;}
        $exchnimage="../status/image/WebBackGroundHeatingMode.png";
+       $Wellimage="../status/image/WebOpenLoop.png";
+       $DryWellimage="../status/image/WebOpenLoopDryWell.png";
+       if ($exchangermode==1)
+       { // cooling mode needs to be image needs to be defined
+            $exchnimage="../status/image/WebBackGroundCoolingMode.png";
+            $Wellimage="../status/image/WebOpenLoopCooling.png";
+            $DryWellimage="../status/image/WebOpenLoopDryWellCooling.png";
+       }
 
 
        $SizA[0]=1.2;
      //  $SizA[25]=2.0;
      //  $SizA[27]=0.5;
 
-       if ($exchangermode==1)
-       { // cooling mode needs to be image needs to be defined
-            $exchnimage="../status/image/WebBackGroundHeatingMode.png";
-       }
 
        function DisplayStatus($seqno,$label,$value,$xpos,$ypos,$lolimit,$uplimit,$alertfactor,$size,$show,$form,$title,$colorovride,$mainalert)
        {
@@ -576,7 +587,7 @@ require_once('../includes/header.php');
 
 
        ?>
-
+<!-- Page structure  - define navigation arrows -->
         <div class="row">
            <h1 class="span6 offset2">Status - <span class="building-name">System - <?php  echo $SysName." - ".$SysZone ?></span></h1>
             <p style="text-align:center"><?php
@@ -592,24 +603,25 @@ require_once('../includes/header.php');
         </div>
        <div class="row">
 
-
+<!-- Page structure  - system image -->
             <div class="status-container span10 offset1">
 
               <div class="status-Back map">
                 <img src="<?php echo $exchnimage ?>" alt="Heat Exchanger">
                 </div>
                 <div class="status-OpenLoop <?php if ($openloop != true) {echo "hidden";}?>">
-                    <img src="../status/image/WebOpenLoop.png" alt="Open Loop ">
+                    <img src="<?php echo $Wellimage ?>" alt="Open Loop ">
                 </div>
                   <div class="status-OpenLoopDryWell <?php if ($openloopdw != true) {echo "hidden";}?>">
-                    <img src="../status/image/WebOpenLoopDryWell.png" alt="Open Loop Dry Well">
+
+                    <img src="<?php echo $DryWellimage ?>" alt="Open Loop Dry Well">
                 </div>
                 <div class="status-ClosedLoop <?php if ($closedloop != true) {echo "hidden";}?>">
                     <img src="../status/image/WebClosedLoop.png" alt="Closed Loop">
                 </div>
                 <?php
 
-
+           // state colors
            function ColorOver($Stage)
                 {
                    $Color="#FF8888";
@@ -659,7 +671,7 @@ require_once('../includes/header.php');
                     $alerttemp=true;
                 }
 
-
+// displays status fields
                  DisplayStatus($i,$LblA[$i],$ValA[$i],$PosAX[$i],$PosAY[$i],$LolmtA[$i],$UplmtA[$i],$AlertFactor[$i],$SizA[$i],$ShwA[$i],$ForA[$i],$Title[$i],$colorovride,$alerttemp);
 
            }
@@ -670,7 +682,7 @@ require_once('../includes/header.php');
             </div>
 
              <div class="link_RSM">
-
+<!-- Page structure  - define performance and RSM link definitions -->
                 <p class="align-center">
                     <?php
                       if ($CurrFlag!=true) {
