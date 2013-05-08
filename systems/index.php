@@ -152,17 +152,19 @@ foreach($buildings as $building) {
                         $bind[':Date'] = date('Y-m-d');
                         $result = $db -> fetchRow($query, $bind);
                         if(empty($result)){
-                            $bind[':Date'] = date('Y-m-d', strtotime('-1 month'));
-                            $result = $db -> fetchRow($query, $bind);
+                            for($i=1;$i<=30;$i++){  //loop day by day for a month for valid data
+                                $bind[':Date'] = date('Y-m-d', strtotime('-' . $i . ' day'));
+                                $result = $db -> fetchRow($query, $bind);
+                                if(!empty($result)) break;
+                            }
                         }
-                        if(!empty($result)) {
+
+                        if(!empty($result)){
                             $dateTime = new DateTime($result['DateStamp'] . $result['TimeStamp']);
                     ?>
-                    <span style="color:red">Last Update: <?=date_format($dateTime,'F jS, Y @ h:i A')?></span>
-                    <?php
-                        }else{
-                    ?>
-                    <span style="color:red"><b>SYSTEM IS INACTIVE</b></span>
+                            <span style="color:red">Last Update: <?=date_format($dateTime,'F jS, Y @ h:i A')?></span>
+                    <?php }else{ ?>
+                            <span style="color:red"><b>SYSTEM IS INACTIVE</b></span>
                     <?php
                         }
                     ?>
