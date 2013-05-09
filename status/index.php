@@ -10,7 +10,6 @@
  *------------------------------------------------------------------------------
  *
  */
-
 require_once('../includes/pageStart.php');
 // Finds configuration information
 checkSystemSet($config);
@@ -203,61 +202,73 @@ require_once('../includes/header.php');
      //get next and previous recnum's
     $query = "SELECT TIMESTAMP('" . $sysStatus0['DateStamp'] . "','" . $sysStatus0['TimeStamp'] . "') AS timeStamp";
     $result = $db -> fetchRow($query);
+    $timestamp = $result['timeStamp'];
 
-    $queryPrev = "
-        SELECT SourceHeader.Recnum
-        FROM SourceHeader,SourceData0
-        WHERE SourceHeader.SysID = " . $SysID . "
-            AND SourceHeader.Recnum = SourceData0.HeadID
-            AND
-            (
+    for($i=1;$i<=120;$i++){  //query up to 5 days (120 hours) if no data available
+        $queryPrev = "
+            SELECT SourceHeader.Recnum
+            FROM SourceHeader,SourceData0
+            WHERE SourceHeader.SysID = " . $SysID . "
+                AND SourceHeader.Recnum = SourceData0.HeadID
+                AND
                 (
-                    SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
-                AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
+                    (
+                        SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
+                    AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
+                    )
+                    OR
+                        SourceHeader.DateStamp < '" . $sysStatus0['DateStamp'] . "'
                 )
-                OR
-                    SourceHeader.DateStamp < '" . $sysStatus0['DateStamp'] . "'
-            )
-            AND
-            (
+                AND
                 (
-                    SourceHeader.DateStamp = DATE(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
-                AND SourceHeader.TimeStamp >= TIME(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                    (
+                        SourceHeader.DateStamp = DATE(DATE_SUB('" . $timestamp . "',INTERVAL " . $i . " HOUR))
+                    AND SourceHeader.TimeStamp >= TIME(DATE_SUB('" . $timestamp . "',INTERVAL " . $i . " HOUR))
+                    )
+                    OR
+                        SourceHeader.DateStamp > DATE(DATE_SUB('" . $timestamp . "',INTERVAL " . $i . " HOUR))
                 )
-                OR
-                    SourceHeader.DateStamp > DATE(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
-            )
-        ORDER BY DateStamp DESC,TimeStamp DESC
-        LIMIT 1";
-    $queryNext = "
-        SELECT SourceHeader.Recnum
-        FROM SourceHeader,SourceData0
-        WHERE SourceHeader.SysID = " . $SysID . "
-            AND SourceHeader.Recnum = SourceData0.HeadID
-            AND
-            (
+            ORDER BY DateStamp DESC,TimeStamp DESC
+            LIMIT 1";
+        $result = $db -> fetchRow($queryPrev);
+        if(!empty($result)){
+            $prev = $result['Recnum'];
+            break;
+        }
+    }
+
+    for($i=1;$i<=120;$i++){  //query up to 5 days (120 hours) if no data available
+        $queryNext = "
+            SELECT SourceHeader.Recnum
+            FROM SourceHeader,SourceData0
+            WHERE SourceHeader.SysID = " . $SysID . "
+                AND SourceHeader.Recnum = SourceData0.HeadID
+                AND
                 (
-                    SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
-                AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
+                    (
+                        SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
+                    AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
+                    )
+                    OR
+                        SourceHeader.DateStamp > '" . $sysStatus0['DateStamp'] . "'
                 )
-                OR
-                    SourceHeader.DateStamp > '" . $sysStatus0['DateStamp'] . "'
-            )
-            AND
-            (
+                AND
                 (
-                    SourceHeader.DateStamp = DATE(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
-                AND SourceHeader.TimeStamp <= TIME(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                    (
+                        SourceHeader.DateStamp = DATE(DATE_ADD('" . $timestamp . "',INTERVAL " . $i . " HOUR))
+                    AND SourceHeader.TimeStamp <= TIME(DATE_ADD('" . $timestamp . "',INTERVAL " . $i . " HOUR))
+                    )
+                    OR
+                        SourceHeader.DateStamp < DATE(DATE_ADD('" . $timestamp . "',INTERVAL " . $i . " HOUR))
                 )
-                OR
-                    SourceHeader.DateStamp < DATE(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
-            )
-        ORDER BY DateStamp ASC,TimeStamp ASC
-        LIMIT 1";
-    $result = $db -> fetchRow($queryPrev);
-    $prev = $result['Recnum'];
-    $result = $db -> fetchRow($queryNext);
-    $next = $result['Recnum'];
+            ORDER BY DateStamp ASC,TimeStamp ASC
+            LIMIT 1";
+        $result = $db -> fetchRow($queryNext);
+        if(!empty($result)){
+            $next = $result['Recnum'];
+            break;
+        }
+    }
 
      $SysName=$sysDAMID[SysName];
      $SysLocation=$sysDAMID[address1]." ".$sysDAMID[address2]." ".$sysDAMID[city]." ".$sysDAMID[state];
