@@ -16,24 +16,7 @@ function percentage($val1, $val2, $precision=2)
         return $res;
     }
 }
-function pickTable($SourceID)
-{
-    switch ($SourceID) {
-        case '0':
-            $table = 'SourceData0';
-            break;
-        case '4':
-            $table = 'SourceData4';
-            break;
-        case '99':
-            $table = 'SensorCalc';
-            break;
-        default:
-            $table = 'SourceData1';
-            break;
-    }
-    return $table;
-}
+
 require_once('../includes/pageStart.php');
 
 checkSystemSet($config);
