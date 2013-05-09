@@ -10,6 +10,7 @@
  *------------------------------------------------------------------------------
  *
  */
+
 require_once('../includes/pageStart.php');
 // Finds configuration information
 checkSystemSet($config);
@@ -74,42 +75,84 @@ require_once('../includes/header.php');
         case 3:
           $zone = 3;
           break;
-
         case 4:
           $zone = 5;
           break;
-       // default : $zone= $_GET['z']+1;
-         // break;
       }
-    }
-      else {$zone=0;
     }
 
     if(isset($_GET['id'])){
-      //Get date and time for passed header id
-      $query = "SELECT TimeStamp, DateStamp FROM SourceHeader WHERE Recnum = " . $_GET['id'];
-      $result = $db -> fetchRow($query);
-      //convert date and time to unix
-      $query = "SELECT UNIX_TIMESTAMP('" . $result['DateStamp'] . " " . $result['TimeStamp'] . "') AS UNIX";
-      $result = $db -> fetchRow($query);
-      $unixTime = $result['UNIX'];
-      //Get date and time for x number of seconds after header date/time
-      $query = "SELECT TIME(FROM_UNIXTIME(" . ($unixTime + $dateTimeOffset) . ")) AS time, DATE(FROM_UNIXTIME(" . ($unixTime + $dateTimeOffset) . ")) AS date";
-      $result = $db -> fetchRow($query);
-      $timeAfter = $result['time'];
-      $dateAfter = $result['date'];
-      //Get date and time for x number of seconds before header date/time
-      $query = "SELECT TIME(FROM_UNIXTIME(" . ($unixTime - $dateTimeOffset) . ")) AS time, DATE(FROM_UNIXTIME(" . ($unixTime - $dateTimeOffset) . ")) AS date";
-      $result = $db -> fetchRow($query);
-      $timeBefore = $result['time'];
-      $dateBefore = $result['date'];
-      //Produce queries within a certain time frame
-      //query4 limited to 5 groups of records based on max 4 RSMs and 1 DAM
-      $query0 = "SELECT * FROM SourceHeader, SourceData0 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData0.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
-      $query4 = "SELECT * FROM SourceHeader, SourceData4 WHERE SourceHeader.SysID = " . $SysID . " AND SourceData4.HeadID = SourceHeader.Recnum AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 5";
-      $queryCalc = "SELECT * FROM SourceHeader, SensorCalc WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.RecNum = SensorCalc.HeadID AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
-      // Query for RSMs 1, 2, 3, or 5
-      if(isset($zone)) $query1 = "SELECT * FROM SourceHeader, SourceData1 WHERE SourceHeader.SysID = " . $SysID . " AND SourceHeader.Recnum = SourceData1.HeadID AND SourceData1.SourceID = " . $zone . " AND SourceHeader.TimeStamp BETWEEN '" . $timeBefore . "' AND '" . $timeAfter . "' AND SourceHeader.DateStamp BETWEEN '" . $dateBefore . "' AND '" . $dateAfter . "' LIMIT 1";
+        //Get date and time for passed header id
+        $query = "SELECT TIMESTAMPADD(SECOND," . $dateTimeOffset . ",TIMESTAMP(DateStamp,TimeStamp)) AS timestampAfter,
+                TIMESTAMPADD(SECOND,-" . $dateTimeOffset . ",TIMESTAMP(DateStamp,TimeStamp)) AS timestampBefore
+            FROM SourceHeader WHERE Recnum = " . $_GET['id'];
+        $result = $db -> fetchRow($query);
+
+        $timeBefore = date('H:i:s',strtotime($result['timestampBefore']));
+        $dateBefore = date('Y-m-d',strtotime($result['timestampBefore']));
+
+        $timeAfter = date('H:i:s',strtotime($result['timestampAfter']));
+        $dateAfter = date('Y-m-d',strtotime($result['timestampAfter']));
+
+        $andOr = "AND";
+        if($dateAfter != $dateBefore) $andOr = "OR";
+
+        $query0 = "
+            SELECT *
+            FROM SourceHeader, SourceData0
+            WHERE SourceHeader.SysID = " . $SysID . "
+                AND SourceData0.HeadID = SourceHeader.Recnum
+                AND SourceHeader.DateStamp >= '" . $dateBefore . "'
+                AND SourceHeader.DateStamp <= '" . $dateAfter . "'
+                AND (
+                    SourceHeader.TimeStamp >= '" . $timeBefore . "'
+                    " . $andOr . " SourceHeader.TimeStamp <= '" . $timeAfter . "'
+                )
+            ORDER BY DateStamp DESC, TimeStamp DESC
+            LIMIT 1";
+        $query4 = "
+            SELECT *
+            FROM SourceHeader, SourceData4
+            WHERE SourceHeader.SysID = " . $SysID . "
+                AND SourceData4.HeadID = SourceHeader.Recnum
+                AND SourceHeader.DateStamp >= '" . $dateBefore . "'
+                AND SourceHeader.DateStamp <= '" . $dateAfter . "'
+                AND (
+                    SourceHeader.TimeStamp >= '" . $timeBefore . "'
+                    " . $andOr . " SourceHeader.TimeStamp <= '" . $timeAfter . "'
+                )
+            ORDER BY DateStamp DESC, TimeStamp DESC
+            LIMIT 5";
+        $queryCalc = "
+            SELECT *
+            FROM SourceHeader, SensorCalc
+            WHERE SourceHeader.SysID = " . $SysID . "
+                AND SensorCalc.HeadID = SourceHeader.Recnum
+                AND SourceHeader.DateStamp >= '" . $dateBefore . "'
+                AND SourceHeader.DateStamp <= '" . $dateAfter . "'
+                AND (
+                    SourceHeader.TimeStamp >= '" . $timeBefore . "'
+                    " . $andOr . " SourceHeader.TimeStamp <= '" . $timeAfter . "'
+                )
+            ORDER BY SourceHeader.DateStamp DESC, SourceHeader.TimeStamp DESC
+            LIMIT 1";
+        // Query for RSMs 1, 2, 3, or 5
+        if(isset($zone)){
+            $query1 = "
+                SELECT *
+                FROM SourceHeader, SourceData1
+                WHERE SourceHeader.SysID = " . $SysID . "
+                    AND SourceData1.HeadID = SourceHeader.Recnum
+                    AND SourceData1.SourceID = " . $zone . "
+                    AND SourceHeader.DateStamp >= '" . $dateBefore . "'
+                    AND SourceHeader.DateStamp <= '" . $dateAfter . "'
+                    AND (
+                        SourceHeader.TimeStamp >= '" . $timeBefore . "'
+                        " . $andOr . " SourceHeader.TimeStamp <= '" . $timeAfter . "'
+                    )
+                ORDER BY DateStamp DESC, TimeStamp DESC
+                LIMIT 1";
+        }
     }else{
         $query0 = "
             SELECT *
@@ -145,11 +188,10 @@ require_once('../includes/header.php');
                 ORDER BY SourceHeader.DateStamp DESC,SourceHeader.TimeStamp DESC
                 LIMIT 1";
     }
-//SourceData4.SysGroup=2 and
       $sysStatus4 = $db -> fetchAll($query4);
+
       // get first row only which contains instantantious COP
       $sysCalc = $db -> fetchRow($queryCalc);
-
 
      $sysStatus0 = $db -> fetchRow($query0);
      if (isset($zone)) {
@@ -158,36 +200,64 @@ require_once('../includes/header.php');
 
           }
 
-
-     // Not using Calculations for now
-  //   $sysStatusCalc = $db -> fetchRow($queryCalc);
-  //  echo("0--".$sysStatus0[HeadID]);
-  //   echo("<BR>4--".$sysStatus4[Recnum]);
      //get next and previous recnum's
-      $queryPrev = "
+    $query = "SELECT TIMESTAMP('" . $sysStatus0['DateStamp'] . "','" . $sysStatus0['TimeStamp'] . "') AS timeStamp";
+    $result = $db -> fetchRow($query);
+
+    $queryPrev = "
         SELECT SourceHeader.Recnum
         FROM SourceHeader,SourceData0
         WHERE SourceHeader.SysID = " . $SysID . "
-          AND SourceHeader.Recnum = SourceData0.HeadID
-          AND SourceHeader.DateStamp <= '" . $sysStatus0['DateStamp'] . "'
-          AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
-          AND SourceHeader.DateStamp >= " . $now . "
+            AND SourceHeader.Recnum = SourceData0.HeadID
+            AND
+            (
+                (
+                    SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
+                AND SourceHeader.TimeStamp < '" . $sysStatus0['TimeStamp'] . "'
+                )
+                OR
+                    SourceHeader.DateStamp < '" . $sysStatus0['DateStamp'] . "'
+            )
+            AND
+            (
+                (
+                    SourceHeader.DateStamp = DATE(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                AND SourceHeader.TimeStamp >= TIME(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                )
+                OR
+                    SourceHeader.DateStamp > DATE(DATE_SUB('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+            )
         ORDER BY DateStamp DESC,TimeStamp DESC
         LIMIT 1";
-      $queryNext = "
-        SELECT Recnum
-        FROM SourceHeader
-        WHERE SysID = " . $SysID . "
-          AND SourceHeader.DateStamp >= '" . $sysStatus0['DateStamp'] . "'
-          AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
-          AND SourceHeader.DateStamp >= " . $now . "
+    $queryNext = "
+        SELECT SourceHeader.Recnum
+        FROM SourceHeader,SourceData0
+        WHERE SourceHeader.SysID = " . $SysID . "
+            AND SourceHeader.Recnum = SourceData0.HeadID
+            AND
+            (
+                (
+                    SourceHeader.DateStamp = '" . $sysStatus0['DateStamp'] . "'
+                AND SourceHeader.TimeStamp > '" . $sysStatus0['TimeStamp'] . "'
+                )
+                OR
+                    SourceHeader.DateStamp > '" . $sysStatus0['DateStamp'] . "'
+            )
+            AND
+            (
+                (
+                    SourceHeader.DateStamp = DATE(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                AND SourceHeader.TimeStamp <= TIME(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+                )
+                OR
+                    SourceHeader.DateStamp < DATE(DATE_ADD('" . $result['timeStamp'] . "',INTERVAL 1 HOUR))
+            )
         ORDER BY DateStamp ASC,TimeStamp ASC
         LIMIT 1";
-      $result = $db -> fetchRow($queryPrev);
-      $prev = $result['Recnum'];
-      $result = $db -> fetchRow($queryNext);
-      $next = $result['Recnum'];
-
+    $result = $db -> fetchRow($queryPrev);
+    $prev = $result['Recnum'];
+    $result = $db -> fetchRow($queryNext);
+    $next = $result['Recnum'];
 
      $SysName=$sysDAMID[SysName];
      $SysLocation=$sysDAMID[address1]." ".$sysDAMID[address2]." ".$sysDAMID[city]." ".$sysDAMID[state];
