@@ -536,8 +536,16 @@ $statusIndex = array(
     'text'  => 'System Off',
     'color' => 'rgba(250, 250, 250, 0.5)'
     ),
-'Fan Only' => array(
-    'text'  => 'Fan Only',
+'System Off- Cool' => array(
+    'text'  => 'System Off- Cool',
+    'color' => 'rgba(137, 255, 93, 0.5)'
+    ),
+'Fan Only Heat' => array(
+    'text'  => 'Fan Only Heat',
+    'color' => 'rgba(137, 255, 93, 0.5)'
+    ),
+'Fan Only Cool' => array(
+    'text'  => 'Fan Only Cool',
     'color' => 'rgba(137, 255, 93, 0.5)'
     ),
 'Stage 1 Heat' => array(
