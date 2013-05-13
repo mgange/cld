@@ -250,7 +250,7 @@ foreach($results as $res) {
 
     $titles = array('Date', 'Time');
     foreach($_POST as $k => $v) {
-        $title = $sensors[$k]['SensorName'];
+        $title = $sensors[$k]['SensorName'] . '.' . $sensors[$k]['SourceID'];
         if(preg_match('/Power0[0-9]{1}/', $k)) {
             $title .= ' Addr. ' . $sensors[$k]['SensorAddress'];
         }elseif(preg_match('/.*(ThermStat[0-9]{2}|ThermMode|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint).*/', $k)) {
