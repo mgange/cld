@@ -152,7 +152,7 @@ foreach($buildings as $building) {
                         $bind[':Date'] = date('Y-m-d');
                         $result = $db -> fetchRow($query, $bind);
                         if(empty($result)){
-                            for($i=1;$i<=30;$i++){  //loop day by day for a month for valid data
+                            for($i=1;$i<=7;$i++){  //loop day by day for a week for valid data
                                 $bind[':Date'] = date('Y-m-d', strtotime('-' . $i . ' day'));
                                 $result = $db -> fetchRow($query, $bind);
                                 if(!empty($result)) break;
