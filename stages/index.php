@@ -141,14 +141,15 @@ ORDER BY
     foreach($result as $res) {
         if(!isset($data[$res['DateStamp']])) {$data[$res['DateStamp']] = array();}
         /* Touch all the system stages so they're created in the correct order */
-        if(!isset($data[$res['DateStamp']]["System Off"]   )) {$data[$res['DateStamp']]["System Off"]   = 0;}
-        if(!isset($data[$res['DateStamp']]["Fan Only"]     )) {$data[$res['DateStamp']]["Fan Only"]     = 0;}
-        if(!isset($data[$res['DateStamp']]["Emerg. Heat"]  )) {$data[$res['DateStamp']]["Emerg. Heat"]  = 0;}
-        if(!isset($data[$res['DateStamp']]["Stage 3 Heat"] )) {$data[$res['DateStamp']]["Stage 3 Heat"] = 0;}
-        if(!isset($data[$res['DateStamp']]["Stage 2 Heat"] )) {$data[$res['DateStamp']]["Stage 2 Heat"] = 0;}
-        if(!isset($data[$res['DateStamp']]["Stage 1 Heat"] )) {$data[$res['DateStamp']]["Stage 1 Heat"] = 0;}
-        if(!isset($data[$res['DateStamp']]["Stage 2 Cool"] )) {$data[$res['DateStamp']]["Stage 2 Cool"] = 0;}
-        if(!isset($data[$res['DateStamp']]["Stage 1 Cool"] )) {$data[$res['DateStamp']]["Stage 1 Cool"] = 0;}
+        if(!isset($data[$res['DateStamp']]["System Off"]    )) {$data[$res['DateStamp']]["System Off"]    = 0;}
+        if(!isset($data[$res['DateStamp']]["Fan Only Heat"] )) {$data[$res['DateStamp']]["Fan Only Heat"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Fan Only Cool"] )) {$data[$res['DateStamp']]["Fan Only Heat"] = 0;}
+        if(!isset($data[$res['DateStamp']]["Emerg. Heat"]   )) {$data[$res['DateStamp']]["Emerg. Heat"]   = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 3 Heat"]  )) {$data[$res['DateStamp']]["Stage 3 Heat"]  = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 2 Heat"]  )) {$data[$res['DateStamp']]["Stage 2 Heat"]  = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 1 Heat"]  )) {$data[$res['DateStamp']]["Stage 1 Heat"]  = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 2 Cool"]  )) {$data[$res['DateStamp']]["Stage 2 Cool"]  = 0;}
+        if(!isset($data[$res['DateStamp']]["Stage 1 Cool"]  )) {$data[$res['DateStamp']]["Stage 1 Cool"]  = 0;}
 
         $stage = Systemlogic(
             $res['DigIn04'],

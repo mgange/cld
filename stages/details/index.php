@@ -113,16 +113,17 @@ $result = $db -> fetchAll($query);
 
 foreach($result as $res) {
     $hour = substr($res['TimeStamp'], 0, 2);
-    $data[$hour] = array();
+    if(!isset($data[$hour])) { $data[$hour] = array(); }
     /* Touch all the system stages so they're created in the correct order */
-    if(!isset($data[$hour]["System Off"]  )) {$data[$hour]["System Off"]   = 0;}
-    if(!isset($data[$hour]["Fan Only"]    )) {$data[$hour]["Fan Only"]     = 0;}
-    if(!isset($data[$hour]["Emerg. Heat"] )) {$data[$hour]["Emerg. Heat"]  = 0;}
-    if(!isset($data[$hour]["Stage 3 Heat"])) {$data[$hour]["Stage 3 Heat"] = 0;}
-    if(!isset($data[$hour]["Stage 2 Heat"])) {$data[$hour]["Stage 2 Heat"] = 0;}
-    if(!isset($data[$hour]["Stage 1 Heat"])) {$data[$hour]["Stage 1 Heat"] = 0;}
-    if(!isset($data[$hour]["Stage 2 Cool"])) {$data[$hour]["Stage 2 Cool"] = 0;}
-    if(!isset($data[$hour]["Stage 1 Cool"])) {$data[$hour]["Stage 1 Cool"] = 0;}
+    if(!isset($data[$hour]["System Off"]    )) {$data[$hour]["System Off"]    = 0;}
+    if(!isset($data[$hour]["Fan Only Heat"] )) {$data[$hour]["Fan Only Heat"] = 0;}
+    if(!isset($data[$hour]["Fan Only Cool"] )) {$data[$hour]["Fan Only Cool"] = 0;}
+    if(!isset($data[$hour]["Emerg. Heat"]   )) {$data[$hour]["Emerg. Heat"]   = 0;}
+    if(!isset($data[$hour]["Stage 3 Heat"]  )) {$data[$hour]["Stage 3 Heat"]  = 0;}
+    if(!isset($data[$hour]["Stage 2 Heat"]  )) {$data[$hour]["Stage 2 Heat"]  = 0;}
+    if(!isset($data[$hour]["Stage 1 Heat"]  )) {$data[$hour]["Stage 1 Heat"]  = 0;}
+    if(!isset($data[$hour]["Stage 2 Cool"]  )) {$data[$hour]["Stage 2 Cool"]  = 0;}
+    if(!isset($data[$hour]["Stage 1 Cool"]  )) {$data[$hour]["Stage 1 Cool"]  = 0;}
 
     $stage = Systemlogic(
         $res['DigIn04'],
