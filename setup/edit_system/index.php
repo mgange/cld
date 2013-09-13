@@ -13,7 +13,7 @@ $db = new db($config);
 //if($_SESSION['authLevel'] != 3) {
 //    gtfo($config);
 //}
-
+$PInhibitSys=0;
 /** CHECK ERRORS **/
 //System Information
 if(isset($_POST['submitInfo'])){
@@ -35,12 +35,38 @@ if(isset($_POST['submitInfo'])){
   }
 }
 
+if (isset($_GET['Action']))
+ // added ability ti inhibit and delete a system  rhi 9/12/13      
+{
+     if ($_GET['Action']=="Activate")  
+            
+       { $query="Update SystemConfig set Active=1 where Sysid=".$_SESSION['SysID']; }
+        
+     if ($_GET['Action']=="Inhibit")  
+            
+       { $query="Update SystemConfig set Active=0 where Sysid=".$_SESSION['SysID']; }
+            
+     if ($_GET['Action']=="Remove")
+           
+       { $query="Update SystemConfig set BuildingID=0 where Sysid=".$_SESSION['SysID']; }
+
+     $Ok=$db->execute($query); 
+        
+    if ($Ok==1)  echo("<font size='3' color='blue'><b>".$_GET['Action']." Action Completed</b></font>");
+        
+}
+
+
+
+
 //Sensor Mapping
 if(isset($_POST['submitSensorMap'])){
   $query = "SELECT Recnum,SysID,SensorColName,SensorName,SysGroup FROM SysMap WHERE SysID = 0 AND SourceID = " . $_POST['sourceID'];
   $sysMap = $db -> fetchAll($query);
+ 
   $query = "SELECT Recnum,SysID,SensorColName,SensorName,SysGroup FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SourceID = " . $_POST['sourceID'];
   $sysMapUnique = $db -> fetchAll($query);
+  
   foreach ($sysMap as $resultRow){       //check to see values are valid
     //check for uniques and use if necessary
     foreach($sysMapUnique as $uniqueResult){
@@ -100,9 +126,11 @@ if(isset($_POST['submitSensorMap'])){
               " AND AlertPercent " . (isset($_POST[$percentValue]) ? "= " . $_POST[$percentValue] : "IS NULL") . " AND AlarmTrigger " . (isset($_POST[$triggerValue]) ? "= " . $_POST[$triggerValue] : "IS NULL")  .
               " AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'] . " AND SensorName = '" . $_POST[$resultRow['SensorColName']] . "'";
         $exists = $db ->numRows($query);
+       
         if($exists) continue;
         //check if unique value exists to determine update or insert
         $query = "SELECT Recnum FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
+        
         $recnum = $db -> fetchRow($query);
         if(!empty($recnum)) $query = "UPDATE SysMap SET AlarmUpLimit = :hiValue, AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = '" . $resultRow['SensorColName'] . "' AND SysGroup = " . $resultRow['SysGroup'] . " AND SourceID = " . $_POST['sourceID'];
         else{
@@ -125,6 +153,11 @@ if(isset($_POST['submitSensorMap'])){
           $bind[':DAMID'] = $result['DAMID'];
           $bind[':platformID'] = $result['PlatformID'];
           $bind[':config'] = $result['Configuration'];
+          
+          
+          
+          
+          
         }
         //$bind[':sensorName'] = $_POST[$resultRow['SensorColName']];
         $bind[':hiValue'] = $_POST[$hiValue];
@@ -153,14 +186,30 @@ if(isset($_POST['submitSensorMap'])){
                 for($i=1;$i<8;$i++){
                     //duplicate row first then update
                     $query = "SELECT * FROM SysMap WHERE SysID = " . $_SESSION['SysID'] . " AND SensorColName = 'BS0" . $i . "'";
+                
+                   try {
                     $sth = $db -> prepare($query);
                     $sth -> execute();
-                    $result = $sth -> fetch(PDO::FETCH_NUM);
+                    $result = $sth -> fetch(PDO::FETCH_NUM);         
+                  
+              
+                   }
+                    catch (Exception $e) {
+                    $PErr=True;
+                    echo '<BR>Caught exception: ',  $e->getMessage(), "\n";
+                   }
                     $query = "INSERT INTO SysMap VALUES(NULL, ";
-                    for($j=1;$j<count($result);$j++) $query .= (isset($result[$j]) ? "'" . $result[$j] . "', " : "NULL, ");
+                    for($j=1;$j<count($result);$j++) {
+                      $query .= (isset($result[$j]) ? "'" . $result[$j] . "', " : "NULL, ");
+                 
+                    }
                     //remove last , with )
                     $query = substr_replace($query,")",strlen($query) - 2);
-                    if($db -> execute($query)) $lastinsert = $db -> lastInsertId();
+                
+                    
+                    // if this query is null inhibit execute statement   rji 09/12/13  also added try statement above
+                   
+                   if ($result!=NULL) { if($db -> execute($query)) $lastinsert = $db -> lastInsertId(); }
                     //grab system info
                     $query = "SELECT DAMID,PlatformID,Configuration FROM SystemConfig WHERE SysID = " . $_SESSION['SysID'];
                     $result = $db -> fetchRow($query);
@@ -247,13 +296,42 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                     <select name="systemID" class="selectSubmit"><?php
                       if(!isset($systemID)) echo "<option selected='selected'>Select A System</option>";
                       foreach ($systemList as $value) {
-                        if($systemID == $value['SysID']) echo "<option selected='selected' value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>";
-                        else echo "<option value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>";
+                        if($systemID == $value['SysID']) {            
+                            
+                           $PInhibitSys= $value['Active'];                    
+                            
+                           echo "<option selected='selected' value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>"; }
+                        
+                        else  {echo "<option value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>";}
                       }?>
                     </select>
                     <input type="hidden" name="buildingID" value="<?=$buildingID?>">
                   </h4>
                 </div>
+                <div  class="span2" style="text-align:right"> 
+                    
+                     <?php    if ($PInhibitSys==1) { ?>                    
+                           <a class="btn btn-small" style="font-size:11px;" href="./?Action=Inhibit">
+                           <i class="icon-minus"></i>
+                           Inhibit System
+                            </a>  
+                     <?php } else {   ?>
+                          <a class="btn btn-small" style="font-size:11px;" href="./?Action=Activate">
+                           <i class="icon-plus"></i>
+                           Activate System
+                            </a>  
+                         
+                     <?php   }?>   
+                   </div>    
+                   <div  class="span2" style="text-align:right">                      
+                 
+                       <a class="btn btn-small" style="font-size:11px;" href="./?Action=Remove">
+                           <i class="icon-remove"></i>
+                           Remove System
+                            </a>  
+                                
+                </div>
+                  
               </form>
             </div>
         <?php } ?>

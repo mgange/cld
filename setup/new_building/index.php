@@ -12,17 +12,20 @@ if(isset($_POST['submitNewBuilding'])){
             )VALUES(
             :buildingName, :addr1, :addr2, :city, :state, :zip, :customerID)";
 
+  $bind[':customerID']      = $_POST['customer'];
   $bind[':buildingName']    = $_POST['name'];
   $bind[':addr1']           = $_POST['address1'];
   $bind[':addr2']           = ($_POST['address2'] == NULL) ? NULL : $_POST['address2'];
   $bind[':city']            = $_POST['city'];
   $bind[':state']           = $_POST['state'];
   $bind[':zip']             = $_POST['zip'];
-  $bind[':customerID']      = $_SESSION['customerID'];
+
 
   if($db -> execute($query, $bind)){
     $buildingID = $db -> lastInsertId();
     $_SESSION['buildingID'] = $buildingID;
+     header('Location: '.$_SERVER['REQUEST_URI']);
+  
   }
 }
 
@@ -45,7 +48,14 @@ function validate(){
 			error = true;
 		}
 	}
-
+        var cust = document.forms["new_building"]["customer"].value;
+	document.forms["new_building"]["customer"].style.border = "";
+	if ((cust=="") || (cust=="None")) {
+		document.forms["new_building"]["customer"].style.border = "red solid 2px";
+		error = true;
+	}
+        
+        
 	var zip = document.forms["new_building"]["zip"].value;
 	document.forms["new_building"]["zip"].style.border = "";
 	if((isNaN(zip)) || (zip == null) || (zip == "") || (zip.length != 5)){
@@ -64,6 +74,34 @@ function validate(){
     <div class="row">
     	<span style="color:red">*</span> Required Fields<br><br>
         <div class="span12">
+            <label for="customer"><span style="color:red">*</span> Customer <br>            
+                
+              
+             <?php
+              $query="Select customerID,customerName from customers order by customerName";
+             
+              $Customers= $db -> fetchall($query);
+
+             ?>
+              <select name="customer" class="select-submit span3">
+              <option value="None"> Select a Customer</option>
+      
+              <?php
+            
+                  foreach ($Customers as $value) {
+
+                    if($_POST['customer'] == $value['customerID'])
+                    {
+                        echo "<option selected value='" . $value['customerID'] . "'>" . $value['customerName'] . "</option>";
+                   
+                   }
+                    else  {echo "<option value='" . $value['customerID'] . "'>" . $value['customerName'] . "</option>";}
+                  }
+                ?>
+
+                </select>                
+              
+            </label>
             <label for="name"><span style="color:red">*</span> Building Name
                <input type="text" class="span12" name="name">
             </label>

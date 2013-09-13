@@ -36,25 +36,49 @@ function  checkvalue($config,$Field,$Val,$Grp,$SubGrp,$Recnum)
 }
 require_once('../includes/pageStart.php');
 
-checkSystemSet($config);
+//checkSystemSet($config);
 
 require_once('../includes/header.php');
 $db = new db($config);
-$SysID=$_SESSION['SysID'];
+//$SysID=$_SESSION['SysID'];
+$LType="";
+if (isset($_SESSION['LTYPE'])) { $LType=$_SESSION['LType']; }
+$_SESSION['LType']=$LType;  
+$PostFlag=false;
+$PostLtype="";
 
 
+
+
+if ($_POST) {
 $PostLtype=$_POST['Fmtype'];
 //need switch to restore original FmtypeS for inserts
 
 $NumUprec=$_POST['reccount'];
 
- $LType=$_SESSION['LType'];
+
+  
+      
+ if (isset($_POST['Update'])) {
+     if  ($_POST['Update']=="Update")  {         
+         $Pmode="Update";
+         $PostFlag=true;
+     }   
+ }
+ 
+ if (isset($_POST['Add'])) {
+    if  ($_POST['Add']=="Add")  {         
+         $Pmode="Add";
+         $PostFlag=true;
+     }   
+ }
+ 
+ 
+ if (isset($_POST['Addrec'])==true and $Pmode=="Add") {$Addrec=$_POST['Addrec']+1; } else {$Addrec=0;}
 
 
-if (($_POST['Update']=="Update") or ($_POST['Add']=="Add")) {$PostFlag=true;} else {$PostFlag=false;}
-if  ($_POST['Update']=="Update") $Pmode="Update";
 
-
+}
 $Precnum=array();
 $Psubgrp=array();
 $Pitem=array();
@@ -66,6 +90,7 @@ $errflag=array (array());
  $CumErr=false;
 
 $Uperr=false;
+
 
 if ($PostFlag==true)
 {
@@ -94,12 +119,19 @@ for ($i=0;$i<$NumUprec;$i++)
 
    $CumErr=$CumErr || $errflag[$i][0] ||   $errflag[$i][1]   || $errflag[$i][2]   || $errflag[$i][3]     || $errflag[$i][4]          ;
 // set cumulative error flag
-
+   $c=$i+1;
    }
- }
+ 
 
-
-
+ // initialize poaotions for the new reccrds to the existing matriz'
+    
+    for ($k=0;$k<$Addrec+1;$k++) {
+        $Psubgrp[$k+$c]="";
+        $Pitem[$k+$c]="";
+        $Pvalue[$k+$c]="";
+        $Padj[$k+$c]="";
+    }
+}
 
 // save records only if no errors
 if($PostFlag==true and $CumErr==false)

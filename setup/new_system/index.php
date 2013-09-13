@@ -10,9 +10,12 @@ require_once('../../includes/pageStart.php');
 
 $db = new db($config);
 
+
+
 if($_SESSION['authLevel'] != 3) {
     gtfo($config);
 }
+if (isset($_SESSION['buildingID'])) {$buildingID=$_SESSION['buildingID'];};
 
 /** CHECK ERRORS **/
 //New Building
@@ -161,10 +164,10 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 <select name="buildingID" class="selectSubmit"><?php
                   if(!isset($buildingID)) echo "<option selected='selected' value='err'>Select A Building</option>";
                   foreach ($buildingList as $value) {
-                    if($buildingID == $value['buildingID']) echo "<option selected='selected' value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
+                    if(isset($buildingID) && $buildingID == $value['buildingID']) echo "<option selected='selected' value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
                     else echo "<option value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
                   }?>
-                    <option value="new" <?=($buildingID == "new") ? "selected='selected'" : ""?>>+ Add New Building</option>
+                    <option value="new" <?=(isset($buildingID) && $buildingID == "new") ? "selected='selected'" : ""?>>+ Add New Building</option>
                 </select>
               </h4>
             </div>
@@ -172,10 +175,10 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
         </div>
   <!-- NEW BUILDING -->
         <div>
-          <?php if($buildingID == "new") include('../new_building/index.php'); ?>
+          <?php if(isset($buildingID) && $buildingID == "new") include('../new_building/index.php'); ?>
         </div>
   <!-- SYSTEM INFORMATION  -->
-<?php if($_SESSION['SetupStep'] > 0){ ?>
+<?php if(isset($_SESSION['SetupStep']) && $_SESSION['SetupStep'] > 0){ ?>
          <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse"
@@ -211,7 +214,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
             </div>
 <?php } ?>
 <!-- SENSOR MAPPING INFORMATION  -->
-<?php if($_SESSION['SetupStep'] > 1){ ?>
+<?php if(isset($_SESSION['SetupStep']) && $_SESSION['SetupStep'] > 1){ ?>
         <div class="accordion-group" style="border:0px">
              <div class="accordion-heading">
                 <a class="accordion-toggle"

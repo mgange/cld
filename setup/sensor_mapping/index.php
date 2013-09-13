@@ -35,16 +35,35 @@ $query = "SELECT AnalogMuxEnabled FROM SystemConfig WHERE SysID = " . $SysId;
 $result = $db -> fetchRow($query);
 $AnalogMuxEnabled = $result['AnalogMuxEnabled'];
 
-$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
-        FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
-        AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
-        AND SysID = 0 AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
-$sysMap = $db -> fetchAll($query);
+//$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
+   //     FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
+   //     AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
+    //    AND SysID = 0 AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+
+
+// Replaced orginal query which inhibited BSx and Thermstatx fields from display   needed to turn off thermostatet completely  rji 9/12/13
 
 $query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
-        FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
-        AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
-        AND SysID = " . $SysId . " AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+        FROM SysMap WHERE 
+         SysID = 0 AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+
+
+$sysMap = $db -> fetchAll($query);
+
+//$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
+    //    FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
+    //    AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
+    //    AND SysID = " . $SysId . " AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+    //    
+    //    
+// Replaced orginal query which inhibited BSx and Thermstatx fields from display   needed to turn off thermostatet completely  rji 9/12/13
+$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
+        FROM SysMap WHERE 
+      
+       SysID = " . $SysId . " AND SourceID = " . $sourceID . " ORDER BY SensorType ASC, SysGroup ASC, SensorColName ASC";
+
+
+
 $sysMapUnique = $db -> fetchAll($query);
 
 //require_once('../../includes/header.php');
@@ -180,6 +199,7 @@ $sysMapUnique = $db -> fetchAll($query);
 <?php
     $sysGroup = 0;
     foreach ($sysMap as $resultRow){
+        
         //check for uniques and use if necessary
         foreach($sysMapUnique as $uniqueResult){
                 if((!strcasecmp($uniqueResult['SensorColName'],$resultRow['SensorColName']))

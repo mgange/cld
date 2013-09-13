@@ -36,7 +36,6 @@ foreach ($PDList as $row) {
 }
 */
 ini_set('display_errors','0');
-checkSystemSet($config);
 // goes to home page if trying to set up new system without proper authorization
 //if($_SESSION['authLevel'] < 3 && $NewSystem==false) { //already in parent page
     //gtfo($config);

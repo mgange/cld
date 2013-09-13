@@ -15,13 +15,30 @@ $db = new db($config);
 if($_SESSION['authLevel'] != 3) {
   gtfo($config);
 }
-
-if ($_POST['Update']=="Update") {$Pmode="Update";}
-if ($_POST['Add']=="Add") {$Pmode="Add"; }
-if ($_POST['Add']!="Add" and $_POST["Update"]!="Update") {$PostFlag=false;} else {$PostFlag=true;}
-
-if (isset($_POST['Addrec'])==true and $Pmode=="Add") {$Addrec=$_POST['Addrec']+1; } else {$Addrec=0;}
+$PostFlag=false;
+$Addrec=0;
+$Pmode="";
+if ($_POST) {
+    
+   if (isset($_POST['Update'])) {
+     if  ($_POST['Update']=="Update")  {         
+         $Pmode="Update";
+         $PostFlag=true;
+     }   
+ }
+ 
+ if (isset($_POST['Add'])) {
+    if  ($_POST['Add']=="Add")  {         
+         $Pmode="Add";
+         $PostFlag=true;
+     }   
+ } 
+    
+    
+    if (isset($_POST['Addrec'])==true and $Pmode=="Add") {$Addrec=$_POST['Addrec']+1; } else {$Addrec=0;}
 //echo($_POST['Add']."|".$_POST["Update"]."|.".$PostFlag);
+
+}
 if ($PostFlag!=true)
 {
 $LType=$_SESSION['LType'];
@@ -41,7 +58,12 @@ $LType=$_SESSION['LType'];
     $Pvalue[$i]=$resultRow['AssignedValue'];
     $Padj[$i]=$resultRow['AdjFactor'];
     $i=$i+1;
+    
     }
+   
+    
+   
+    
 
 }
 ?>
@@ -72,9 +94,9 @@ for ($i=0;$i<$NumUprec;$i++)
                   <input readonly class='span2' size='45' type='text' style='max-width:100%' name='subgrp<?=$i?>' value="<?=$Psubgrp[$i]?>">
            </p> </td>
     <td>
-
-        <?php if($errflag[$i][2]==1) {echo("<font color=red><b>Field must not be left blank</b></font>");}
-              if($errflag[$i][2]==2) {echo("<font color=red><b>Field must have a unique value</b></font>");} ?>
+         <?php if ($_POST) {
+         if($errflag[$i][2]==1) {echo("<font color=red><b>Field must not be left blank</b></font>");}
+         if($errflag[$i][2]==2) {echo("<font color=red><b>Field must have a unique value</b></font>");} } ?>
         <p class="span5" style="margin-top:10px;text-align:absolute"><input class="span5" type="text"  name="item<?=$i?>" value="<?=$Pitem[$i]?>">
 
 
@@ -89,8 +111,10 @@ for ($i=0;$i<$NumUprec;$i++)
 
 
     <td>
-         <?php if($errflag[$i][3]==1) {echo("<font color=red><b>Field must not be left blank</b></font>");}
-               if($errflag[$i][3]==2) {echo("<font color=red><b>Field must have a unique value</b></font>");} ?>
+        
+         <?php if ($_POST) {
+           if($errflag[$i][3]==1) {echo("<font color=red><b>Field must not be left blank</b></font>");}
+         if($errflag[$i][3]==2) {echo("<font color=red><b>Field must have a unique value</b></font>");} } ?>
         <p class="span2" style="margin-top:10px;text-align:absolute"><input Readonly class="span2" size="45" type="text" style="max-width:100%" name="value<?=$i?>" value="<?=$Pvalue[$i]?>"></p></td>
 
 </tr>

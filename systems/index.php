@@ -50,7 +50,7 @@ $buildings = $db -> fetchAll($query);
 // Get the systems associated with each building
 $numSystems = 0;
 foreach($buildings as $building) {
-    $query = 'SELECT SysID, DAMID, SysName FROM SystemConfig WHERE buildingID = ' . $building['buildingID'];
+    $query = 'SELECT SysID, DAMID, SysName FROM SystemConfig WHERE Active=1 and buildingID = ' . $building['buildingID'];
     //If there's a system for this building ...
     if($db -> numRows($query) > 0) {
         $sysConfigs = $db -> fetchAll($query);
