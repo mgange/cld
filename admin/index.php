@@ -48,6 +48,8 @@ $users = $db -> fetchAll($query);
 $query = 'SELECT * FROM buildings ' . $where;
 $buildings = $db -> fetchAll($query);
 
+$query = 'SELECT * FROM MaintainResource WHERE 1';
+$maintainers = $db -> fetchAll($query);
 
 require_once('../includes/header.php');
 ?>
@@ -188,5 +190,40 @@ if($_SESSION['authLevel'] == 3) {
 <?php
 }
 
+
+if($_SESSION['authLevel'] > 2) {
+?>
+            <h2 class="span8 offset2">Maintainers</h2>
+<?php
+}
+foreach($maintainers as $resource) {
+?>
+            <div class="row">
+                <h4 class="span3"><?=$resource['Name']?></h4>
+                <h5 class="span4">
+                    <?=$resource['Company']?>
+                    <small>&#40;<?=$resource['Category']?>&#41;</small>
+                </h5>
+
+                <div class="btn-group span2 offset1">
+                    <a href="maintainer/edit?id=<?=$resource['Recnum']?>" class="btn btn-mini">
+                        <i class="icon-edit"></i>
+                        Edit
+                    </a>
+                    <a href="maintainer/remove?id=<?=$resource['Recnum']?>" class="btn btn-mini btn-danger confirm">
+                        <i class="icon-remove icon-white"></i>
+                        Delete
+                    </a>
+                </div>
+
+            </div>
+<?php
+}
+?>
+            <a href="maintainer/new" class="btn btn-success pull-right">
+                <i class="icon-plus icon-white"></i>
+                Add New Maintainer
+            </a>
+<?php
 require_once('../includes/footer.php');
 ?>
