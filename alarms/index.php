@@ -50,7 +50,7 @@ if (isset($_POST['ManClr']))  {
                 } catch (Exception $e) {
                        $PErr=True;
                echo '<BR>Caught exception: ',  $e->getMessage(), "\n";
-              // pprint($e);
+               pprint($e);
                 }
              if ($PErr==false) {
                  
