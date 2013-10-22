@@ -82,7 +82,7 @@ if (isset($_POST['ManClr']))  {
                     else $arrow = "&darr;";
                 }else $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID;
                 $results = $db -> fetchAll($query);
-                if(!empty($results)){ pprint($query); pprint($results);
+            if(!empty($results)){ 
         ?>
         <div class="row">
             <h3 class="span12">Active (<?=$db -> numRows($query)?> Total)<span style="font-size:75%;float:right"><a href="?id=a&group=">Archive</a></span></h3>
