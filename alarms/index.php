@@ -16,8 +16,50 @@ $db = new db($config);
 $SysID = $_SESSION['SysID'];
 $query = "SELECT SysName FROM SystemConfig WHERE SysID = " . $SysID;
 $sysConfig = $db -> fetchRow($query);
-?>
 
+$recnum=0;
+if (isset($_POST['ManClr']))  {
+     $recnum=$_POST['ManClr'];                   
+     $query = "SELECT * FROM Alarms_Active WHERE Recnum=".$recnum;
+   
+     $results = $db -> fetchRow($query);                      
+     $bind[':SysID']             =   $results['SysID'];                
+     $bind[':HeadID_First']      =   $results['HeadID_First'];                    
+     $bind[':HeadID_Last']       =   $results['HeadID_Last'];  
+     $bind[':TimeStamp_Start']   =   $results['TimeStamp_Start']; 
+     $bind[':TimeStamp_End']     =   Date("Y-m-d H:i:s"); 
+     $bind[':SensorNo']          =   $results['SensorNo'];  
+     $bind[':Alarm_Duration']    =   $results['Alarm_Duration'];
+     $bind[':Alarm_Code']        =   $results['Alarm_Code'];  
+     $bind[':SourceID']          =   $results['SourceID'];  
+     $bind[':Alarm_Level']       =   $results['Alarm_Level'];  
+     $bind[':WebEnabled']        =   $results['WebEnabled'];
+     $bind[':EMailSent']         =   $results['EMailSent'];
+     if (isset($_POST['Notes'])) {$Notesfb=$_POST['Notes'];} else {$Notesfb="";}
+     $bind[':Notes']             =   $results['Notes']." ".$Notesfb;
+     $bind[':Resolution']        =   $results['Resolution']." Manually Cleared";
+
+     $InsQuery = "Insert into Alarms_History (SysID,HeadID_First,HeadID_Last,TimeStamp_Start,TimeStamp_End,SensorNo,
+                  Alarm_Duration,Alarm_Code,SourceID,Alarm_Level,WebEnabled,EmailSent,Notes,Resolution) values
+                 (:SysID,:HeadID_First,:HeadID_Last,:TimeStamp_Start,:TimeStamp_End,:SensorNo,
+                  :Alarm_Duration,:Alarm_Code,:SourceID,:Alarm_Level,:WebEnabled,:EMailSent,:Notes,:Resolution)";
+    
+        try {
+                $db -> execute($InsQuery,$bind);
+                       $PErr=false;
+                } catch (Exception $e) {
+                       $PErr=True;
+               echo '<BR>Caught exception: ',  $e->getMessage(), "\n";
+               pprint($e);
+                }
+             if ($PErr==false) {
+                 
+                 $delQuery="Delete from Alarms_Active  WHERE Recnum=".$recnum;
+                $db -> execute($delQuery);
+               }    
+        }                   
+?>
+<form  method="post" action="/cld/alarms/?ManClr=<?=$recnum ?>" >  
         <div class="row">
             <h1 class="span10 offset2">Alarms - <span class="building-name">   System - <?=$sysConfig['SysName']?></span></h1>
         </div>
@@ -40,10 +82,10 @@ $sysConfig = $db -> fetchRow($query);
                     else $arrow = "&darr;";
                 }else $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID;
                 $results = $db -> fetchAll($query);
-                if(!empty($results)){
+                if(!empty($results)){ pprint($query); pprint($results);
         ?>
         <div class="row">
-            <h3 class="span12">Active (<?=$db -> numRows($query)?> Total)<span style="font-size:75%;float:right"><a href="?id=a">Archive</a></span></h3>
+            <h3 class="span12">Active (<?=$db -> numRows($query)?> Total)<span style="font-size:75%;float:right"><a href="?id=a&group=">Archive</a></span></h3>
             <table class="table span12">
                 <tr class="alarm-header">
                     <th>Date</th>
@@ -58,6 +100,7 @@ $sysConfig = $db -> fetchRow($query);
                 </tr>
                 <?php
                     foreach ($results as $value) {
+                        $recnum = $value['Recnum'];
                         $durationTime = substr($value['Alarm_Duration'],0,(strripos($value['Alarm_Duration'],':')));    //HH:MM
                         $dateTime = date_create($value['TimeStamp_Start']);
                         $date = date_format($dateTime, 'm/d/Y');
@@ -92,8 +135,13 @@ $sysConfig = $db -> fetchRow($query);
                     ?>
                     </td>
                     <td><?=$durationTime?></td>
-                    <td><?=$value['Resolution']?></td>
-                    <td><?=$value['Notes']?></td>
+                    <td> <input type="Submit" name="Form1" value="Clear Manually" >
+                   
+                   </a>
+                        
+                    <input type="hidden" Name="ManClr"  value="<?= $recnum ?>">
+                            
+                    <td><input type="text" name="Notes" value="<?=$value['Notes']?>" maxlength="128"></td>
                     <td><?=($value['EMailSent'] == 1) ? "Yes" : "No"?></td>
                 </tr>
                 <?php
@@ -106,7 +154,7 @@ $sysConfig = $db -> fetchRow($query);
                 }else{//end of if(!empty($results))
         ?>
         <div>
-            <h3 class="span12">No Active Alarms<span style="font-size:75%;float:right"><a href="?id=a">Archive</a></span></h3>
+            <h3 class="span12">No Active Alarms<span style="font-size:75%;float:right"><a href="?id=a&group=''">Archive</a></span></h3>
         </div>
         <?php
                 }
@@ -203,7 +251,7 @@ $sysConfig = $db -> fetchRow($query);
             }//end of elseif(isset($_GET['id']) && ($_GET['id'] == 'a'))
         ?>
         </div>
-
+</form>
 <?php
 require_once('../includes/footer.php');
 ?>

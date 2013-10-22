@@ -16,6 +16,7 @@ if($_SESSION['customerID'] != intval($_GET['id']) && $_SESSION['authLevel'] < 3)
 
 if(count($_POST) > 0) {
     $query = 'UPDATE customers SET
+        customerName  = :customerName,
         addr1  = :addr1,
         addr2  = :addr2,
         city   = :city,
@@ -24,6 +25,7 @@ if(count($_POST) > 0) {
         email1 = :email1,
         email2 = :email2
         WHERE customerID = :customerID';
+    $bind[':customerName'] = $_POST['customerName'];
     $bind[':addr1'] = $_POST['addr1'];
     $bind[':addr2'] = $_POST['addr2'];
     $bind[':city'] = $_POST['city'];
@@ -32,7 +34,7 @@ if(count($_POST) > 0) {
     $bind[':email1'] = $_POST['email1'];
     $bind[':email2'] = $_POST['email2'];
     $bind[':customerID'] = intval($_POST['customerID']);
-
+//pprint($query);
     $response = $db -> execute($query, $bind);
     if($response) {
         header('Location: ../?a=s'); // TODO(Geoff Young): make the alert more vague
@@ -76,7 +78,7 @@ $customer = $db -> fetchRow($query, $bind);
     <div class="row">
         <div class="span12">
             <label for="name">Customer Name
-                <input type="text" class="text span12" value="<?php echo $customer['customerName']; ?>">
+                <input type="text" class="text span12" name="customerName" value="<?php echo $customer['customerName']; ?>">
             </label>
         </div>
 
