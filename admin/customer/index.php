@@ -34,7 +34,7 @@ if(count($_POST) > 0) {
     $bind[':email1'] = $_POST['email1'];
     $bind[':email2'] = $_POST['email2'];
     $bind[':customerID'] = intval($_POST['customerID']);
-pprint($query);
+//pprint($query);
     $response = $db -> execute($query, $bind);
     if($response) {
         header('Location: ../?a=s'); // TODO(Geoff Young): make the alert more vague
