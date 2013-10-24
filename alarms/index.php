@@ -59,7 +59,7 @@ if (isset($_POST['ManClr']))  {
                }    
         }                   
 ?>
-<form  method="post" action="/cld/alarms/?ManClr=<?=$recnum ?>" >  
+<form  method="post" action="./?ManClr=<?=$recnum ?>" >
         <div class="row">
             <h1 class="span10 offset2">Alarms - <span class="building-name">   System - <?=$sysConfig['SysName']?></span></h1>
         </div>
