@@ -347,8 +347,11 @@ require_once('../includes/header.php');
     // Loop 1 - unique data from Main for a given system
     // Loop 2 - RSM Defaults   field with RSM reference from source 1 and  source 0,4 in default system (ie Flow)
     // Loop 3 - RSM Uniques  fields for a given system
-
+        
     // first calc number of required loops   2 passes only for main 4 for all RSMs
+     
+     // for label changes default maps passes (1 and 3) added sysid's must be equal to where statement
+     // when labels or positions are change, dashboard edit will add corresponding unique record in sysmap 
    if (isset($zone) && $zone>=1) {$imax=4;} else {$imax=2;}
 
    for ($i=0;$i<$imax;$i++)
@@ -356,17 +359,26 @@ require_once('../includes/header.php');
         $DeftMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo,SourceId";
+                       SysMap.SysID=WebRefTable.SysID and
+                       WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebRefTable.SysID Asc,WebPagePosNo,SourceId";
         $DeftMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenAdjFactor,SenDBFactor,Format,Inhibit,SensorStatus,SysMap.Recnum,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and  WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
-                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID=0 or SourceID=1 or SourceID=4  or SourceID=99) and WebSubPageName='RSM' order by WebPagePosNo,SourceId
+                        SysMap.SysID=WebRefTable.SysID and
+                        WebPageName='StatusDB' and SysMap.SysID=0 and SensorActive=1 and  (SourceID=0 or SourceID=1 or SourceID=4  or SourceID=99) and WebSubPageName='RSM' order by WebRefTable.SysID Asc,WebPagePosNo,SourceId
                         ";
 
       $UnqiMapqueryZ0="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
-                       where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
+                      
+                        where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
                         WebPageName='StatusDB' and SysMap.SysID=".$SysID." and (SourceID=0 or SourceID=4 or SourceID=99) and WebSubPageName='Main' order by WebPagePosNo";
+    
+     // pprint($DeftMapqueryZ0);
+     // pprint($UnqiMapqueryZ0);
+      //
+      
+      
       $UnqiMapqueryZ1="Select WebPagePosNo, SourceID, WebRefTable.SensorLabel, SensorColName,SensorAddress,SensorActive,SysMap.Recnum,WebRefTable.Recnum,
                        SensorUnits,AlarmLoLimit,AlarmUpLimit,AlertPercent,SenDBFactor,SenAdjFactor,Format,Inhibit,SensorStatus,WebSubPageName,WebRefTable.SensorName from SysMap, WebRefTable
                        where SysMap.SensorRefName = WebRefTable.SensorName and WebRefTable.WebSensRefNum=SysMap.WebSensRefNum and
@@ -391,13 +403,14 @@ require_once('../includes/header.php');
               $rec3 = $db -> numRows($UnqiMapqueryZ1);
 
               break;
+       
       }
 
 
      foreach($Forvar as $resultRow)
          {
          $SID=$resultRow['SourceID'];
-
+//pprint($resultRow);
    //     if (($i<=1  and  ($SID==0 or $SID==4 or $SID==5)))
       //  {
             $GetValue="";
