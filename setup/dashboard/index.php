@@ -67,7 +67,8 @@ require_once('../../includes/header.php');
                 //check uniques and use if possible
                 $query = "SELECT SensorLabel,PageLocX,PageLocY,WebSensRefNum
                         FROM WebRefTable
-                        WHERE SensorLabel = '" . $result['SensorLabel'] . "' AND Inhibit = 0 AND SysID = " . $systemID;
+                        WHERE WebSensRefNum = '" . $result['WebSensRefNum'] . "' AND Inhibit = 0 AND SysID = " . $systemID;
+                
                 if(!strcasecmp($zone,"Main")) $query .= " AND WebSubPageName = 'Main'";
                 else $query .= " AND WebSubPageName = 'RSM'";
                 $unique = $db -> fetchRow($query);
@@ -85,7 +86,7 @@ require_once('../../includes/header.php');
                             'Popup','width=800,height=450,dependent=yes,0,status=0,resizable=1');">
                     </a>
                 </p>
-        <?php
+        <?php  
             }
         ?>
         <div class="span10" style="margin-left:50px">

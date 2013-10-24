@@ -13,13 +13,13 @@ $systemID = $_GET['sys'];
 //$buildingID = $_SESSION['buildingID'];
 
 $db = new db($config);
-
+pprint($_POST);
 if(count($_POST)){
     //check if there is an unique
     $query = "SELECT * FROM WebRefTable WHERE WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND WebSubPageName = '" . $_POST['WebPage'] . "' AND SysID = " . $systemID;
     if($db -> numRows($query) == 0){
         //no unique, check if default changed
-        $query = "SELECT * FROM WebRefTable WHERE PageLocX = " . $_POST['xpos'] . " AND PageLocY = " . $_POST['ypos'] . " AND WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND WebSubPageName = '" . $_POST['WebPage'] . "' AND SysID = 0";
+        $query = "SELECT * FROM WebRefTable WHERE SensorLabel = '". $_POST['sensorlabel']. "' AND PageLocX = " . $_POST['xpos'] . " AND PageLocY = " . $_POST['ypos'] . " AND WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND WebSubPageName = '" . $_POST['WebPage'] . "' AND SysID = 0";
         if($db -> numRows($query) == 0){
             //insert unique
             //duplicate row first then update
@@ -33,12 +33,12 @@ if(count($_POST)){
             $query = substr_replace($query,")",strlen($query) - 2);
             $db -> execute($query);
             $lastinsert = $db -> lastInsertId();
-            $query = "UPDATE WebRefTable SET SysID = " . $systemID . ", PageLocX = " . $_POST['xpos'] . ", PageLocY = " . $_POST['ypos'] . " WHERE WebSubPageName = '" . $_POST['WebPage'] . "' AND Recnum = " . $lastinsert;
+            $query = "UPDATE WebRefTable SET SysID = " . $systemID . ",SensorLabel = '". $_POST['sensorlabel']."',PageLocX = " . $_POST['xpos'] . ", PageLocY = " . $_POST['ypos'] . " WHERE WebSubPageName = '" . $_POST['WebPage'] . "' AND Recnum = " . $lastinsert;
             $db -> execute($query);
         }
     }else{
         //update unique
-        $query = "UPDATE WebRefTable SET PageLocX = " . $_POST['xpos'] . ", PageLocY = " . $_POST['ypos'] . " WHERE WebSubPageName = '" . $_POST['WebPage'] . "' AND WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND SysID = ". $systemID;
+        $query = "UPDATE WebRefTable SET SensorLabel = '". $_POST['sensorlabel']."',PageLocX = " . $_POST['xpos'] . ", PageLocY = " . $_POST['ypos'] . " WHERE WebSubPageName = '" . $_POST['WebPage'] . "' AND WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND SysID = ". $systemID;
         $db -> execute($query);
     }
 
@@ -50,7 +50,9 @@ if(count($_POST)){
             . " AND AlarmLoLimit " . (($_POST['lowLimit'] != "") ? "= " . $_POST['lowLimit'] : "IS NULL")
             . " AND AlertPercent = " . $_POST['percentWarn'] . " AND AlarmTrigger = " . $_POST['alarmTrigger']
             . " AND WebSensRefNum = " . $_POST['WebSensRefNum'];
-    if($db -> numRows($query) == 0){
+  //  not needed always assume a change in the sysmap record will force a new unique record into sysmap if one does not exist
+  //  when a new one is added to WebReTable
+  //  if($db -> numRows($query) == 0){
         //check if already an unique
         $query = "SELECT * FROM SysMap WHERE WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND SourceID = " . (isset($_POST['sourceID']) ? $_POST['sourceID'] : "4") . " AND SysID = " . $systemID;
         if($db -> numRows($query) == 0){
@@ -72,7 +74,11 @@ if(count($_POST)){
                      . ", AlertPercent = " . $_POST['percentWarn'] . ", AlarmTrigger = " . $_POST['alarmTrigger']
                      . ", SensorStatus = " . $_POST['sensorStatus']
                      . " WHERE Recnum = " . $lastinsert;
+            pprint($query);
+            
             $db -> execute($query);
+            
+            
         }else{
             //update
             $query = "UPDATE SysMap SET SourceID = " . (isset($_POST['sourceID']) ? $_POST['sourceID'] : "4")
@@ -83,11 +89,13 @@ if(count($_POST)){
                      . " WHERE SysID = " . $systemID . " AND WebSensRefNum = " . $_POST['WebSensRefNum'];
             $db -> execute($query);
         }
-    }
+  //  } moved to 93
     //if changed check if uniqe value is there and update or insert
 
     echo "<script type=\"text/javascript\">opener.location.reload(true);window.close();</script>";
-}
+    
+    }
+//}  // inhibited look for change in sysmap
 
 if((!isset($_GET['id'])) || (!isset($_GET['sys']))) header("Location: ../../");
 $query = "SELECT * FROM SystemConfig WHERE SysID = " . $_GET['sys'];
@@ -180,10 +188,10 @@ $sensorStatus = $SysMapResult['SensorStatus'];
 </script>
 
 <form action="" method="post" onsubmit="return noErrors()">
-    <h2 class="offset1"><?=$WebRefResult['SensorLabel']?></h2>
+    <h5 class="offset2"></b>Sensor Label<BR> <input  class="span3" style="height:30px" type="text" maxlength="45" name="sensorlabel" value="<?=$WebRefResult['SensorLabel']?>"</h5>
     <div class="row">
-        <div class="span5 offset1">
-            <label for="sourceID">Source ID<br>
+        <div class="span5 offset0">
+            <label for="sourceID"><B>Source ID</b><br>
                 <?php
                     if(($SysMapResult['SensorType'] == 6) || ($SysMapResult['SensorType'] == 7)){
                         echo "<select name=\"sourceID\" disabled=\"disabled\">";
@@ -222,7 +230,7 @@ $sensorStatus = $SysMapResult['SensorStatus'];
                     </select>
                 </label>
             <?php } ?>
-            <label for="sensorStatus">Sensor Alarm<br>
+            <label for="sensorStatus"><b>Sensor Alarm</b><br>
                 <select name="sensorStatus"<?=($sensorStatus == 2) ? " disabled=\"disabled\"" : ""?>>
                     <?php $select = "selected=\"selected\""; ?>
                     <option value="0"<?=($sensorStatus == 0) ? $select : ""?>>Alarm Off & Hidden</option>
@@ -230,30 +238,31 @@ $sensorStatus = $SysMapResult['SensorStatus'];
                     <option name="hide" value="2"<?=($sensorStatus == 2) ? $select : ""?>>Never Alarmed</option>
                     <option value="3"<?=($sensorStatus == 3) ? $select : ""?>>Alarm Off</option>
                 </select>
+                <?php if ($sensorStatus == 2) echo("<input type='hidden' name='sensorStatus' value='2'>"); ?>
             </label>
-            <label for="xpos">X-Position<br>
+            <label for="xpos"><b>X-Position</b><br>
                 <input type="text" class="span2" style="height:30px" name="xpos" value="<?=$WebRefResult['PageLocX']?>" onkeyup="isNumeric(this.name)">
                 <span name="xposSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
-            <label for="ypos">Y-Position<br>
+            <label for="ypos"><b>Y-Position</b><br>
                 <input type="text" class="span2" style="height:30px" name="ypos" value="<?=$WebRefResult['PageLocY']?>" onkeyup="isNumeric(this.name)">
                 <span name="yposSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
         </div>
         <div class="span5">
-            <label for="highLimit">Alarm High Limit<br>
+            <label for="highLimit"><b>Alarm High Limit</b><br>
                 <input type="text" class="span2" style="height:30px" name="highLimit" value="<?=$SysMapResult['AlarmUpLimit']?>" onkeyup="isNumeric(this.name)">
                 <span name="highLimitSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
-            <label for="lowLimit">Alarm Low Limit<br>
+            <label for="lowLimit"><b>Alarm Low Limit</b><br>
                 <input type="text" class="span2" style="height:30px" name="lowLimit" value="<?=$SysMapResult['AlarmLoLimit']?>" onkeyup="isNumeric(this.name)">
                 <span name="lowLimitSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
-            <label for="percentWarn">Alarm Warning Percentage<br>
+            <label for="percentWarn"><b>Alarm Warning Percentage</b><br>
                 <input type="text" class="span2" style="height:30px" name="percentWarn" value="<?=$SysMapResult['AlertPercent']?>" onkeyup="isNumeric(this.name)">
                 <span name="percentWarnSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
             </label>
-            <label for="alarmTrigger">Alarm After<br>
+            <label for="alarmTrigger"><b>Alarm After</b><br>
                 <input type="text" class="span2" style="height:30px" name="alarmTrigger" value="<?=$SysMapResult['AlarmTrigger']?>" onkeyup="isNumeric(this.name)"> minutes
                 <span name="alarmTriggerSpan" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Invalid Number</span>
                 <span name="alarmTriggerSpan2" style='visibility:hidden;font-weight:bold;font-size:0px;color:red'>Must be Greater than 5</span>
