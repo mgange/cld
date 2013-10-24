@@ -13,7 +13,7 @@ $systemID = $_GET['sys'];
 //$buildingID = $_SESSION['buildingID'];
 
 $db = new db($config);
-pprint($_POST);
+
 if(count($_POST)){
     //check if there is an unique
     $query = "SELECT * FROM WebRefTable WHERE WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND WebSubPageName = '" . $_POST['WebPage'] . "' AND SysID = " . $systemID;
