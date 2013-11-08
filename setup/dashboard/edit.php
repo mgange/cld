@@ -13,7 +13,7 @@ $systemID = $_GET['sys'];
 //$buildingID = $_SESSION['buildingID'];
 
 $db = new db($config);
-
+//pprint($_POST);
 if(count($_POST)){
     //check if there is an unique
     $query = "SELECT * FROM WebRefTable WHERE WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND WebSubPageName = '" . $_POST['WebPage'] . "' AND SysID = " . $systemID;
@@ -55,6 +55,8 @@ if(count($_POST)){
   //  if($db -> numRows($query) == 0){
         //check if already an unique
         $query = "SELECT * FROM SysMap WHERE WebSensRefNum = " . $_POST['WebSensRefNum'] . " AND SourceID = " . (isset($_POST['sourceID']) ? $_POST['sourceID'] : "4") . " AND SysID = " . $systemID;
+       //pprint($query); 
+        
         if($db -> numRows($query) == 0){
             //add
             //duplicate row first then update
@@ -67,6 +69,8 @@ if(count($_POST)){
             //remove last , with )
             $query = substr_replace($query,")",strlen($query) - 2);
             $db -> execute($query);
+          
+            
             $lastinsert = $db -> lastInsertId();
             $query = "UPDATE SysMap SET DAMID = '" . $_POST['DAMID'] ."', SysID = " . $systemID . ", SourceID = " . (isset($_POST['sourceID']) ? $_POST['sourceID'] : "4")
                      . ", AlarmUpLimit = " . (($_POST['highLimit'] == "") ? "NULL" : $_POST['highLimit'])
@@ -74,8 +78,7 @@ if(count($_POST)){
                      . ", AlertPercent = " . $_POST['percentWarn'] . ", AlarmTrigger = " . $_POST['alarmTrigger']
                      . ", SensorStatus = " . $_POST['sensorStatus']
                      . " WHERE Recnum = " . $lastinsert;
-            pprint($query);
-            
+           
             $db -> execute($query);
             
             
@@ -87,12 +90,13 @@ if(count($_POST)){
                      . ", AlertPercent = " . $_POST['percentWarn'] . ", AlarmTrigger = " . $_POST['alarmTrigger']
                      . ", SensorStatus = " . $_POST['sensorStatus']
                      . " WHERE SysID = " . $systemID . " AND WebSensRefNum = " . $_POST['WebSensRefNum'];
+            
             $db -> execute($query);
         }
   //  } moved to 93
     //if changed check if uniqe value is there and update or insert
 
-    echo "<script type=\"text/javascript\">opener.location.reload(true);window.close();</script>";
+//    echo "<script type=\"text/javascript\">opener.location.reload(true);window.close();</script>";
     
     }
 //}  // inhibited look for change in sysmap
@@ -105,12 +109,16 @@ $systemInfo = $db -> fetchRow($query);
 //query WebRef information
 $queryTemp = "SELECT WebSensRefNum,SensorLabel,PageLocX,PageLocY
             FROM WebRefTable
-            WHERE WebSensRefNum = " . $_GET['id'];
+            WHERE Inhibit=0 and WebSensRefNum = " . $_GET['id'];
+// added inhibit=0 to select only valid records  rji 11/8/2013
+
 if(!isset($_GET['rsm'])) $queryTemp .= " AND WebSubPageName = 'Main'";
 else $queryTemp .= " AND WebSubPageName = 'RSM'";
 $query = $queryTemp . " AND SysID = " . $systemID;
 //if no uniques, use default
 if($db -> numRows($query) == 0) $query = $queryTemp . " AND SysID = 0";
+
+
 $WebRefResult = $db -> fetchRow($query);
 
 
@@ -119,6 +127,7 @@ $queryTemp = "SELECT SysGroup,SourceID,SensorType,SensorStatus,
             AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
             FROM SysMap
             WHERE WebSensRefNum = " . $_GET['id'];
+
 $query = $queryTemp . " AND SysID = " . $systemID;
 //if no uniques, use default
 if($db -> numRows($query) == 0) $query = $queryTemp . " AND SysID = 0";
@@ -231,14 +240,15 @@ $sensorStatus = $SysMapResult['SensorStatus'];
                 </label>
             <?php } ?>
             <label for="sensorStatus"><b>Sensor Alarm</b><br>
-                <select name="sensorStatus"<?=($sensorStatus == 2) ? " disabled=\"disabled\"" : ""?>>
+         
+                    <select name="sensorStatus">
                     <?php $select = "selected=\"selected\""; ?>
-                    <option value="0"<?=($sensorStatus == 0) ? $select : ""?>>Alarm Off & Hidden</option>
-                    <option value="1"<?=($sensorStatus == 1) ? $select : ""?>>Alarm On</option>
-                    <option name="hide" value="2"<?=($sensorStatus == 2) ? $select : ""?>>Never Alarmed</option>
-                    <option value="3"<?=($sensorStatus == 3) ? $select : ""?>>Alarm Off</option>
+                    <option value="0"<?=($sensorStatus == 0) ? $select : ""?>>InActive - Alarm Off</option>
+                    <option value="1"<?=($sensorStatus == 1) ? $select : ""?>>Active - Alarm On</option>
+                    <option value="2"<?=($sensorStatus == 2) ? $select : ""?>>Active - Never Alarmed </option>
+                    <option value="3"<?=($sensorStatus == 3) ? $select : ""?>>Active - Alarm Off</option>
                 </select>
-                <?php if ($sensorStatus == 2) echo("<input type='hidden' name='sensorStatus' value='2'>"); ?>
+               
             </label>
             <label for="xpos"><b>X-Position</b><br>
                 <input type="text" class="span2" style="height:30px" name="xpos" value="<?=$WebRefResult['PageLocX']?>" onkeyup="isNumeric(this.name)">
