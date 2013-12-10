@@ -149,6 +149,8 @@ if(isset($_POST['submitSensorMap'])){
           $result = $db -> fetchRow($query);
           $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config, AlarmUpLimit = :hiValue,
           AlarmLoLimit = :loValue, AlertPercent = :percent, AlarmTrigger = :trigger, SensorActive = :active, SensorAddress = :address, SensorModel = :model WHERE Recnum = " . $lastinsert;
+           echo("U0".$query);
+          
           $bind[':sysID'] = $_SESSION['SysID'];
           $bind[':DAMID'] = $result['DAMID'];
           $bind[':platformID'] = $result['PlatformID'];
@@ -168,6 +170,7 @@ if(isset($_POST['submitSensorMap'])){
         $bind[':address'] = $_POST[$addressValue];
         $bind[':model'] = $_POST[$modelValue];
         $db -> execute($query, $bind);
+         echo("U0".$query);
         //check and update BS0x
         if(!isset($lastinsert)) $lastinsert = $recnum['Recnum'];
         $query = "SELECT SensorType FROM SysMap WHERE Recnum = " . $lastinsert . " LIMIT 1";
@@ -182,6 +185,7 @@ if(isset($_POST['submitSensorMap'])){
                 $query = "UPDATE SysMap SET SensorAddress = :address, SensorActive = :active, SensorModel = :model
                         WHERE SysID = :sysID AND SensorColName LIKE 'bs%'";
                 $db -> execute($query,$bind);
+                echo("U1".$query);
             }else{
                 for($i=1;$i<8;$i++){
                     //duplicate row first then update
@@ -219,6 +223,8 @@ if(isset($_POST['submitSensorMap'])){
                     $query = "UPDATE SysMap SET SysID = :sysID, DAMID = :DAMID, PlatformID = :platformID, ConfigID = :config,
                     SensorModel = :model, SensorActive = :active, SensorAddress = :address WHERE Recnum = " . $lastinsert;
                     $db -> execute($query,$bind);
+                    
+                    echo("U2".$query);
                 }
             }
             $updateBS = true;

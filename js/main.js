@@ -32,6 +32,21 @@ $('.nav li a').each(function(){
   }
 });
 
+
+
+
+// Helper for accessing hidden file inputs through an better styled interface
+$('.file-hider .trigger').on('click', function(){
+    var cls = $(this).attr('data-input');
+     
+    $('.'+cls)
+        .on('change',function(){
+           $('.file-hider .filename').html( $(this).val().split('\\').pop() );
+        })
+        .click();
+    return false;
+});
+
 // Date Picker
 $('.datepick').datepick({
   dateFormat: 'yyyy-mm-dd',

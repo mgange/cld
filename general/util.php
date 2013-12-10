@@ -681,3 +681,131 @@ foreach ($PDList as $row) {
    echo $dropdown;
 
 }
+/**
+ * Check if an uploaded file is the corect type and move it into a storage
+ * directory
+ * same function as moveupload except filename is not renamed
+ * @param  string $fieldname   The id of the file input
+ * @param  string $storagePath The relative path to the storage directory
+ * @param  string $mimeType    Regex to match the acceptable mime type of an uploaded file
+ * @return string              The generated filename used to store the upload,
+ *                             or '0' in the event of an error.
+ */
+function moveUploadsame($fieldname, $storagePath, $mimeType)
+{
+    global $_URL;
+
+    if(isset($_FILES[$fieldname])) {
+        $tempname = $_FILES[$fieldname]['tmp_name'];
+        $filename = $_FILES[$fieldname]['name'];
+
+        switch($mimeType) {
+            case '/image\/.*/':
+                $typeName = 'image files';
+                break;
+
+            case '/application\/pdf/':
+                $typeName = 'PDF files';
+                break;
+        }
+
+        /* Make sure it looks like whatever file type you want */
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if( preg_match($mimeType, finfo_file($finfo, $tempname)) ) {
+        // if( preg_match($mimeType, mime_content_type($tempname)) ) {
+            
+            
+            
+            
+            $res = move_uploaded_file($tempname, $storagePath . $filename);
+           
+            if ($res) {echo("<font size='3' color='blue'><b>");
+                       echo("Upload Completed- Successfully");
+                       echo("</b></font>");
+                       
+                      }
+        }else{
+            session_flash('error', 'You may only upload ' . $typeName . '.');
+            $res = false;
+        }
+
+        if($res) {
+            return $filename;
+        }else{
+            return 0;
+        }
+    }
+}
+
+/**
+ * Check if an uploaded file is the corect type and move it into a storage
+ * directory
+ * @param  string $fieldname   The id of the file input
+ * @param  string $storagePath The relative path to the storage directory
+ * @param  string $mimeType    Regex to match the acceptable mime type of an uploaded file
+ * @return string              The generated filename used to store the upload,
+ *                             or '0' in the event of an error.
+ */
+function moveUpload($fieldname, $storagePath, $mimeType)
+{
+    global $_URL;
+echo("HERE");
+    if(isset($_FILES[$fieldname])) {
+        $tempname = $_FILES[$fieldname]['tmp_name'];
+        $filename = renameUpload($_FILES[$fieldname]['name']);
+
+        switch($mimeType) {
+            case '/image\/.*/':
+                $typeName = 'image files';
+                break;
+
+            case '/application\/pdf/':
+                $typeName = 'PDF files';
+                break;
+        }
+
+        /* Make sure it looks like whatever file type you want */
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if( preg_match($mimeType, finfo_file($finfo, $tempname)) ) {
+        // if( preg_match($mimeType, mime_content_type($tempname)) ) {
+            
+          
+            $res = move_uploaded_file($tempname, $storagePath . $filename);
+        }else{
+            session_flash('error', 'You may only upload ' . $typeName . '.');
+            $res = false;
+        }
+
+        if($res) {
+            return $filename;
+        }else{
+            return 0;
+        }
+    }
+}
+
+
+
+/**
+ * Create a unique file name for storing uploads.
+ * @param  string $filename The name of the uploaded file
+ * @return string           A unique name for storage
+ */
+function renameUpload($filename)
+{
+    $ext_pos = strpos($filename, '.');
+    $extension = substr($filename, $ext_pos);
+    $filename = substr($filename, 0, $ext_pos);
+    $name = time() . '-' . substr(md5($filename, 0), 0, 10) . $extension;
+
+    return $name;
+}
+/**
+ * Add elements to the Flash array
+ * @param  string $k Array key to be added to the session flash array
+ * @param  string $v Array value to be added to the session flash array
+ */
+function session_flash($k, $v)
+{
+    $_SESSION['Flash'][$k] = $v;
+}
