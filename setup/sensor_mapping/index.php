@@ -50,6 +50,7 @@ $query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName
 
 $sysMap = $db -> fetchAll($query);
 
+
 //$query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName,SensorUnits,SensorActive,SensorAddress,AlarmUpLimit,AlarmLoLimit,AlertPercent,AlarmTrigger
     //    FROM SysMap WHERE SensorColName NOT LIKE CONVERT( _utf8 'bs%' USING latin1 )
     //    AND SensorColName NOT LIKE CONVERT( _utf8 'thermstat%' USING latin1 )
@@ -65,6 +66,7 @@ $query = "SELECT Recnum,SysGroup,SensorModel,SensorName,SensorType,SensorColName
 
 
 $sysMapUnique = $db -> fetchAll($query);
+
 
 //require_once('../../includes/header.php');
 

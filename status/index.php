@@ -39,26 +39,6 @@ require_once('../includes/header.php');
           AND SystemConfig.SysID = " . $SysID;
     $sysDAMID = $db -> fetchRow($query);
     $SysConfig=$sysDAMID['Configuration'];
-    $openloop   = false;
-    $openloopdw = false;
-    $closedloop = false;
-    $FourthConfig= false;
-// selects which system diagram to display based on configuration
-   switch  ($SysConfig)
-   {
-    case 1:
-      $openloopdw=true;
-        break;
-    case 2:
-       $openloop=true;
-        break;
-    case 3:
-       $closedloop=true;
-        break;
-    case 4:
-       $FourthConfig=true;
-
-   }
 
 
 // zone is used to determine which sourcedata table from which to get the data
@@ -531,18 +511,27 @@ require_once('../includes/header.php');
 // code for system image selection here
       // heat mode is default need logic here to switch graphic between modes
       // mode controlled by digin03 from source 0 $ValA[32])
+ 
+ // add code to set configuration 
+       $query="Select * from SysConfigDefaults where ConfigSubGroup='Configuration' and AssignedValue=".$SysConfig;
+       $SelRow = $db -> fetchrow($query); 
+      
+       $ImgLoc="../status/image/";
+       $exchnimage=$ImgLoc.$SelRow['SysImage1'];
+       $Wellimage=$ImgLoc.$SelRow['LoopImage1'];
+       $LoopTop=$SelRow['LoopPosTop'];
+       $LoopLeft=$SelRow['LoopPosLeft'];   
+      
        if ($ValA[33]==1) {$exchangermode = 1;}
-       $exchnimage="../status/image/WebBackGroundHeatingMode.png";
-       $Wellimage="../status/image/WebOpenLoop.png";
-       $DryWellimage="../status/image/WebOpenLoopDryWell.png";
-       if (isset($exchangermode) && $exchangermode==1)
-       { // cooling mode needs to be image needs to be defined
-            $exchnimage="../status/image/WebBackGroundCoolingMode.png";
-            $Wellimage="../status/image/WebOpenLoopCooling.png";
-            $DryWellimage="../status/image/WebOpenLoopDryWellCooling.png";
-       }
-
-
+       if (isset($exchangermode) && $exchangermode==1)  {       
+         $exchnimage=$ImgLoc.$SelRow['SysImage2'];
+         $Wellimage=$ImgLoc.$SelRow['LoopImage2'];
+         }
+  
+        
+       
+       
+       
        $SizA[0]=1.2;
      //  $SizA[25]=2.0;
      //  $SizA[27]=0.5;
@@ -676,19 +665,13 @@ require_once('../includes/header.php');
 <!-- Page structure  - system image -->
             <div class="status-container span10 offset1">
 
-              <div class="status-Back map">
-               <img src="<?php echo $exchnimage ?>" alt="Heat Exchanger">
+               <div class="status-Back map">
+                   <img src="<?php echo $exchnimage ?>" alt="Heat Exchanger">
                 </div>
-                <div class="status-OpenLoop <?php if ($openloop != true) {echo "hidden";}?>">
+                <div class="status-OpenLoop" style="left: <?=$LoopLeft?>px; top: <?=$LoopTop?>px">
                     <img src="<?php echo $Wellimage ?>" alt="Open Loop ">
                 </div>
-                  <div class="status-OpenLoopDryWell <?php if ($openloopdw != true) {echo "hidden";}?>">
-
-                    <img src="<?php echo $DryWellimage ?>" alt="Open Loop Dry Well">
-                </div>
-                <div class="status-ClosedLoop <?php if ($closedloop != true) {echo "hidden";}?>">
-                    <img src="../status/image/WebClosedLoop.png" alt="Closed Loop">
-                </div>
+         
                 <?php
 
            // state colors

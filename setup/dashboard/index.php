@@ -80,11 +80,14 @@ require_once('../../includes/header.php');
         ?>
                 <p class="label-status" style="top:<?=$ypos-20?>px;left:<?=$xpos+5?>px;"><?=$label?></p>
                 <p class="value-status" style="top:<?=$ypos?>px;left:<?=$xpos?>px;line-height:1.2em">
+                   
+                  <?php if ($id != 0) { ?>
                     <a href="javascript:void(0);" class="icon-pencil" title="Edit"
                         onclick="window.open(
                             'edit.php?sys=<?=$systemID?><?=($rsm != 0) ? "&rsm=" . $rsm : ""?>&id=<?=$id?>',
                             'Popup','width=800,height=450,dependent=yes,0,status=0,resizable=1');">
                     </a>
+                  <?php } ?>
                 </p>
         <?php  
             }
