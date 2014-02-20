@@ -1,7 +1,9 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('max_execution_time', 40);
 /**
  *------------------------------------------------------------------------------
- * Data Download page
+ * Nightly Downloads Script
  *------------------------------------------------------------------------------
  *
  */
@@ -38,20 +40,22 @@ function makeName($arr)
 }
 
 
-require_once('../includes/pageStart.php');
+require_once('../config/config.php');
+require_once('../general/util.php');
 
 $db = new db($config);
 
-checkSystemSet($config);
+/**
+ * -12 to make sure it's yesterday. This should run at 12:01 AM, but just in case.
+ */
+$dump_date = date('Y-m-d', strtotime('-12 hours'));
 
-$SysID = $_SESSION['SysID'];
+$systems = $db->fetchAll('select SysID from SystemConfig where SysID = 4 limit 1');
+
+foreach($systems as $result_key => $result_value) {
+    $SysID = $result_value['SysID'];
 
 
-/* Get all of the saved download selections for the current system */
-$savedSetsQuery = 'SELECT * FROM SavedDownloads WHERE UserID = :UserID and SysID = :SysID';
-$savedSetsBind[':UserID'] = intval($_SESSION['userID']);
-$savedSetsBind[':SysID'] = intval($_SESSION['SysID']);
-$savedSets = $db->fetchAll($savedSetsQuery, $savedSetsBind);
 
 /**
  * We need to get the number of thermostats and the number of power meters for
@@ -138,19 +142,28 @@ foreach ($customs as $def) {
 }
 
 
-/*//////////////////////////////*/
-// die();
-/*//////////////////////////////*/
+/* Let's see what building we're looking at */
+$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
+$buildingName = str_replace(' ', '_', $buildingNames['SysName']);
+
+$numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
+$numRSM = $numRSM['NumofRSM'];
 
 
-////////////////////////////////////////////////////////////////////////////////
-/* Handle POST requests */
-if(count($_POST) > 0) {
-    /* Get the date range being downloaded and clean them out of the POST array */
-    $from = $_POST['from'];
-    $until = $_POST['until'];
-    unset($_POST['from']);
-    unset($_POST['until']);
+
+$sensor_names = array();
+foreach($sensors as $sensor) {
+    array_push($sensor_names, makeName($sensor));
+}
+
+
+if(count($sensor_names) > 0) {
+    /* 
+     * Set a 1 day date range. This is a holdover from duplicating the 
+     * datadownload script 
+     */
+    $from  = $dump_date;
+    $until = $dump_date;
 
     /* I need to declare these arrays before adding to them or PHP will yell at me  ;_;  */
     $tablesUsed = array();
@@ -160,13 +173,13 @@ if(count($_POST) > 0) {
      * Now we can add the distinct tables and table.col locations to their apropriate arrays
      * They'll be formatted as table_col_address, so we can split the on the _ character
      */
-    foreach($_POST as $key => $val) {
-        $place = explode('_', $key);
+    foreach($sensor_names as $key => $val) {
+        $place = explode('_', $val);
         if(!in_array($place[0], $tablesUsed)) {
             array_push($tablesUsed, $place[0]);
         }
         if(!in_array($place[0].'.'.$place[1], $cols)) {
-            $cols[$key] = pickTable($place[0]).'.'.$place[1];
+            $cols[$val] = pickTable($place[0]).'.'.$place[1];
         }
     }
 
@@ -218,12 +231,9 @@ if(count($_POST) > 0) {
 
 
     $data = array();
-    try{
-        $results = $db->fetchAll($query, $bind);
-    }catch(Exception $e) {
-        // Redirect to the DataDownload page with an error message if something goes wrong
-        die(header('Location: ./?a=e'));
-    }
+die(pprint($query));
+    $results = $db->fetchAll($query, $bind);
+
 
 foreach($results as $res) {
     if(!isset($data[$res['RowNumber']])) {
@@ -242,238 +252,53 @@ foreach($results as $res) {
     }
 }
 
-    header("Content-type: text/csv");
-    header("Cache-Control: no-store, no-cache");
-    header('Content-Disposition: attachment; filename="Download.csv"');
+    // header("Content-type: text/csv");
+    // header("Cache-Control: no-store, no-cache");
+    // header('Content-Disposition: attachment; filename="Download.csv"');
 
-    $outstream = fopen("php://output",'w');
+    // $outstream = fopen("php://output",'w');
+    // $outstream = fopen("php://output",'w');
+    $storage_dir = "../storage/$SysID";
+    if(!is_dir($storage_dir)) {
+        mkdir($storage_dir);
+    }
+    $outfile = $storage_dir . "/$dump_date.csv";
+    $file = fopen($outfile, 'w');
 
     $titles = array('Date', 'Time');
-    foreach($_POST as $k => $v) {
-        $title = $sensors[$k]['SensorName'] . '.' . $sensors[$k]['SourceID'];
-        if(preg_match('/Power0[0-9]{1}/', $k)) {
-            $title .= ' Addr. ' . $sensors[$k]['SensorAddress'];
-        }elseif(preg_match('/.*(ThermStat[0-9]{2}|ThermMode|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint).*/', $k)) {
-            $title .= ' Addr. ' . $sensors[$k]['SensorAddress'];
+    foreach($sensor_names as $k => $v) {
+        $title = $sensors[$v]['SensorName'] . '.' . $sensors[$v]['SourceID'];
+        if(preg_match('/Power0[0-9]{1}/', $v)) {
+            $title .= ' Addr. ' . $sensors[$v]['SensorAddress'];
+        }elseif(preg_match('/.*(ThermStat[0-9]{2}|ThermMode|BS[0-9]{2}|LCDTemp|HeatingSetPoint|CoolingSetPoint).*/', $v)) {
+            $title .= ' Addr. ' . $sensors[$v]['SensorAddress'];
         }
         array_push($titles, $title);
     }
-    fputcsv($outstream, $titles, ',', '"');
+    fputcsv($file, $titles, ',', '"');
 
     foreach($data as $d) {
         $row = array($d['Date'], $d['Time']);
-        foreach($_POST as $k => $v) {
-            array_push($row, $d[$k]);
+        foreach($sensor_names as $k => $v) {
+            array_push($row, $d[$v]);
         }
-        fputcsv($outstream, $row, ',', '"');
+        fputcsv($file, $row, ',', '"');
     }
+    fclose($file);
+echo "SysID $SysID Done.<br>";
 
-/*//////////////////////////////*/
-die();
-/*//////////////////////////////*/
-
-
-} // End of POST handling
-
-/* Let's see what building we're looking at */
-$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
-$buildingName = $buildingNames['SysName'];
-
-$numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $_SESSION['SysID']));
-$numRSM = $numRSM['NumofRSM'];
-
-require_once('../includes/header.php');
-?>
-        <h1 class="span10 offset1">
-            Data Download -
-            <span class="building-name">
-                <?php
-                    echo $buildingName;
-                ?>
-            </span>
-        </h1>
-        <form class="form-inline" action="./" method="POST">
-            <div class="row">
-                <div class="span4 offset2">
-                    <label class="span3">
-                        <h4 class="pull-left">From</h4>
-                        <input
-                            class="datepick text span3"
-                            type="text"
-                            name="from"
-                            value="<?php echo date('Y-m-d', strtotime('-1 day')); ?>"
-                        >
-                    </label>
-                </div>
-
-                <div class="span4">
-                    <label class="span3">
-                        <h4 class="pull-left">Until</h4>
-                        <input
-                            class="datepick text span3"
-                            type="text"
-                            name="until"
-                            value="<?php echo date('Y-m-d'); ?>"
-                        >
-                    </label>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="span10">
-                    <div class="row">
-                        <h3 class="span10">DAM</h3>
-<?php
-foreach($sensors as $sensor) {
-    if($sensor['SourceID'] == 0) { // SourceID of 0 indicates DAM
-?>
-                        <label class="span2 checkbox" style="margin-bottom: 14px;">
-                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
-                            <?=$sensor['SensorName']?>
-                        </label>
-<?php
-    }
 }
-?>
-                    </div>
 
+/**
+ * Take a break if the server is working on something.
+ */
+// while($sleeping = 1) {
+//     sleep(20);
+//     if($db->fetchAll('SHOW FULL PROCESSLIST') < 2) {
+//         $sleeping = 0;
+//     }
+// }
 
-<?php
-for ($i=1; $i <= $numRSM; $i++) {
-    $sid = $i;
-    if($i >= 4){$sid++;} // Since SourceID of 4 is reserved for the Modbus gateway we'll have to skip over it
+} // End of for loop
 ?>
-                    <div class="row">
-                        <h3 class="span10">RSM
-<?php
-    if($numRSM > 1 && $i > 1) {
-        echo ' - ' . $i;
-    }
-?>
-                        </h3>
-<?php
-    foreach($sensors as $name => $sensor) {
-        if($sensor['SourceID'] == $sid) {
-?>
-                        <label class="span2 checkbox" style="margin-bottom: 14px;">
-                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
-                            <?=$sensor['SensorName']?>
-                        </label>
-<?php
-        }
-    }
-?>
-                    </div>
-<?php
-}
-?>
-
-                    <div class="row">
-                        <h3 class="span10">Modbus</h3>
-<?php
-foreach($sensors as $name => $sensor) {
-    if($sensor['SourceID'] == 4) { // SourceID of 4 indicates Modbus Gateway
-?>
-                        <label class="span2 checkbox" style="margin-bottom: 14px;">
-                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
-                            <?php
-                                echo $sensor['SensorName'];
-                                if($sensor['SensorAddress'] != '' && $sensor['SensorAddress'] != 'NA') {
-                                    echo " <sup><em> Addr. ".$sensor['SensorAddress']."</em></sup>";
-                                }
-                            ?>
-                        </label>
-<?php
-    }
-}
-?>
-                    </div>
-
-                    <div class="row">
-                        <h3 class="span10">Sensor Calculations</h3>
-<?php
-foreach($sensors as $name => $sensor) {
-    if($sensor['SourceID'] == 99) { // SourceID of 99 indicates SensorCalc
-?>
-                        <label class="span2 checkbox" style="margin-bottom: 14px;">
-                            <input type="checkbox" name="<?php echo makeName($sensor); ?>">
-                            <?=$sensor['SensorName']?>
-                        </label>
-<?php
-    }
-}
-?>
-                    </div>
-
-                </div>
-
-                <div class="span2">
-                    <div class="row">
-
-                        <br>
-
-                        <div class="btn-group pull-right span2">
-                            <button class="check-all btn btn-mini"><i class="icon-ok-circle"></i> Check All</button>
-                            <button class="uncheck-all btn btn-mini"><i class="icon-remove-circle"></i> Uncheck All</button>
-                        </div>
-
-                        <br><br>
-
-                        <h4 class="span2">Saved Downloads</h4>
-                        <div class="saved-set-list span2">
-<?php
-foreach($savedSets as $key => $set) {
-?>
-                        <div class="span2">
-                            <a class="delete-saved-set close" href="delete.php?id=<?php echo $set['Recnum'] ?>">&times;</a>
-                            <a class="saved-set" href="#<?php echo $key; ?>"><?php echo $set['Name']; ?></a>
-                        </div>
-<?php
-}
-?>
-                        </div>
-                        <div class="clearfix">
-                            <br>
-                            <button class="save-download-set btn btn-mini span2">Save Current Selection</button>
-                        </div>
-                    </div>
-
-                    <br><hr><br>
-
-                    <div class="row dump-toggle">
-                        <div class="span2">
-                            <h4>Nightly Reports</h4>
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox">
-                                    Enabled
-                                </label>
-                            </div>
-                            <p>
-                                <a href="#">Download reports</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <button class="btn btn-large btn-info span6 offset3">
-                    Download
-                </button>
-            </div>
-        </form>
-        <script>
-            var SavedSets =
-            [<?php
-            $i = 1;
-            foreach($savedSets as $set){
-            echo '[' . $set['Fields'] .']';
-            if($i < count($savedSets)){echo',';}
-            $i++;
-            }
-            ?>]
-        </script>
-<?php
-require_once('../includes/footer.php');
-?>
+~fin~
