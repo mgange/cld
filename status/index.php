@@ -13,8 +13,7 @@
 require_once('../includes/pageStart.php');
 // Finds configuration information
 checkSystemSet($config);
-// sets page Header
-require_once('../includes/header.php');
+
 // Time function
     $now = "'" . date('Y-m-d', strtotime('-1 hour')) . "'";
     $dateTimeOffset = 5;
@@ -665,6 +664,8 @@ require_once('../includes/header.php');
       return $FormValue;
    }
 
+// sets page Header
+require_once('../includes/header.php');
 
        ?>
 <!-- Page structure  - define navigation arrows -->
