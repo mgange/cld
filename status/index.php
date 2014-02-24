@@ -1,4 +1,4 @@
-<?php
+<?php ini_set('max_execution_time', 60);
 /**
  *------------------------------------------------------------------------------
  * Status Index Page
@@ -58,6 +58,27 @@ require_once('../includes/header.php');
           $zone = 5;
           break;
       }
+    }
+
+    if(isset($_POST['jump-date']) && isset($_POST['jump-time'])) {
+        $query = "SELECT Recnum
+                  FROM SourceHeader
+                  WHERE SysID = :SysID
+                    AND DateStamp = :date
+                    AND TimeStamp >= :time
+                  LIMIT 1";
+        $bind = array(
+            ':SysID' => $SysID,
+            ':date' => date('Y-m-d', strtotime($_POST['jump-date'])),
+            ':time' => date('H:i:s', strtotime($_POST['jump-date'].' '.$_POST['jump-time']))
+        );
+
+        $pointer = $db->fetchRow($query, $bind);
+        if(count($pointer) && isset($pointer['Recnum'])) {
+            header('Location: ./?id='.$pointer['Recnum']);
+        }else{
+            header('Location: ./');
+        }
     }
 
     if(isset($_GET['id'])){
@@ -649,7 +670,7 @@ require_once('../includes/header.php');
 <!-- Page structure  - define navigation arrows -->
         <div class="row">
            <h1 class="span6 offset2">Status - <span class="building-name">System - <?php  echo $SysName." - ".$SysZone ?></span></h1>
-            <p style="text-align:center"><?php
+            <p class="span4" style="text-align:center"><?php
               if(isset($zone)){
                 echo (isset($prev)) ? "<a href=\"./?id=" . $prev . "&z=" . $zone . "\"><img src=\"../img/backArrow.jpg\" /></a>&nbsp;" : "&nbsp;&nbsp;";
                 echo (isset($next)) ? "<a href=\"./?id=" . $next . "&z=" . $zone . "\"><img src=\"../img/forwardArrow.jpg\" /></a>" : "";
@@ -660,6 +681,26 @@ require_once('../includes/header.php');
             ?>
           </p>
         </div>
+
+        <div class="row">
+            <h4 class="span2 offset3 align-right">Jump to: </h4>
+            <div class="span7">
+                <form method="POST">
+                <small>
+                <label class="span2" for="date"><strong>Date</strong>
+                    <input id="date" class="datepick span2" type="text" name="jump-date" value="<?=date('Y-m-d', strtotime($sysStatus0['DateStamp']))?>">
+                </label>
+                <label class="span2" for="time"><strong>Time</strong>
+                    <input id="time" class="timepick span2" type="text" name="jump-time" value="<?=date('H:i A', strtotime($sysStatus0['TimeStamp']))?>" autocomplete="off">
+                </label>
+                <label class="span2" for="time"><br>
+                    <button class="btn" type="submit">Go!!</button>
+                </label>
+                </small>
+                </form>
+            </div>
+        </div>
+
        <div class="row">
 
 <!-- Page structure  - system image -->
