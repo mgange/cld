@@ -1,6 +1,22 @@
 <?php
 ini_set('display_errors', 1);
-ini_set('max_execution_time', 40);
+ini_set('max_execution_time', 20);
+function termout($msg, $color='cyan')
+{
+	if(php_sapi_name() == "cli") {
+		$colors = array(
+			'red'     =>"\033[0;31m",
+			'green'   =>"\033[0;32m",
+			'yellow'  =>"\033[0;33m",
+			'blue'    =>"\033[0;34m",
+			'magenta' =>"\033[0;35m",
+			'cyan'    =>"\033[0;36m",
+		);
+		echo $colors[$color].$msg."\033[0m\n";
+	}else{
+		echo "<p style='font-family:monospace;white-space:pre;'>$msg</p>";
+	}
+}
 /**
  *------------------------------------------------------------------------------
  * Nightly Downloads Script
@@ -54,7 +70,7 @@ $systems = $db->fetchAll('select SysID from SystemConfig where SysID = 4 limit 1
 
 foreach($systems as $result_key => $result_value) {
     $SysID = $result_value['SysID'];
-
+    termout("Outputting report for System #$SysID ...");
 
 
 /**
@@ -252,12 +268,8 @@ foreach($results as $res) {
     }
 }
 
-    // header("Content-type: text/csv");
-    // header("Cache-Control: no-store, no-cache");
-    // header('Content-Disposition: attachment; filename="Download.csv"');
+    try{
 
-    // $outstream = fopen("php://output",'w');
-    // $outstream = fopen("php://output",'w');
     $storage_dir = "../storage/$SysID";
     if(!is_dir($storage_dir)) {
         mkdir($storage_dir);
@@ -285,20 +297,29 @@ foreach($results as $res) {
         fputcsv($file, $row, ',', '"');
     }
     fclose($file);
-echo "SysID $SysID Done.<br>";
+    termout("OK\n", 'green');
+
+    }catch(Exception $e){
+        termout('ERROR', 'red');
+        print_r($e);
+    }
 
 }
 
 /**
  * Take a break if the server is working on something.
  */
-// while($sleeping = 1) {
-//     sleep(20);
-//     if($db->fetchAll('SHOW FULL PROCESSLIST') < 2) {
-//         $sleeping = 0;
-//     }
-// }
+$sleeping = 1;
+while($sleeping == 1) {
+    sleep(1);
+    $jobs = $db->fetchAll('SHOW FULL PROCESSLIST');
+    if(count($jobs) < 3) {
+        $sleeping = 0;
+    }else{
+        termout("Waiting for ".count($jobs)." queries.\n", "yellow");
+    }
+}
 
 } // End of for loop
+termout('DONE');
 ?>
-~fin~
