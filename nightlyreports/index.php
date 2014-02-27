@@ -1,6 +1,13 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('max_execution_time', 20);
+/**
+ *------------------------------------------------------------------------------
+ * Nightly Downloads Script
+ *------------------------------------------------------------------------------
+ *
+ */
+
+ini_set('max_execution_time', 0);
+
 function termout($msg, $color='cyan')
 {
 	if(php_sapi_name() == "cli") {
@@ -17,12 +24,6 @@ function termout($msg, $color='cyan')
 		echo "<p style='font-family:monospace;white-space:pre;'>$msg</p>";
 	}
 }
-/**
- *------------------------------------------------------------------------------
- * Nightly Downloads Script
- *------------------------------------------------------------------------------
- *
- */
 
 function sourceName($SourceID)
 {
@@ -66,12 +67,19 @@ $db = new db($config);
  */
 $dump_date = date('Y-m-d', strtotime('-12 hours'));
 
-$systems = $db->fetchAll('select SysID from SystemConfig where SysID = 4 limit 1');
+$systems = $db->fetchAll('select SysID from SystemConfig where NightlyReports = 1');
 
 foreach($systems as $result_key => $result_value) {
     $SysID = $result_value['SysID'];
-    termout("Outputting report for System #$SysID ...");
 
+    $buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
+    $buildingName = $buildingNames['SysName'];
+
+    $numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
+    $numRSM = $numRSM['NumofRSM'];
+
+
+    termout("Outputting report for System #$SysID ($buildingName) ...");
 
 /**
  * We need to get the number of thermostats and the number of power meters for
@@ -157,28 +165,27 @@ foreach ($customs as $def) {
     }
 }
 
+if($numRSM < 1) {
+    foreach($sensors as $key => $sensor) {
+        if($sensor['SourceID'] == 1) {
+            unset($sensors[$key]);
+        }
+    }
+}
 
-/* Let's see what building we're looking at */
-$buildingNames = $db -> fetchRow('SELECT SysName FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
-$buildingName = str_replace(' ', '_', $buildingNames['SysName']);
-
-$numRSM = $db -> fetchRow('SELECT NumofRSM FROM SystemConfig WHERE SysID = :SysID', array(':SysID' => $SysID));
-$numRSM = $numRSM['NumofRSM'];
-
-
+/*//////////////////////////////*/
+// die();
+/*//////////////////////////////*/
 
 $sensor_names = array();
 foreach($sensors as $sensor) {
     array_push($sensor_names, makeName($sensor));
 }
-
-
+////////////////////////////////////////////////////////////////////////////////
+/* Output Reports */
 if(count($sensor_names) > 0) {
-    /* 
-     * Set a 1 day date range. This is a holdover from duplicating the 
-     * datadownload script 
-     */
-    $from  = $dump_date;
+    /* Set the date range being downloaded */
+    $from = $dump_date;
     $until = $dump_date;
 
     /* I need to declare these arrays before adding to them or PHP will yell at me  ;_;  */
@@ -189,13 +196,13 @@ if(count($sensor_names) > 0) {
      * Now we can add the distinct tables and table.col locations to their apropriate arrays
      * They'll be formatted as table_col_address, so we can split the on the _ character
      */
-    foreach($sensor_names as $key => $val) {
-        $place = explode('_', $val);
+    foreach($sensors as $key => $val) {
+        $place = explode('_', $key);
         if(!in_array($place[0], $tablesUsed)) {
             array_push($tablesUsed, $place[0]);
         }
         if(!in_array($place[0].'.'.$place[1], $cols)) {
-            $cols[$val] = pickTable($place[0]).'.'.$place[1];
+            $cols[$key] = pickTable($place[0]).'.'.$place[1];
         }
     }
 
@@ -247,9 +254,12 @@ if(count($sensor_names) > 0) {
 
 
     $data = array();
-die(pprint($query));
-    $results = $db->fetchAll($query, $bind);
-
+    try{
+        $results = $db->fetchAll($query, $bind);
+    }catch(Exception $e) {
+        // Redirect to the DataDownload page with an error message if something goes wrong
+        die(header('Location: ./?a=e'));
+    }
 
 foreach($results as $res) {
     if(!isset($data[$res['RowNumber']])) {
