@@ -46,6 +46,38 @@ checkSystemSet($config);
 
 $SysID = $_SESSION['SysID'];
 
+if(isset($_GET['nr-form'])) {
+    if(isset($_GET['nr-enabled']) && $_GET['nr-enabled'] == 1) {
+        $val = 1;
+    }else{
+        $val = 0;
+    }
+
+    $q = 'UPDATE SystemConfig SET NightlyReports = :val WHERE SysID = :SysID LIMIT 1';
+    $b = array(
+        ':val'   => $val,
+        ':SysID' => $SysID
+    );
+    $db->execute($q, $b);
+
+    die(header('Location: ./#nr'));
+}
+
+if(isset($_GET['nr']) && isset($_GET['date'])) {
+    // download file
+    $file = $_GET['date'];
+    header("Content-type: text/csv");
+    header("Cache-Control: no-store, no-cache");
+    header('Content-Disposition: attachment; filename="'.$file.'.csv"');
+
+    // $outstream = fopen("php://output",'w');
+    readfile("../storage/$SysID/$file.csv");
+
+    exit;
+}
+
+$reporting = $db->fetchRow('SELECT NightlyReports FROM SystemConfig WHERE SysID = :SysID', array(':SysID'=>$SysID));
+$reporting = $reporting['NightlyReports'];
 
 /* Get all of the saved download selections for the current system */
 $savedSetsQuery = 'SELECT * FROM SavedDownloads WHERE UserID = :UserID and SysID = :SysID';
@@ -322,7 +354,7 @@ require_once('../includes/header.php');
             <div class="row">
                 <div class="span10">
                     <div class="row">
-                        <h3 class="span10">DAM</h3>
+                        <h4 class="span10">DAM</h4>
 <?php
 foreach($sensors as $sensor) {
     if($sensor['SourceID'] == 0) { // SourceID of 0 indicates DAM
@@ -344,13 +376,13 @@ for ($i=1; $i <= $numRSM; $i++) {
     if($i >= 4){$sid++;} // Since SourceID of 4 is reserved for the Modbus gateway we'll have to skip over it
 ?>
                     <div class="row">
-                        <h3 class="span10">RSM
+                        <h4 class="span10">RSM
 <?php
     if($numRSM > 1 && $i > 1) {
         echo ' - ' . $i;
     }
 ?>
-                        </h3>
+                        </h4>
 <?php
     foreach($sensors as $name => $sensor) {
         if($sensor['SourceID'] == $sid) {
@@ -369,7 +401,7 @@ for ($i=1; $i <= $numRSM; $i++) {
 ?>
 
                     <div class="row">
-                        <h3 class="span10">Modbus</h3>
+                        <h4 class="span10">Modbus</h4>
 <?php
 foreach($sensors as $name => $sensor) {
     if($sensor['SourceID'] == 4) { // SourceID of 4 indicates Modbus Gateway
@@ -390,7 +422,7 @@ foreach($sensors as $name => $sensor) {
                     </div>
 
                     <div class="row">
-                        <h3 class="span10">Sensor Calculations</h3>
+                        <h4 class="span10">Sensor Calculations</h4>
 <?php
 foreach($sensors as $name => $sensor) {
     if($sensor['SourceID'] == 99) { // SourceID of 99 indicates SensorCalc
@@ -440,20 +472,6 @@ foreach($savedSets as $key => $set) {
 
                     <br><hr><br>
 
-                    <div class="row dump-toggle">
-                        <div class="span2">
-                            <h4>Nightly Reports</h4>
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox">
-                                    Enabled
-                                </label>
-                            </div>
-                            <p>
-                                <a href="#">Download reports</a>
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -474,6 +492,40 @@ foreach($savedSets as $key => $set) {
             }
             ?>]
         </script>
+
+        <br>
+        <hr>
+        <br>
+
+
+        <div class="row">
+            <h2 class="span10" id="nr">Nightly Reports</h2>
+            <div class="span2">
+                <br>
+                <form method="GET">
+                <label class="checkbox">
+                    <strong>Enabled</strong>
+                    <input type="checkbox" name="nr-enabled" value="1" onchange="this.form.submit()"
+                    <? if($reporting){echo "checked";} ?>
+                    >
+                    <input type="hidden" name="nr-form">
+                </label>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <?foreach (glob("../storage/".$SysID."/*.csv") as $filename) {
+                $file = str_replace("../storage/".$SysID."/", "", $filename);
+                $file = str_replace(".csv", "", $file);
+                $parts = explode("-", $file);
+                $name = date('d F, Y', mktime(0, 0, 0, $parts[1], $parts[2], $parts[0]));
+                ?>
+                <a class="span3" href="./?nr&date=<?=$file?>"><?=$name?></a>
+            <?}?>
+        </div>
+
+        <br>
+        <br>
 <?php
 require_once('../includes/footer.php');
 ?>
