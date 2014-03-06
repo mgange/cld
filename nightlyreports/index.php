@@ -6,6 +6,10 @@
  *
  */
 
+if(php_sapi_name() !== "cli") {
+    die(header("HTTP/1.0 404 Not Found"));
+}
+
 ini_set('max_execution_time', 0);
 
 function termout($msg, $color='cyan')
