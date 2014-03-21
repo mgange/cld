@@ -61,8 +61,10 @@ function makeName($arr)
 }
 
 
-require_once('../config/config.php');
-require_once('../general/util.php');
+require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../general/util.php');
+
+date_default_timezone_set($config['time_zone']);
 
 $db = new db($config);
 
