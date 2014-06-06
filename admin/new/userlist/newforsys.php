@@ -12,7 +12,13 @@ $db = new db($config);
 if($_SESSION['authLevel'] < 3) {
     gtfo($config);
 }
+if (isset($_GET['BldID']))  {
+     $PBuildingID=$_GET['BldID'];
+} else { // header('Location: ../../?a=e'); //a = Alert  e = error(generic) }
+}
 
+//echo("count".count($_POST));
+//pprint($_POST);
 if(count($_POST) > 0) {
     // Check that the username isn't taken and meets the minimum length req.
     $query = 'SELECT username FROM users WHERE username = :username';
@@ -34,13 +40,33 @@ if(count($_POST) > 0) {
         $bind[':authLevel'] = $_POST['authLevel'];
 
         if($db -> execute($query, $bind)) {
-            header('Location: ../../?a=s'); //a = Alert  s = Success(generic)
+            //header('Location: ../../?a=s'); //a = Alert  s = Success(generic)
+         
+         // find new userid   //
+         $query="select userID from users where username='".$_POST['username']."'";
+         $FindID=$db ->fetchRow($query);
+         
+       
+          // now insert into alarms_permissions table  
+          $query = "INSERT INTO Alarm_Permissions (UserID, BuildingID, BuildAuthLevel)
+            VALUES(".$FindID['userID'].",". $PBuildingID.",". $_POST['authLevel'].")"; 
+
+         $Gos=$db -> execute($query);  
+      
+
+        if ($Gos==1) {
+         echo("<h3><font color='blue'><b>User has been successfully added to this system</b></font></h3>");
+                 
+            
         }else{
-            header('Location: ../../?a=e'); //a = Alert  e = error(generic)
+          //  header('Location: ../../?a=e'); //a = Alert  e = error(generic)
+            
+            echo("<h3/><font color='red'/><b/>Error the new site user was not added to this system");
         }
 
-        die(require_once('../../../includes/footer.php'));
+        
     }
+  }
 }
 
 
@@ -58,11 +84,11 @@ $customers = $db -> fetchAll($query);
             </div>
         </div>
 
-        <form class="validate" action="./" method="POST">
+        <form class="validate" action="newforsys.php?BldID=<?=$PBuildingID?>" method="POST">
             <div class="row">
                 <div class="span6">
-                    <label for="customerID">Customer Account
-                        <select id="customerID" class="span6" name="customerID">
+                    <label for="customerID">Primary Customer Account
+                        <select id="customerID" readonly class="span6" name="customerID">
 <?php
 foreach($customers as $cust) {
 ?>
@@ -77,7 +103,7 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
 }
 ?>
                         </select>
-                        </select>
+                        
                     </label>
                 </div>
                 <div class="span6">
@@ -106,9 +132,8 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
                     <label for="authLevel">Authorization Level
                         <select id="authLevel" class="span6" name="authLevel">
                             <option value="1">User</option>
-                          <!--  <option value="2">Manager</option>  removed 12/26/13 now defined only in 
-                                                                    alarm _permissions table  -->        
-                            <option value="3">Administrator</option>
+                            <option value="2">Manager</option>
+                          
                         </select>
                     </label>
                 </div>

@@ -47,7 +47,7 @@ $_SESSION['LType']=$LType;
 $PostFlag=false;
 $PostLtype="";
 
-
+$Pmode="";
 
 
 if ($_POST) {
@@ -216,7 +216,7 @@ if ($Precnum[$i]!="")
 
                              <?php
                                  $form = "HardwareSystem";
-                          //       $_SESSION['LType'] = "Hardware System";
+                                $_SESSION['LType'] = "HardwareSystem";
                                 // $_POST['Submit1'] = "";
                                  include('Lists/index.php');
                              ?>
@@ -252,7 +252,7 @@ if ($Precnum[$i]!="")
 
                                 <?php
                                    $form = "HardwareSensor";
-                         //          $_SESSION['LType'] = "Hardware Sensor";
+                                $_SESSION['LType'] = "HardwareSensor";
                                  //   $_POST['Submit1'] = "";
                                    include('Lists/index.php');
                                 ?>
@@ -291,7 +291,7 @@ if ($Precnum[$i]!="")
 
                                <?php
                                   $form = "SystemParameter";
-                             //     $_SESSION['LType'] = "System Parameter";
+                                  $_SESSION['LType'] = "SystemParameter";
                                  // $_POST['Submit1'] = "";
                                   include('Lists/index.php');
                                ?>

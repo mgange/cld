@@ -9357,3 +9357,4 @@ li.ui-timepicker-selected .ui-timepicker-duration,
 .affix {
   position: fixed;
 }
+.hidden { display: none;}
