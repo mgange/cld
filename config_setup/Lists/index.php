@@ -1,3 +1,4 @@
+
 <?php
 /**
  *------------------------------------------------------------------------------
@@ -73,7 +74,7 @@ $LType=$_SESSION['LType'];
 <table class="table table-bordered span12 background-color:blue" style="border: 4px ">
    <tr>
        <th><p class="span2"><h4 style="width:160px">Sub Group</h4></p></th>
-       <th><p class="span5"><h4>Name</h4></p></th>
+       <th><p class="span5"><h4>Name/Model</h4></p></th>
 
       <?php if ($LType=="HardwareSensor") { echo("<th><p class='span2'><h4>Adjust Factor</h4></p></th>");} ?>
       <th><p class="span2"><h4>Value</h4></p></th>
@@ -106,18 +107,41 @@ for ($i=0;$i<$NumUprec;$i++)
     <?php if ($LType=="HardwareSensor") {
              echo("<td> <p class='span2' style='margin-top:10px;text-align:absolute'><input class='span2' size='45' type='text' style='max-width:100%' name='adj".$i."' value=".$Padj[$i]."></p></td>");
        } else { echo("<input type='hidden' name='adj".$i."' value='".$Padj[$i]."'>");}
-      ?>
-
-
-
-    <td>
-        
+      ?> 
+    
+    
+    
+    
+    
+      
+       <td> 
          <?php if ($_POST) {
            if($errflag[$i][3]==1) {echo("<font color=red><b>Field must not be left blank</b></font>");}
          if($errflag[$i][3]==2) {echo("<font color=red><b>Field must have a unique value</b></font>");} } ?>
         <p class="span2" style="margin-top:10px;text-align:absolute"><input Readonly class="span2" size="45" type="text" style="max-width:100%" name="value<?=$i?>" value="<?=$Pvalue[$i]?>"></p></td>
-
+       </td>
+      <?php 
+       if ($LType=="SystemParameter") {
+           if ($Psubgrp[$i]=="Configuration")  {
+              echo("<td>");
+              echo("<div class='span1 align-center'>");
+              echo("<a class='btn btn-small' href='sysimage/sysimage.php?id=".$Precnum[$i]."&type=Image' target='_parent'>");
+             // echo("<button onclick('openWin()')");
+           //   echo("<button class='btn btn-small' onclick='openWin()'>");
+              echo("  <i class='icon-upload'></i> System Images</a>");
+              echo("</div>");
+              echo("</td>"); 
+            } else  echo("<td>-</td>");
+       } 
+       ?>
+       
 </tr>
+
+
+
+
+
+
 
    <input type="hidden" name="recnum<?=$i?>" value="<?=$Precnum[$i]?>">
 
@@ -156,8 +180,14 @@ for ($i=0;$i<$NumUprec;$i++)
 
 
     <td>    <p class="span2" style="margin-top:10px;text-align:absolute"><input  class="span2" size="45" type="text" style="max-width:100%" name="value<?=$i+$j?>" value="<?=$Pvalue[$j+$i]?>"></p></td>
-
+ 
    </tr>
+  
+   
+    
+   
+   
+   
              <input type='hidden' name='recnum<?=($i+$j)?>' value=''>
 <?php     } ?>
 

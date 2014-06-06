@@ -106,8 +106,7 @@ if(isset($_GET['id']) && intval($_GET['id']) == $cust['customerID']) {
                     <label for="authLevel">Authorization Level
                         <select id="authLevel" class="span6" name="authLevel">
                             <option value="1">User</option>
-                          <!--  <option value="2">Manager</option>  removed 12/26/13 now defined only in 
-                                                                    alarm _permissions table  -->        
+                            <option value="2">Manager</option>
                             <option value="3">Administrator</option>
                         </select>
                     </label>
