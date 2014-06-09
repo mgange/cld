@@ -143,6 +143,8 @@ foreach($customers as $cust) {
              <div class="row">
                  <?php  
                         foreach($buildings as $building) {
+                            
+                        $PBuildingID = 0;
        
                         if($building['CustomerID'] == $cust['customerID']) {
                                 $PBuildingID=$building['buildingID'];
