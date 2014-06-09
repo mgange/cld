@@ -221,9 +221,9 @@ foreach($customers as $cust) {
                                    }
                                    
                             If ($user['MaintenanceAlarms']==1) {                             
-                            echo("<input type='checkbox' name='checkMA".$i."' value='1' checked><b><font color='#888888'> Maintenance </font> </b>");
+                            echo("<input type='checkbox' name='checkMA".$i."' value='1' checked><b> Maintenance </b>");
                             } else {                                
-                            echo("<input type='checkbox' name='checkMA".$i."' value='0'><b><font color='#888888'> Maintenance </font></b>");
+                            echo("<input type='checkbox' name='checkMA".$i."' value='0'><b> Maintenance </b>");
                                    }
                            
                                    
