@@ -286,6 +286,7 @@ if($_SESSION['authLevel'] >= 2) {
    
        </div>  <!-- Accordion Inner -->
       </div>  
+    </div>
    
 <?php    
 }    // close for customer loop
