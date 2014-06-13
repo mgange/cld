@@ -80,7 +80,7 @@ if (isset($_POST['ManClr']))  {
                     }
                     if($_GET['by'] == "asc") $arrow = "&uarr;";
                     else $arrow = "&darr;";
-                }else $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID . "ORDER BY TimeStamp_Start DESC";
+                }else $query = "SELECT * FROM Alarms_Active WHERE WebEnabled = 1 AND SysID = " . $SysID . " ORDER BY TimeStamp_Start DESC";
                 $results = $db -> fetchAll($query);
             if(!empty($results)){ 
         ?>
