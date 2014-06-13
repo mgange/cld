@@ -92,6 +92,7 @@ if($_SESSION['authLevel'] > 2) {
 <div id="accordion">
 <?php
 foreach($customers as $cust) {
+  $PBuildingID = -1;
 ?>
         <div class="accordion-group">
             <div class="accordion-heading">
@@ -143,8 +144,6 @@ foreach($customers as $cust) {
              <div class="row">
                  <?php
                         foreach($buildings as $building) {
-
-                        $PBuildingID = 0;
 
                         if($building['CustomerID'] == $cust['customerID']) {
                                 $PBuildingID=$building['buildingID'];
