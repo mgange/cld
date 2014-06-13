@@ -30,17 +30,17 @@ $numRec=0;
 $SOK=0;
 
 if (count($_POST)>0) {
-  
-$numRec=$_POST['numRec'];  
+
+$numRec=$_POST['numRec'];
 for ($i=0;$i<$numRec;$i++) {
  $bind[':checkAD']   =(isset($_POST['checkAD'.$i]))?1:0;
- $bind[':checkMA']   =(isset($_POST['checkMA'.$i]))?1:0;  
- $bind[':checkOP']   =(isset($_POST['checkOP'.$i]))?1:0;  
- $bind[':Recnum']    =$_POST['Recnum'.$i];     
-    
+ $bind[':checkMA']   =(isset($_POST['checkMA'.$i]))?1:0;
+ $bind[':checkOP']   =(isset($_POST['checkOP'.$i]))?1:0;
+ $bind[':Recnum']    =$_POST['Recnum'.$i];
+
   $upquery="update Alarm_Permissions set SystemAlarms=:checkOP, AdminAlarms=:checkAD,
             MaintenanceAlarms=:checkMA where Recnum=:Recnum";
-  
+
   //echo($upquery);
     $SOK=$db-> execute($upquery,$bind);
 
@@ -122,41 +122,41 @@ foreach($customers as $cust) {
                     </div>
                     <br><br>
 <!-- Header row -->
-                   
+
                     <div class="row">
                         <div class="span3">
                             <h4>Buildings</h4>
-                            
-                        </div>  
+
+                        </div>
                         <div class="span3">
                             <h4>Users</h4>
-                            
-                        </div>   
+
+                        </div>
                         <div class="span5">
                             <h4>Alarms</h4>
-                            
-                        </div>  
+
+                        </div>
                     </div>
 
   <!-- Buildings row -->
-                  
+
              <div class="row">
-                 <?php  
+                 <?php
                         foreach($buildings as $building) {
-                            
+
                         $PBuildingID = 0;
-       
+
                         if($building['CustomerID'] == $cust['customerID']) {
                                 $PBuildingID=$building['buildingID'];
-                                  
+
                    ?>
-                    <div class="span3 align-left"><p><?php echo $building['buildingName']; ?></p><!--</div>-->
-                 <?php 
-                            } 
-                       }    
-                 ?>  
-                    
-                    
+                    <div class="span3 align-left"><p><?php echo $building['buildingName']; ?></p></div>
+                 <?php
+                            }
+                       }
+                 ?>
+
+
       <?php
             if($_SESSION['authLevel'] == 3) {   ?>
                         <div class="span3">
@@ -167,30 +167,30 @@ foreach($customers as $cust) {
                             </a>
                         </div>
       <?php }  ?>
-                   </div> <!-- end of building division -->
-                    
+             </div> <!-- end of building division -->
+
               <div class="span8">
-                 
+
                 <?php
-                
+
                    $query = "SELECT * FROM Alarm_Permissions join users
                              on users.userID=Alarm_Permissions.UserID".
                         " where Alarm_Permissions.BuildingID=".$PBuildingID."  and users.active = 1";
-                     // echo($query);  
+                     // echo($query);
                       $users = $db -> fetchAll($query);
                       $i=0;
-    
+
                        foreach($users as $user) {
-                       
-                      
+
+
                        //  if($user["customerID'] == $cust['customerID']) {
-                            
+
                  ?>          <span class='span3 align-left'>
-                              <a href="new/userlist/profile.php?id=<?php echo $user['userID']."&BldID=".$PBuildingID; ?>"> 
+                              <a href="new/userlist/profile.php?id=<?php echo $user['userID']."&BldID=".$PBuildingID; ?>">
                                     <?php
                                 echo ($user['firstName'].' '.$user['lastName']);
-                                  ?> 
-                            
+                                  ?>
+
                             </a>
                  <?php
                      if($user['BuildAuthLevel'] == 2) {
@@ -202,98 +202,97 @@ foreach($customers as $cust) {
                                 <span class="label label-important">Site Admin</span><?php
                             }
                        ?>
-                            </span> 
-                  
-                <form  id="Alarm" method="POST" action="./#collapse<?php echo $cust['customerID']; ?>">  
-                  <span class="span4 align-left"> 
-                       <?php  
-                       
-                            If ($user['AdminAlarms']==1) {                             
+                            </span>
+
+                <form  id="Alarm" method="POST" action="./#collapse<?php echo $cust['customerID']; ?>">
+                  <div class="span4 align-left">
+                       <?php
+
+                            If ($user['AdminAlarms']==1) {
                             echo("<input type='checkbox' name='checkAD".$i."' value='1' checked><b> Administration </b>");
-                            } else {                                
+                            } else {
                             echo("<input type='checkbox' name='checkAD".$i."' value='0'><b> Administration </b>");
                                    }
-                       
-                       
-                       
-                            If ($user['SystemAlarms']==1) {                             
+
+
+
+                            If ($user['SystemAlarms']==1) {
                             echo("<input type='checkbox' name='checkOP".$i."' value='1' checked><b> Operational </b>");
-                            } else {                                
+                            } else {
                             echo("<input type='checkbox' name='checkOP".$i."' value='0'><b> Operational </b>");
                                    }
-                                   
-                            If ($user['MaintenanceAlarms']==1) {                             
+
+                            If ($user['MaintenanceAlarms']==1) {
                             echo("<input type='checkbox' name='checkMA".$i."' value='1' checked><b> Maintenance </b>");
-                            } else {                                
+                            } else {
                             echo("<input type='checkbox' name='checkMA".$i."' value='0'><b> Maintenance </b>");
                                    }
-                           
-                                   
+
+
                             echo("<input type='hidden' name='Recnum".$i."' value='".$user['Recnum']."'>");
-                                     
-                     ?>       
-                  </span>                                                     
-                                
-                  <BR>          
-                                
-                                
-                         
+
+                     ?>
+                  </div>
+
+                  <BR>
+
+
+
                        <!--</div> -->
                <?php    $i=$i+1;
-                        echo("<input type='hidden' name='numRec' value='".$i."'>"); 
-                    }                
-   
-                      ?>    
-                    
-                              
-             
-              
-  
+                        echo("<input type='hidden' name='numRec' value='".$i."'>");
+                    }
+
+                      ?>
+
+
+
+
+
   <?php
 if($_SESSION['authLevel'] >= 2) {
-?>                    
+?>
                         <span class="span3 align-left">
-                           
+
                             <a href="new/userlist/existlist.php?BldID=<?php echo $PBuildingID; ?>" class="btn btn-small btn-success">
                                 <i class="icon-plus icon-white"></i>
                                 Add User
                             </a>
                         </span>
-                       
+
                         <span class="span4 align-left">
-                           
-                      
+
+
                          <button type="submit" class="btn btn-success">
-                       
+
                                 <i class="icon-plus icon-white"></i>
-                                Save Alarm Updates 
+                                Save Alarm Updates
                          </button>
-                         
-                            
+
+
                            <?php if ($SOK==1) {echo("<font color='blue'><b>Alarms Updated</b></font>");} ?>
                         </span>
-                       
-                  </form>
 
-<?php  
+
+<?php
 }
 ?>
+                  </form>
                  </div> <!-- end of users division -->
-               
-               </div>  <!-- end of Building Users Alarms division -->
-  
-  
-   
+
+               <!-- </div> -->  <!-- end of Building Users Alarms division -->
+
+
+
        </div>  <!-- Accordion Inner -->
-      </div>  
-    </div>
-   
-<?php    
+      </div>  <!-- Accordion Body -->
+
+
+   </div>   <!-- Close accordion group -->
+<?php
 }    // close for customer loop
 ?>
-        
-   </div>   <!-- Close accordion group -->
-</div>   <!-- Close accordion  -->       
+</div>   <!-- Close accordion  -->
 <?php
 if($_SESSION['authLevel'] == 3) {
 ?>
@@ -307,25 +306,29 @@ if($_SESSION['authLevel'] == 3) {
                 </a>
             </div>
         </div>
+<br>
 <hr><hr>
-<?php 
-    }    
+<?php
+    }
     ?>
-        
-      
-      
-      
-      
-      
-        
- <!-- Maintainers  -->       
+
+
+
+
+
+
+
+ <!-- Maintainers  -->
+<div class="well">
 <?php
 
 
 
 if($_SESSION['authLevel'] > 2) {
 ?>
+          <div class="row">
             <h2 class="span8 offset2">Maintainers</h2>
+          </div>
 <?php
 
 foreach($maintainers as $resource) {
@@ -360,5 +363,8 @@ foreach($maintainers as $resource) {
                </div>
         </div>
 <?php }
+?>
+</div> <!-- close .well -->
+<?php
 require_once('../includes/footer.php');
 ?>
