@@ -1,3 +1,4 @@
+
 <?php
 /**
  *------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ if(isset($_POST['submitInfo'])){
 }
 
 if (isset($_GET['Action']))
- // added ability ti inhibit and delete a system  rhi 9/12/13      
+ // added ability ti inhibit and delete a system  rji 9/12/13      
 {
      if ($_GET['Action']=="Activate")  
             
@@ -49,8 +50,17 @@ if (isset($_GET['Action']))
      if ($_GET['Action']=="Remove")
            
        { $query="Update SystemConfig set BuildingID=0 where Sysid=".$_SESSION['SysID']; }
-
-     $Ok=$db->execute($query); 
+       
+        if ($_GET['Action']=="RemoveBlg")
+           
+       { $query="delete from buildings where buildingid=".$_SESSION['buildingID'];
+       
+      $_SESSION['buildingID']="";
+      $buildingID=NULL;
+      $_POST['buildingID']=NULL;
+       }
+      //  print_r($query);
+       $Ok=$db->execute($query); 
         
     if ($Ok==1)  echo("<font size='3' color='blue'><b>".$_GET['Action']." Action Completed</b></font>");
         
@@ -234,9 +244,10 @@ if(isset($_POST['submitSensorMap'])){
 }
 
 //Get list of buildings
-$query = "SELECT buildingID, buildingName FROM buildings";
+$nosysflag=False;  // added to inhibit listing if no systems are defined
+$query = "SELECT buildingID, buildingName FROM buildings where buildingid<>0";
 if($_SESSION['authLevel'] != 3) {
-    $query .= " WHERE customerID = " . $_SESSION['customerID'];
+    $query .= " and  customerID = " . $_SESSION['customerID'];
 }
 $buildingList = $db -> fetchAll($query);
 
@@ -247,12 +258,13 @@ if(isset($_POST['buildingID'])){
 }else if(isset($_SESSION['buildingID'])) $buildingID = $_SESSION['buildingID'];
 
 //get list of systems
-if(isset($buildingID)){
+if(isset($buildingID) and $buildingID!=NULL){
     $query = "SELECT buildingName FROM buildings WHERE buildingID = " . $buildingID . " LIMIT 1";
     $result = $db -> fetchRow($query);
     $_SESSION['buildingName'] = $result['buildingName'];
     $query = "SELECT * FROM SystemConfig WHERE buildingID = " . $buildingID;
     $systemList = $db -> fetchAll($query);
+    if ($db->numrows($query)==0) {$nosysflag=True;} else {$nosysflag=False;}
     if(!isset($_POST['systemID']) && (sizeof($systemList) == 1)) $_POST['systemID'] = $systemList[0]['SysID'];
 }
 
@@ -280,27 +292,56 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
 <!-- SELECT BUILDING -->
         <div class="row">
           <form method="post" action="./">
+              
             <div class="span7" style="text-align:right">
+                
+                 
               <h4>Select Building:&nbsp;&nbsp;
                 <select name="buildingID" class="selectSubmit"><?php
-                  if(!isset($buildingID)) echo "<option selected='selected'>Select A Building</option>";
+                
+                   echo "<option selected='selected'>Select A Building</option>";
                   foreach ($buildingList as $value) {
                     if($buildingID == $value['buildingID']) echo "<option selected='selected' value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
                     else echo "<option value='" . $value['buildingID'] . "'>" . $value['buildingName'] . "</option>";
                   }?>
-                </select>
-              </h4>
-            </div>
+                </select>        
+                    
+                  </h4>  
+              
+          </div>
+             
           </form>
         </div>
   <!-- SELECT SYSTEM -->
-        <?php if(isset($buildingID)){ ?>
+        <?php if(isset($buildingID) and $buildingID!=NULL)     { ?>  
+              <?php if ($nosysflag) { ?>
+                <div class="row">
+                 <form method="post" action="./">
+                 <div class="span7" style="text-align:right"> 
+                 <h4>No Systems Defined for this building</h4>
+                 
+                 </div>
+                 <div  class="span2" style="text-align:right">                      
+                 
+                       <a class="btn btn-small" style="font-size:11px;" href="./?Action=RemoveBlg">
+                           <i class="icon-remove"></i>
+                           Remove Building
+                            </a>  
+                                
+                </div>
+  
+                </div>
+                  
+              </form>
+           
+              <?php   } else  { ?> 
             <div class="row">
               <form method="post" action="./">
                 <div class="span7" style="text-align:right">
                   <h4>Select System:&nbsp;&nbsp;
                     <select name="systemID" class="selectSubmit"><?php
                       if(!isset($systemID)) echo "<option selected='selected'>Select A System</option>";
+                                          
                       foreach ($systemList as $value) {
                         if($systemID == $value['SysID']) {            
                             
@@ -309,12 +350,15 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                            echo "<option selected='selected' value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>"; }
                         
                         else  {echo "<option value='" . $value['SysID'] . "'>" . $value['SysName'] . "</option>";}
-                      }?>
+                      }
+                      ?>
                     </select>
                     <input type="hidden" name="buildingID" value="<?=$buildingID?>">
                   </h4>
+                   
                 </div>
-                <div  class="span2" style="text-align:right"> 
+                <div  class="span2" style="text-align:right">      
+                    
                     
                      <?php    if ($PInhibitSys==1) { ?>                    
                            <a class="btn btn-small" style="font-size:11px;" href="./?Action=Inhibit">
@@ -340,9 +384,11 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                   
               </form>
             </div>
-        <?php } ?>
-  <!-- SYSTEM INFORMATION  -->
-    <?php if(isset($systemID)){ ?>
+        <?php } ?>   <!-- else no system id -->
+    <?php } ?>   <!-- no buildingid -->    
+  <!-- SYSTEM INFORMATION  
+ 
+    <?php if(isset($systemID) and !$nosysflag) { ?>
         <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse"
@@ -374,7 +420,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
         </div>
     <?php } ?>
 <!-- SENSOR MAPPING INFORMATION  -->
-    <?php if(isset($systemID)){ ?>
+    <?php if(isset($systemID) and !$nosysflag){ ?>
         <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle"
@@ -444,7 +490,7 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
         </div>
     <?php } ?>
 <!-- MAINTENANCE  -->
-<?php if(isset($systemID)){ ?>
+<?php if(isset($systemID) and !$nosysflag){ ?>
         <div class="accordion-group" style="border:0px">
             <div class="accordion-heading">
                 <a class="accordion-toggle"
@@ -476,7 +522,9 @@ if(isset($infoErr) || isset($buildingErr) || isset($mappingErr)){
                 <h2 class="span8 offset3">&nbsp;&nbsp;Dashboard</h2>
             </font>
         </div>
-<?php
-    }
+
+
+
+<?php    }
     require_once('../../includes/footer.php');
 ?>
