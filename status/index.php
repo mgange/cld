@@ -692,7 +692,7 @@ require_once('../includes/header.php');
                     <input id="date" class="datepick span2" type="text" name="jump-date" value="<?=date('Y-m-d', strtotime($sysStatus0['DateStamp']))?>">
                 </label>
                 <label class="span2" for="time"><strong>Time</strong>
-                    <input id="time" class="timepick span2" type="text" name="jump-time" value="<?=date('H:i A', strtotime($sysStatus0['TimeStamp']))?>" autocomplete="off">
+                    <input id="time" class="timepick span2" type="text" name="jump-time" value="<?=date('g:i A', strtotime($sysStatus0['TimeStamp']))?>" autocomplete="off">
                 </label>
                 <label class="span2" for="time"><br>
                     <button class="btn" type="submit">Go!!</button>
