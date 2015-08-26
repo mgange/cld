@@ -247,7 +247,7 @@ foreach($customers as $cust) {
                     echo'   <BR> ';
                     
                      echo("<input type='hidden' name='numRec' value='".$i."'>");
-                  if ($i>1) {
+                  if ($i>0) {
                     echo '<span class="span4 align-left">
                              <button type="submit" class="btn btn-success">
                                 <i class="icon-plus icon-white"></i>
