@@ -48,6 +48,9 @@ if(isset($_POST['submitInfo'])){
     $infoErr = true;
   }
 }
+if (isset($_POST['NumofRSMS'])) {$numRSM=$_POST['NumofRSMS'];}
+if (isset($_POST['NumofPower'])) {$numPower=$_POST['NumofPower'];}
+if (isset($_POST['NumofTherms'])) {$numTherm=$_POST['NumofTherms'];}
 
 //Sensor Mapping
 if(isset($_POST['submitSensorMap'])){
@@ -99,6 +102,7 @@ if(isset($_POST['submitSensorMap'])){
       //remove last , with )
       $query = substr_replace($query,")",strlen($query) - 2);
       if($db -> execute($query, $bind)) $lastinsert = $db -> lastInsertId();
+      
       //grab system info
       $query = "SELECT DAMID,PlatformID,Configuration FROM SystemConfig WHERE SysID = " . $_SESSION['SysID'];
       $result = $db -> fetchRow($query);
@@ -115,6 +119,39 @@ if(isset($_POST['submitSensorMap'])){
       $bind[':address'] = $_POST[$addressValue];
       $bind[':model'] = $_POST[$modelValue];
       $db -> execute($query, $bind);
+      
+      // look at number of rsm's and therostats and powermeters      
+      // if num of rsm>1 loop again to add new rsm records
+   /*   if ($numRSM>1)  {
+          for ($i=2;$i<numRSM+1;$i++) {              
+              if ($i==4) {$SID=5;} else {$SID=$i;}
+              
+          }
+          
+          
+          
+          
+          
+      }
+      
+    */  
+      // if num of thermstats>2 loop again to add new thermostat records
+      
+      
+       // if num of Powermeters>2 loop again to add new thermostat records
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
     }
     $_SESSION['SetupStep'] = 3;
   }

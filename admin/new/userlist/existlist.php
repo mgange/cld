@@ -12,19 +12,25 @@ $db = new db($config);
 if($_SESSION['authLevel'] < 2) {
     gtfo($config);
 }
+
+if (isset($_GET['SysID']))  {
+     $PSysID=$_GET['SysID'];    
+ 
+} else {  header('Location: ../../?a=e'); //a = Alert  e = error(generic) }
+}
 if (isset($_GET['BldID']))  {
      $PBuilingID=$_GET['BldID'];
-     
-    
+ 
 } else {  header('Location: ../../?a=e'); //a = Alert  e = error(generic) }
 }
 if(count($_POST) > 0) {  
     // insert record for this system
-        $query = 'INSERT INTO Alarm_Permissions (UserID, BuildingID, BuildAuthLevel, SystemAlarms, MaintenanceAlarms, AdminAlarms)
-            VALUES(:UserID, :BuildingID, :BuildAuthLevel, :SystemAlarms, :MaintenanceAlarms, :AdminAlarms
+        $query = 'INSERT INTO Alarm_Permissions (UserID, BuildingID, SysID, BuildAuthLevel, SystemAlarms, MaintenanceAlarms, AdminAlarms)
+            VALUES(:UserID, :BuildingID, :SysID, :BuildAuthLevel, :SystemAlarms, :MaintenanceAlarms, :AdminAlarms
 )';
         $bind[':UserID'] = $_POST['userID'];
         $bind[':BuildingID'] = $PBuilingID;
+        $bind[':SysID'] = $PSysID;
         $bind[':BuildAuthLevel'] =  $_POST['authLevel'];
        
         $bind[':SystemAlarms'] = ((isset($_POST['checkOP']))? 1 : 0 );
@@ -59,7 +65,7 @@ $userlist = $db -> fetchAll($query);
             </div>
         </div>
 
-        <form class="validate" action="existlist.php?BldID=<?=$PBuilingID ?>" method="POST">
+        <form class="validate" action="existlist.php?BldID=<?=$PBuilingID ?>&SysID=<?=$PSysID ?>" method="POST">
             <div class="row">
                 <div class="span6">
                     <label for="userID"><b>  Select from Listing of Existing Users </b>  

@@ -30,11 +30,13 @@ require_once('../includes/header.php');
 
 $db = new db($config);
 
-$query = 'SELECT buildingID, address1, address2, city, state, zip FROM buildings ';
+$query = 'SELECT distinct(buildings.buildingID), address1, address2, city, state, zip FROM buildings join Alarm_Permissions on buildings.buildingID =
+    Alarm_Permissions.buildingID ';
+
 if($_SESSION['authLevel'] == 3) {
-    $query .= 'WHERE 1';
+    $query .= 'WHERE 1 order by buildings.buildingID';
 }else{
-    $query .= 'WHERE customerID = ' . $_SESSION['customerID'];
+    $query .= 'WHERE customerID = ' . $_SESSION['customerID'].' or Alarm_Permissions.UserID = ' . $_SESSION['userID'];
 }
 
 
@@ -43,7 +45,7 @@ $buildings = $db -> fetchAll($query);
 ?>
 
         <div class="row">
-            <h1 class="span8 offset2">Your Systems</h1>
+            <h1 class="span8 offset2">Systems</h1>
         </div>
 
 <?php

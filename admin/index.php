@@ -29,6 +29,8 @@ if($_SESSION['authLevel'] < 2) {
 $numRec=0;
 $SOK=0;
 
+
+
 if (count($_POST)>0) {
 
 $numRec=$_POST['numRec'];
@@ -68,7 +70,7 @@ $customers = $db -> fetchAll($query);
 //$users = $db -> fetchAll($query);
 
 
-$query = 'SELECT * FROM buildings ' . $where;
+$query = 'SELECT * FROM buildings join SystemConfig on SystemConfig.BuildingID=buildings.BuildingID ' . $where;
 $buildings = $db -> fetchAll($query);
 
 $query = 'SELECT * FROM MaintainResource WHERE 1';
@@ -125,162 +127,142 @@ foreach($customers as $cust) {
 <!-- Header row -->
 
                     <div class="row">
-                        <div class="span3">
-                            <h4>Buildings</h4>
+                        <div class="span3" align-left>
+                            <h4>Building - System Name</h4>
 
                         </div>
-                        <div class="span3">
+                        <div class="span3" align-left>
                             <h4>Users</h4>
 
                         </div>
-                        <div class="span5">
+                        <div class="span5" align-left>
                             <h4>Alarms</h4>
 
                         </div>
                     </div>
 
-  <!-- Buildings row -->
+  <!-- Systems row -->
 
-             <div class="row">
-                 <?php
-                        foreach($buildings as $building) {
+          
+         <?php
+              foreach($buildings as $building) {
 
-                        if($building['CustomerID'] == $cust['customerID']) {
-                                $PBuildingID=$building['buildingID'];
-
-                   ?>
-                    <div class="span3 align-left"><p><?php echo $building['buildingName']; ?></p></div>
-                 <?php
-                            }
-                       }
-                 ?>
-
-
-      <?php
-            if($_SESSION['authLevel'] == 3) {   ?>
-                        <div class="span3">
-                            <br>
-                            <a href="<?php echo $config['base_domain'] . $config['base_dir']; ?>setup/new_system" class="btn btn-small btn-success">
-                                <i class="icon-plus icon-white"></i>
-                                Add Building
-                            </a>
-                        </div>
-      <?php }  ?>
-             </div> <!-- end of building division -->
-
-              <div class="span8">
-
-                <?php
-
+              if($building['CustomerID'] == $cust['customerID']) {
+                       //  $PBuildingID=$building['buildingID'];
+                       // find users for this bulding as defined in alarm permissions
+                  
                    $query = "SELECT * FROM Alarm_Permissions join users
                              on users.userID=Alarm_Permissions.UserID".
-                        " where Alarm_Permissions.BuildingID=".$PBuildingID."  and users.active = 1";
+                        " where Alarm_Permissions.SysID=".$building['SysID']."  and users.active = 1";
                      // echo($query);
                       $users = $db -> fetchAll($query);
-                      $i=0;
+                  
+                  
+                  
+             echo '   <div class="row"> ';
+             echo '   <div class="span3 align-left"><p><b>'.$building['buildingName']." - ".$building['SysName'].'</b></p>';
+                 if($_SESSION['authLevel'] >= 2) {
+                     
+                     echo '  <a href="new/userlist/existlist.php?BldID='.$building['buildingID'].'&SysID='.$building['SysID'].'" class="btn 
+                              btn-small btn-success">
+                                <i class="icon-plus icon-white"></i>
+                                Add User
+                            </a> ';
+                   }
+                     echo '  </span> ';
+    
+                 
 
-                       foreach($users as $user) {
-
-
-                       //  if($user["customerID'] == $cust['customerID']) {
-
-                 ?>          <span class='span3 align-left'>
-                              <a href="new/userlist/profile.php?id=<?php echo $user['userID']."&BldID=".$PBuildingID; ?>">
-                                    <?php
-                                echo ($user['firstName'].' '.$user['lastName']);
-                                  ?>
-
-                            </a>
-                 <?php
-                     if($user['BuildAuthLevel'] == 2) {
-                            ?>
-                               <span class="label label-info">Manager</span><?php
-                      }
-                     if($user['authLevel'] == 3) {
-                       ?>
-                                <span class="label label-important">Site Admin</span><?php
+                echo ' </div>';
+                    
+                    
+             echo '   <div class="span3 align-left">';  
+                   $i=0;
+                 echo'   <form  id="Alarm" method="POST" action="./#collapse'.$cust['customerID'].'">';
+                     foreach ($users as $userlist) {
+                         
+                         
+                         echo'  <div>';
+                         echo ' <span class="span3 align-left">';
+                         echo ' <a href="new/userlist/profile.php?id='.$userlist['userID']."&BldID=".$building['buildingID'].'&SysID='.$building['SysID'].'">';
+                         echo ($userlist['firstName'].' '.$userlist['lastName']);
+                         echo '</a>';
+                          if($userlist['BuildAuthLevel'] == 2) {
+                           
+                           echo '    <span class="label label-info">Manager</span>';            
+                             }
+                           if($userlist['authLevel'] == 3) 
+                           {
+                            echo '     <span class="label label-important">Site Admin</span>';
                             }
-                       ?>
-                            </span>
-
-                <form  id="Alarm" method="POST" action="./#collapse<?php echo $cust['customerID']; ?>">
-                  <div class="span4 align-left">
-                       <?php
-
-                            If ($user['AdminAlarms']==1) {
-                            echo("<input type='checkbox' name='checkAD".$i."' value='1' checked><b> Administration </b>");
+                         echo ' </div>';                 
+                     $i=$i+1;
+                                    
+                     }
+                   echo '        </div> ';
+                   
+                 
+               //   echo'   <form  id="Alarm" method="POST" action="./#collapse'.$cust['customerID'].'">';
+                   $i=0;
+                  echo '    <div class="span5 align-left"> ';
+                        foreach ($users as $userlist) {
+                    If ($userlist['AdminAlarms']==1) {
+                            echo("<input type='checkbox' name='checkAD".$i."' value='1' checked><b> 
+                             Administration </b>");
                             } else {
-                            echo("<input type='checkbox' name='checkAD".$i."' value='0'><b> Administration </b>");
+                            echo("<input type='checkbox' name='checkAD".$i."' value='0'><b> Administration 
+                       </b>");
                                    }
 
 
 
-                            If ($user['SystemAlarms']==1) {
-                            echo("<input type='checkbox' name='checkOP".$i."' value='1' checked><b> Operational </b>");
+                            If ($userlist['SystemAlarms']==1) {
+                            echo("<input type='checkbox' name='checkOP".$i."' value='1' checked><b> Operational 
+                       </b>");
                             } else {
                             echo("<input type='checkbox' name='checkOP".$i."' value='0'><b> Operational </b>");
                                    }
 
-                            If ($user['MaintenanceAlarms']==1) {
-                            echo("<input type='checkbox' name='checkMA".$i."' value='1' checked><b> Maintenance </b>");
+                            If ($userlist['MaintenanceAlarms']==1) {
+                            echo("<input type='checkbox' name='checkMA".$i."' value='1' checked><b> Maintenance 
+                     </b>");
                             } else {
                             echo("<input type='checkbox' name='checkMA".$i."' value='0'><b> Maintenance </b>");
                                    }
 
 
-                            echo("<input type='hidden' name='Recnum".$i."' value='".$user['Recnum']."'>");
-
-                     ?>
-                  </div>
-
-                  <BR>
-
-
-
-                       <!--</div> -->
-               <?php    $i=$i+1;
-                        echo("<input type='hidden' name='numRec' value='".$i."'>");
-                    }
-
-                      ?>
-
-
-
-
-
-  <?php
-if($_SESSION['authLevel'] >= 2) {
-?>
-                        <span class="span3 align-left">
-
-                            <a href="new/userlist/existlist.php?BldID=<?php echo $PBuildingID; ?>" class="btn btn-small btn-success">
-                                <i class="icon-plus icon-white"></i>
-                                Add User
-                            </a>
-                        </span>
-
-                        <span class="span4 align-left">
-
-
-                         <button type="submit" class="btn btn-success">
-
+                            echo("<input type='hidden' name='Recnum".$i."' value='".$userlist['Recnum']."'>");
+                          /*  echo '<span class="span4 align-left">
+                             <button type="submit" class="btn btn-success">
                                 <i class="icon-plus icon-white"></i>
                                 Save Alarm Updates
-                         </button>
+                                </button> '; */
+                         $i=$i+1;
+                       
+                    
+
+                            if ($SOK==1) {echo("<font color='blue'><b>Alarms Updated</b></font>");} 
+                     echo'   <BR> ';
+                   }  
+                    echo'   <BR> ';
+                    
+                     echo("<input type='hidden' name='numRec' value='".$i."'>");
+                  if ($i>1) {
+                    echo '<span class="span4 align-left">
+                             <button type="submit" class="btn btn-success">
+                                <i class="icon-plus icon-white"></i>
+                                Save Alarm Updates
+                                </button> '; 
+                    }
+                   echo '       </form> ';
+                  echo '       </div> ';
+                echo '       </div> ';
+                       }
+                    }
+                 ?>
 
 
-                           <?php if ($SOK==1) {echo("<font color='blue'><b>Alarms Updated</b></font>");} ?>
-                        </span>
-
-
-<?php
-}
-?>
-                  </form>
-                 </div> <!-- end of users division -->
-
-               <!-- </div> -->  <!-- end of Building Users Alarms division -->
-
+            <!-- </div>  -->
 
 
        </div>  <!-- Accordion Inner -->
