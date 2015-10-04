@@ -60,11 +60,26 @@
     <meta name="viewport" content="width=device-width">
 
     <!-- touch icons -->
-    <link rel="shortcut icon" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>favicon.ico">
-    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-72x72-precomposed.png"   sizes="72x72">
-    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-114x114-precomposed.png" sizes="114x114">
-    <link rel="apple-touch-icon-precomposed" href="<?php echo $config['base_domain'] . $config['base_dir']; ?>apple-touch-icon-144x144-precomposed.png" sizes="144x144">
+    <link rel="apple-touch-icon" sizes="57x57" href="/assets/images/favicons/apple-touch-icon-57x57.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="60x60" href="/assets/images/favicons/apple-touch-icon-60x60.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="72x72" href="/assets/images/favicons/apple-touch-icon-72x72.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="76x76" href="/assets/images/favicons/apple-touch-icon-76x76.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="114x114" href="/assets/images/favicons/apple-touch-icon-114x114.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="120x120" href="/assets/images/favicons/apple-touch-icon-120x120.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="144x144" href="/assets/images/favicons/apple-touch-icon-144x144.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/images/favicons/apple-touch-icon-152x152.png?v=bOOpBwekJp">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicons/apple-touch-icon-180x180.png?v=bOOpBwekJp">
+    <link rel="icon" type="image/png" href="/assets/images/favicons/favicon-32x32.png?v=bOOpBwekJp" sizes="32x32">
+    <link rel="icon" type="image/png" href="/assets/images/favicons/favicon-194x194.png?v=bOOpBwekJp" sizes="194x194">
+    <link rel="icon" type="image/png" href="/assets/images/favicons/favicon-96x96.png?v=bOOpBwekJp" sizes="96x96">
+    <link rel="icon" type="image/png" href="/assets/images/favicons/android-chrome-192x192.png?v=bOOpBwekJp" sizes="192x192">
+    <link rel="icon" type="image/png" href="/assets/images/favicons/favicon-16x16.png?v=bOOpBwekJp" sizes="16x16">
+    <link rel="manifest" href="/assets/images/favicons/manifest.json?v=bOOpBwekJp">
+    <link rel="shortcut icon" href="/assets/images/favicons/favicon.ico?v=bOOpBwekJp">
+    <meta name="msapplication-TileColor" content="#00a300">
+    <meta name="msapplication-TileImage" content="/assets/images/favicons/mstile-144x144.png?v=bOOpBwekJp">
+    <meta name="msapplication-config" content="/assets/images/favicons/browserconfig.xml?v=bOOpBwekJp">
+    <meta name="theme-color" content="#ffffff">
 
 
     <link rel="stylesheet" href="<?php echo $_SESSION['base_domain'] . $_SESSION['base_dir']; ?>css/main.css">
